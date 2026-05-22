@@ -1,0 +1,1296 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Артефакт — Админка</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;900&display=swap" rel="stylesheet">
+  <style>
+    *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+
+    :root {
+      --black: #000;
+      --white: #fff;
+      --border: rgba(0,0,0,0.1);
+      --bg: #f4f4f4;
+      --nav-h: 54px;
+      --nav-w: 196px;
+    }
+
+    html, body { height: 100%; overflow: hidden; }
+
+    body {
+      font-family: 'Inter', sans-serif;
+      background: var(--bg);
+      color: var(--black);
+      -webkit-font-smoothing: antialiased;
+    }
+
+    /* ── TOPBAR ───────────────────────────────────────────────────────────── */
+    .topbar {
+      position: fixed; top: 0; left: 0; right: 0;
+      height: var(--nav-h);
+      background: var(--white);
+      border-bottom: 1px solid var(--border);
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 0 20px 0 calc(var(--nav-w) + 20px);
+      z-index: 200;
+    }
+    .topbar-section { font-weight: 600; font-size: 0.92rem; letter-spacing: -0.02em; }
+    .topbar-actions  { display: flex; gap: 8px; }
+
+    /* ── APP LAYOUT ───────────────────────────────────────────────────────── */
+    .app {
+      display: flex;
+      height: 100vh;
+      padding-top: var(--nav-h);
+    }
+
+    /* ── LEFT NAV ─────────────────────────────────────────────────────────── */
+    .left-nav {
+      position: fixed; top: 0; left: 0; bottom: 0;
+      width: var(--nav-w);
+      background: var(--white);
+      border-right: 1px solid var(--border);
+      display: flex; flex-direction: column;
+      z-index: 300;
+      padding-top: var(--nav-h);
+    }
+
+    .left-nav-logo {
+      padding: 16px 18px 14px;
+      font-weight: 900; font-size: 0.95rem;
+      letter-spacing: -0.03em;
+      border-bottom: 1px solid var(--border);
+      position: absolute; top: 0; left: 0; right: 0;
+      height: var(--nav-h);
+      display: flex; align-items: center;
+    }
+    .left-nav-logo span { font-weight: 300; opacity: 0.3; margin-left: 4px; font-size: 0.85rem; }
+
+    .nav-section-label {
+      padding: 18px 18px 6px;
+      font-size: 0.65rem; font-weight: 500;
+      letter-spacing: 0.1em; text-transform: uppercase;
+      opacity: 0.28;
+    }
+
+    .nav-item {
+      padding: 9px 18px;
+      font-size: 0.88rem; font-weight: 400;
+      cursor: pointer;
+      display: flex; align-items: center; justify-content: space-between;
+      transition: background 0.12s;
+      border-radius: 0;
+      letter-spacing: -0.01em;
+    }
+    .nav-item:hover   { background: #f0f0f0; }
+    .nav-item.active  { background: #ececec; font-weight: 500; }
+
+    .nav-badge {
+      font-size: 0.72rem; font-weight: 400;
+      background: #e8e8e8; color: rgba(0,0,0,0.45);
+      padding: 2px 7px; border-radius: 20px;
+    }
+
+    .nav-divider { height: 1px; background: var(--border); margin: 10px 0; }
+
+    /* ── MAIN PANEL ───────────────────────────────────────────────────────── */
+    .main-panel {
+      margin-left: var(--nav-w);
+      flex: 1;
+      display: flex;
+      overflow: hidden;
+      height: 100%;
+    }
+
+    /* ── ARTIFACT SECTION (3-col) ─────────────────────────────────────────── */
+    .artifact-list-panel {
+      width: 260px; flex-shrink: 0;
+      background: var(--white);
+      border-right: 1px solid var(--border);
+      overflow-y: auto; height: 100%;
+    }
+
+    .alist-count {
+      padding: 14px 16px 8px;
+      font-size: 0.68rem; font-weight: 500;
+      letter-spacing: 0.08em; text-transform: uppercase; opacity: 0.28;
+    }
+
+    .alist-item {
+      padding: 11px 16px;
+      border-bottom: 1px solid var(--border);
+      cursor: pointer;
+      display: flex; align-items: flex-start; gap: 9px;
+      transition: background 0.12s;
+    }
+    .alist-item:hover  { background: #f5f5f5; }
+    .alist-item.active { background: #ececec; }
+
+    .alist-dot {
+      width: 7px; height: 7px; border-radius: 50%;
+      flex-shrink: 0; margin-top: 5px;
+    }
+    .dot-live { background: #2ea62e; }
+    .dot-gone { background: #d63c3c; }
+
+    .alist-name { font-size: 0.83rem; font-weight: 500; line-height: 1.35; letter-spacing: -0.01em; }
+    .alist-meta { font-size: 0.7rem; font-weight: 300; opacity: 0.38; margin-top: 2px; }
+
+    /* ── FORM AREA ────────────────────────────────────────────────────────── */
+    .form-area {
+      flex: 1; overflow-y: auto; height: 100%;
+      padding: 40px 48px 80px;
+    }
+
+    .empty-state {
+      height: 100%; display: flex; align-items: center; justify-content: center;
+      font-size: 0.92rem; font-weight: 300; opacity: 0.25;
+    }
+
+    /* ── EDITOR (full-width sections) ────────────────────────────────────── */
+    .editor-area {
+      flex: 1; overflow-y: auto; height: 100%;
+      padding: 40px 52px 80px;
+    }
+
+    .editor-max { max-width: 680px; }
+
+    .editor-title {
+      font-weight: 900; font-size: 1.4rem;
+      letter-spacing: -0.03em; margin-bottom: 36px;
+    }
+
+    .editor-subtitle {
+      font-size: 0.8rem; font-weight: 300;
+      opacity: 0.38; margin-top: 6px;
+    }
+
+    /* ── FORM FIELDS ──────────────────────────────────────────────────────── */
+    .form-title { font-weight: 900; font-size: 1.4rem; letter-spacing: -0.03em; margin-bottom: 36px; }
+
+    .field { margin-bottom: 22px; }
+
+    .field-label {
+      display: block; font-size: 0.68rem; font-weight: 500;
+      letter-spacing: 0.1em; text-transform: uppercase;
+      opacity: 0.3; margin-bottom: 7px;
+    }
+
+    .field input, .field textarea, .field select {
+      width: 100%;
+      border: 1px solid var(--border);
+      background: var(--white);
+      font-family: 'Inter', sans-serif;
+      font-size: 0.9rem; font-weight: 300;
+      padding: 9px 12px; outline: none; color: var(--black);
+      transition: border-color 0.15s; -webkit-appearance: none; appearance: none;
+    }
+    .field input:focus, .field textarea:focus, .field select:focus { border-color: rgba(0,0,0,0.35); }
+    .field textarea { resize: vertical; min-height: 80px; line-height: 1.65; }
+    .field select { cursor: pointer; background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='6'%3E%3Cpath d='M0 0l5 6 5-6z' fill='rgba(0,0,0,0.3)'/%3E%3C/svg%3E"); background-repeat: no-repeat; background-position: right 12px center; padding-right: 32px; }
+
+    .field-row  { display: grid; gap: 14px; }
+    .cols-2 { grid-template-columns: 1fr 1fr; }
+    .cols-3 { grid-template-columns: 1fr 1fr 1fr; }
+
+    /* STATUS TOGGLE */
+    .status-toggle { display: flex; border: 1px solid var(--border); width: fit-content; }
+    .status-opt {
+      padding: 8px 18px; font-family: 'Inter', sans-serif;
+      font-size: 0.83rem; font-weight: 400;
+      border: none; background: var(--white); cursor: pointer;
+      display: flex; align-items: center; gap: 7px; transition: background 0.15s, color 0.15s;
+    }
+    .status-opt + .status-opt { border-left: 1px solid var(--border); }
+    .status-opt .sdot { width: 7px; height: 7px; border-radius: 50%; }
+    .status-opt[data-val="в городе"]  .sdot { background: #2ea62e; }
+    .status-opt[data-val="уничтожен"] .sdot { background: #d63c3c; }
+    .status-opt.sel[data-val="в городе"]  { background: #edfaed; color: #1a701a; }
+    .status-opt.sel[data-val="уничтожен"] { background: #faeded; color: #8c1a1a; }
+
+    /* PHOTOS */
+    .photos-list  { display: flex; flex-direction: column; gap: 8px; margin-bottom: 10px; }
+    .photo-row    { display: flex; gap: 9px; align-items: center; }
+    .photo-thumb  { width: 44px; height: 44px; object-fit: cover; flex-shrink: 0; background: #e8e8e8; border: 1px solid var(--border); }
+    .photo-input  {
+      flex: 1; border: 1px solid var(--border); background: var(--white);
+      font-family: 'Inter', sans-serif; font-size: 0.83rem; font-weight: 300;
+      padding: 9px 12px; outline: none; color: var(--black); transition: border-color 0.15s;
+    }
+    .photo-input:focus { border-color: rgba(0,0,0,0.35); }
+    .icon-btn {
+      background: none; border: none; opacity: 0.22; cursor: pointer;
+      padding: 5px 8px; font-size: 0.9rem; transition: opacity 0.15s;
+      font-family: 'Inter', sans-serif; flex-shrink: 0;
+    }
+    .icon-btn:hover { opacity: 0.75; }
+
+    .btn-add-row {
+      width: 100%; background: none; border: 1px dashed rgba(0,0,0,0.15);
+      font-family: 'Inter', sans-serif; font-size: 0.82rem; font-weight: 400;
+      color: var(--black); opacity: 0.4; cursor: pointer;
+      padding: 9px 14px; text-align: left; transition: opacity 0.15s, border-color 0.15s;
+    }
+    .btn-add-row:hover { opacity: 0.85; border-color: rgba(0,0,0,0.28); }
+
+    /* LIST ROWS (О музее, Манифест, Контакты) */
+    .list-rows { display: flex; flex-direction: column; gap: 8px; margin-bottom: 12px; }
+
+    .list-row {
+      display: flex; gap: 8px; align-items: flex-start;
+    }
+    .list-row-num {
+      width: 24px; flex-shrink: 0; font-size: 0.75rem; font-weight: 300;
+      opacity: 0.3; padding-top: 10px; text-align: right;
+    }
+    .list-row-inputs { flex: 1; display: flex; gap: 8px; align-items: flex-start; }
+    .list-row-inputs input, .list-row-inputs textarea {
+      flex: 1; border: 1px solid var(--border); background: var(--white);
+      font-family: 'Inter', sans-serif; font-size: 0.9rem; font-weight: 300;
+      padding: 9px 12px; outline: none; color: var(--black); transition: border-color 0.15s;
+    }
+    .list-row-inputs input:focus, .list-row-inputs textarea:focus { border-color: rgba(0,0,0,0.35); }
+    .list-row-inputs textarea { resize: vertical; min-height: 80px; line-height: 1.6; }
+    .key-input { max-width: 200px; flex-shrink: 0; }
+
+    /* SETTINGS */
+    .settings-group { margin-bottom: 44px; }
+    .settings-group-title {
+      font-size: 0.68rem; font-weight: 600; letter-spacing: 0.1em;
+      text-transform: uppercase; opacity: 0.28; margin-bottom: 18px;
+      padding-bottom: 10px; border-bottom: 1px solid var(--border);
+    }
+
+    /* BUTTONS */
+    .btn {
+      border: none; cursor: pointer; font-family: 'Inter', sans-serif;
+      font-size: 0.83rem; font-weight: 500;
+      padding: 8px 16px; transition: opacity 0.15s; letter-spacing: -0.01em;
+    }
+    .btn:hover { opacity: 0.7; }
+    .btn-black  { background: var(--black); color: var(--white); }
+    .btn-ghost  { background: none; border: 1px solid var(--border); color: var(--black); }
+    .btn-danger {
+      background: none; border: 1px solid rgba(214,60,60,0.22);
+      color: #c03030; font-size: 0.83rem; padding: 8px 16px;
+      cursor: pointer; font-family: 'Inter', sans-serif; transition: background 0.15s;
+    }
+    .btn-danger:hover { background: rgba(214,60,60,0.06); }
+
+    .divider { height: 1px; background: var(--border); margin: 32px 0; }
+
+    .form-footer { display: flex; justify-content: space-between; align-items: center; }
+
+    /* TOAST */
+    .toast {
+      position: fixed; bottom: 22px; right: 22px;
+      background: var(--black); color: var(--white);
+      padding: 10px 18px; font-size: 0.83rem; font-weight: 400;
+      opacity: 0; transform: translateY(6px);
+      transition: opacity 0.2s, transform 0.2s;
+      pointer-events: none; z-index: 999;
+    }
+    .toast.show { opacity: 1; transform: translateY(0); }
+    @keyframes spin { to { transform: rotate(360deg); } }
+  </style>
+</head>
+<body>
+
+<header class="topbar">
+  <span class="topbar-section" id="topbar-section">Экспонаты</span>
+  <div class="topbar-actions">
+    <button class="btn btn-ghost" onclick="exportJSON()">Скачать данные</button>
+  </div>
+</header>
+
+<div class="app">
+
+  <!-- LEFT NAV -->
+  <nav class="left-nav">
+    <div class="left-nav-logo">артефакт <span>/ адм</span></div>
+
+    <div class="nav-section-label">Контент</div>
+    <div class="nav-item active" id="nav-artifacts" onclick="setSection('artifacts')">
+      Экспонаты <span class="nav-badge" id="badge-artifacts">9</span>
+    </div>
+    <div class="nav-item" id="nav-about"    onclick="setSection('about')">Музей</div>
+    <div class="nav-item" id="nav-authors"  onclick="setSection('authors')">Авторы</div>
+    <div class="nav-item" id="nav-contacts" onclick="setSection('contacts')">Контакты</div>
+
+    <div class="nav-divider"></div>
+    <div class="nav-section-label">Сайт</div>
+    <div class="nav-item" id="nav-settings" onclick="setSection('settings')">Настройки</div>
+    <div class="nav-item" id="nav-publish" onclick="setSection('publish')" style="color:#1a6ef5;font-weight:500">↑ Опубликовать</div>
+  </nav>
+
+  <!-- MAIN PANEL -->
+  <div class="main-panel" id="main-panel"></div>
+
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+/* ════════════════════════════════════════════════════════════════════════════
+   DEFAULT DATA
+═══════════════════════════════════════════════════════════════════════════ */
+const DEFAULT = {
+  artifacts: [
+    {
+      id:1, title:'Скамья парковая, деревянная',
+      desc:'Деревянная скамья с металлическими подлокотниками. Предположительно 1970-е годы. Служит горожанам без перерыва на обед. Следы многолетней эксплуатации придают ей особую подлинность.',
+      artist:'Dima Plkv', date:'2025', status:'в городе',
+      address:'пр. Ленина, 56, Томск', lat:56.4995, lng:84.9720,
+      materials:'Табличка, анодированный алюминий. Скамья, дерево, металл',
+      photos:['https://picsum.photos/seed/a1p1/1400/950','https://picsum.photos/seed/a1p2/1400/950','https://picsum.photos/seed/a1p3/1400/950']
+    },
+    {
+      id:2, title:'Люк канализационный, квадратный',
+      desc:'Чугунный квадратный люк неустановленного производителя. Является частью инфраструктуры, о которой никто не задумывается до момента, пока она не перестаёт работать.',
+      artist:'Dima Plkv', date:'2025', status:'в городе',
+      address:'ул. Гагарина, 12, Томск', lat:56.4965, lng:84.9778,
+      materials:'Табличка, анодированный алюминий. Люк, чугун',
+      photos:['https://picsum.photos/seed/a2p1/1400/950','https://picsum.photos/seed/a2p2/1400/950']
+    },
+    {
+      id:3, title:'Урна уличная, на ножке',
+      desc:'Металлическая урна на сварной ножке. Стоит на своём посту невзирая на обстоятельства. Принимает всё, не осуждает никого.',
+      artist:'Dima Plkv', date:'2025', status:'в городе',
+      address:'ул. Советская, 23, Томск', lat:56.5010, lng:84.9700,
+      materials:'Табличка, анодированный алюминий. Урна, сталь, краска',
+      photos:['https://picsum.photos/seed/a3p1/1400/950','https://picsum.photos/seed/a3p2/1400/950','https://picsum.photos/seed/a3p3/1400/950','https://picsum.photos/seed/a3p4/1400/950']
+    },
+    {
+      id:4, title:'Фонарный столб, советский',
+      desc:'Бетонный столб с двумя светильниками типа «голова рыбы». Установлен в период развитого социализма. До сих пор выполняет обязанности — пусть и не так ярко, как в молодости.',
+      artist:'Марина Сова', date:'2025', status:'в городе',
+      address:'пр. Кирова, 48, Томск', lat:56.4955, lng:84.9800,
+      materials:'Табличка, анодированный алюминий. Столб, бетон, металл',
+      photos:['https://picsum.photos/seed/a4p1/1400/950','https://picsum.photos/seed/a4p2/1400/950']
+    },
+    {
+      id:5, title:'Шлагбаум несанкционированный',
+      desc:'Труба, согнутая под прямым углом и вмурованная в асфальт. Призвана защищать парковочное место, на которое у её создателей нет юридических прав. Смелый акт самовыражения.',
+      artist:'Марина Сова', date:'2025', status:'уничтожен',
+      address:'ул. Учебная, 7, Томск', lat:56.5020, lng:84.9680,
+      materials:'Табличка, анодированный алюминий. Шлагбаум, стальная труба, бетон',
+      photos:['https://picsum.photos/seed/a5p1/1400/950','https://picsum.photos/seed/a5p2/1400/950','https://picsum.photos/seed/a5p3/1400/950']
+    },
+    {
+      id:6, title:'Куст боярышника стриженый',
+      desc:'Живое существо, насильно лишённое естественной формы. Стрижётся дважды в год. Относится к этому философски.',
+      artist:'Марина Сова', date:'2025', status:'в городе',
+      address:'ул. Розы Люксембург, 31, Томск', lat:56.4940, lng:84.9830,
+      materials:'Табличка, анодированный алюминий. Куст боярышника, живая изгородь',
+      photos:['https://picsum.photos/seed/a6p1/1400/950','https://picsum.photos/seed/a6p2/1400/950']
+    },
+    {
+      id:7, title:'Объявление на столбе',
+      desc:'Бумажное объявление с отрывными лепестками. Из двенадцати лепестков оторвано три. Судьба оставшихся девяти неизвестна. Снизу — номер телефона, который, возможно, больше не существует.',
+      artist:'Артём Белый', date:'2025', status:'уничтожен',
+      address:'ул. Нахимова, 4, Томск', lat:56.4980, lng:84.9760,
+      materials:'Табличка, анодированный алюминий. Объявление, бумага, скотч',
+      photos:['https://picsum.photos/seed/a7p1/1400/950','https://picsum.photos/seed/a7p2/1400/950','https://picsum.photos/seed/a7p3/1400/950']
+    },
+    {
+      id:8, title:'Замок висячий на калитке',
+      desc:'Замок марки неизвестной. Охраняет калитку, которую обходят с другой стороны. Предан своему делу.',
+      artist:'Артём Белый', date:'2025', status:'в городе',
+      address:'ул. Красноармейская, 15, Томск', lat:56.5005, lng:84.9710,
+      materials:'Табличка, анодированный алюминий. Замок, сталь',
+      photos:['https://picsum.photos/seed/a8p1/1400/950','https://picsum.photos/seed/a8p2/1400/950']
+    },
+    {
+      id:9, title:'Бордюрный камень выдвинутый',
+      desc:'Бордюрный камень, выдвинувшийся из ряда под воздействием корней или смещения грунта. Нарушитель порядка. Индивидуалист.',
+      artist:'Артём Белый', date:'2025', status:'уничтожен',
+      address:'ул. Беленца, 5, Томск', lat:56.4960, lng:84.9810,
+      materials:'Табличка, анодированный алюминий. Бордюрный камень, бетон',
+      photos:['https://picsum.photos/seed/a9p1/1400/950','https://picsum.photos/seed/a9p2/1400/950','https://picsum.photos/seed/a9p3/1400/950']
+    },
+  ],
+
+  about: {
+    stats: [
+      'Площадь — весь город',
+      'Посетителей — 650 000 в год',
+      'Открыт круглосуточно',
+      'Вход бесплатный',
+      'Работы уничтожаются временем и посетителями',
+      'За экспонатами нет охраны',
+      'Будут филиалы в других городах',
+      'Каждый житель — невольный участник выставки',
+      'Ни одна работа не застрахована и не защищена',
+      'Экспонаты исчезают и разрушаются в режиме Live',
+      'Будут открываться локальные экспозиции',
+    ]
+  },
+
+  manifest: {
+    paragraphs: [
+      'Город — это музей, в который никто не купил билет. Каждый угол, каждая облупившаяся стена, каждая потёртая скамейка несут в себе историю — немую, незамеченную, обесцененную ежедневным прохождением мимо.',
+      '<strong>«Артефакт»</strong> — это проект, который возвращает городским объектам их музейный статус. Мы не строим стен и не охраняем экспонаты. Мы вешаем таблички.',
+      'Табличка — это жест. Акт признания. Она говорит: вот это заслуживает внимания. Вот этот предмет важен. Не потому что красив или дорог, а потому что он здесь, он существует, он часть общей памяти.',
+      'Иногда тексты серьёзны. Иногда — иронически точны. Но всегда честны. Мы не приукрашиваем городскую среду — мы её описываем. С уважением и с юмором, которого она заслуживает.',
+      'Проект начался в Томске. Но город — любой. Музей открыт круглосуточно. Вход свободный. Экспонаты везде.',
+    ]
+  },
+
+  contacts: [
+    { key: 'Электронная почта', val: 'email@example.com' },
+    { key: 'Telegram',          val: '@username' },
+    { key: 'Instagram',         val: '@username' },
+    { key: 'Локация',           val: 'Томск — и другие города' },
+  ],
+
+  authors: [
+    {
+      id: 1,
+      name: 'Dima Plkv',
+      bio: 'Основатель проекта «Артефакт». Вешает таблички на городские объекты с 2025 года. Убеждён, что любая вещь в городе заслуживает описания — будь то скамейка, люк или несанкционированный шлагбаум.',
+      photo: 'https://picsum.photos/seed/author_plkv/600/800'
+    },
+    {
+      id: 2,
+      name: 'Марина Сова',
+      bio: 'Художник и исследователь городской среды. Собирает истории вещей, которые никто не замечает. Верит, что у каждого брошенного предмета есть достоинство.',
+      photo: 'https://picsum.photos/seed/author_sova/600/800'
+    },
+    {
+      id: 3,
+      name: 'Артём Белый',
+      bio: 'Архитектор по образованию, наблюдатель по призванию. Документирует стихийную архитектуру города — то, что строят без проектов, по необходимости.',
+      photo: 'https://picsum.photos/seed/author_bely/600/800'
+    }
+  ],
+
+  settings: {
+    logoMain:     'артефакт',
+    logoSub:      'музей\nразмером с город',
+    logoImage:    '',
+    faviconImage: '',
+    siteTitle: 'Артефакт — музей размером с город',
+    nav: [
+      { id: 'main',      label: 'Галерея' },
+      { id: 'authors',   label: 'Авторы' },
+      { id: 'map',       label: 'Карта' },
+      { id: 'about',     label: 'Музей' },
+      { id: 'contacts',  label: 'Контакты' },
+    ],
+    footer:    '© Артефакт, 2025',
+    footerSub: 'Музей размером с город',
+    mapLabel:  'Карта экспонатов',
+    mapCity:   'Томск — и другие города',
+  },
+};
+
+/* ════════════════════════════════════════════════════════════════════════════
+   STATE
+═══════════════════════════════════════════════════════════════════════════ */
+let data = JSON.parse(localStorage.getItem('artefact-site') || 'null') || DEFAULT;
+if (!data.authors)  data.authors  = DEFAULT.authors;
+if (!data.manifest) data.manifest = DEFAULT.manifest;
+// migrate nav: remove manifest, add authors if missing
+if (data.settings && data.settings.nav) {
+  data.settings.nav = data.settings.nav.filter(n => n.id !== 'manifest');
+  if (!data.settings.nav.find(n => n.id === 'authors')) {
+    const mapIdx = data.settings.nav.findIndex(n => n.id === 'map');
+    data.settings.nav.splice(mapIdx + 1, 0, { id: 'authors', label: 'Авторы' });
+  }
+}
+let section         = 'artifacts';
+let editingId       = null;
+let editingAuthorId = null;
+
+function persist() { localStorage.setItem('artefact-site', JSON.stringify(data)); }
+function nextId()  { return data.artifacts.length ? Math.max(...data.artifacts.map(a => a.id)) + 1 : 1; }
+
+/* ════════════════════════════════════════════════════════════════════════════
+   UTILS
+═══════════════════════════════════════════════════════════════════════════ */
+function esc(s) {
+  return String(s ?? '')
+    .replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+}
+
+let toastTimer;
+function toast(msg) {
+  const el = document.getElementById('toast');
+  el.textContent = msg;
+  el.classList.add('show');
+  clearTimeout(toastTimer);
+  toastTimer = setTimeout(() => el.classList.remove('show'), 2200);
+}
+
+/* ════════════════════════════════════════════════════════════════════════════
+   NAVIGATION
+═══════════════════════════════════════════════════════════════════════════ */
+const SECTION_LABELS = {
+  artifacts: 'Экспонаты',
+  about:     'Музей',
+  authors:   'Авторы',
+  contacts:  'Контакты',
+  settings:  'Настройки',
+  publish:   'Публикация на GitHub',
+};
+
+function setSection(s) {
+  section = s;
+  editingId = null;
+
+  document.querySelectorAll('.nav-item').forEach(el => el.classList.remove('active'));
+  document.getElementById('nav-' + s).classList.add('active');
+  document.getElementById('topbar-section').textContent = SECTION_LABELS[s];
+
+  const panel = document.getElementById('main-panel');
+
+  if (s === 'artifacts') { renderArtifactsSection(panel); return; }
+  if (s === 'about')     { renderAboutSection(panel);     return; }
+  if (s === 'authors')   { renderAuthorsSection(panel);   return; }
+  if (s === 'contacts')  { renderContactsSection(panel);  return; }
+  if (s === 'settings')  { renderSettingsSection(panel);  return; }
+  if (s === 'publish')   { renderPublishSection(panel);   return; }
+}
+
+/* ════════════════════════════════════════════════════════════════════════════
+   SECTION: ARTIFACTS
+═══════════════════════════════════════════════════════════════════════════ */
+function renderArtifactsSection(panel) {
+  panel.innerHTML = `
+    <div class="artifact-list-panel" id="alist-panel"></div>
+    <div class="form-area" id="form-area">
+      <div class="empty-state">Выбери экспонат или создай новый</div>
+    </div>`;
+
+  document.getElementById('badge-artifacts').textContent = data.artifacts.length;
+  renderArtifactList();
+
+  // "+ new" button in topbar
+  updateTopbarBtn(`<button class="btn btn-black" onclick="newArtifact()">+ Новый экспонат</button>`);
+}
+
+function renderArtifactList() {
+  const panel = document.getElementById('alist-panel');
+  if (!panel) return;
+  panel.innerHTML =
+    `<div class="alist-count">${data.artifacts.length} экспонат${plural(data.artifacts.length)}</div>` +
+    data.artifacts.map(a => `
+      <div class="alist-item${editingId === a.id ? ' active' : ''}" onclick="selectArtifact(${a.id})">
+        <div class="alist-dot ${a.status === 'в городе' ? 'dot-live' : 'dot-gone'}"></div>
+        <div>
+          <div class="alist-name">${esc(a.title)}</div>
+          <div class="alist-meta">${esc(a.date)} · ${a.photos.length} фото</div>
+        </div>
+      </div>`).join('');
+}
+
+function selectArtifact(id) {
+  editingId = id;
+  renderArtifactList();
+  renderArtifactForm(data.artifacts.find(a => a.id === id));
+}
+
+function newArtifact() {
+  editingId = null;
+  renderArtifactList();
+  renderArtifactForm(null);
+  const fa = document.getElementById('form-area');
+  if (fa) fa.scrollTo(0, 0);
+}
+
+function renderArtifactForm(a) {
+  const fa = document.getElementById('form-area');
+  if (!fa) return;
+  const isNew = !a;
+  const status = a?.status || 'в городе';
+
+  fa.innerHTML = `<div class="form-max" style="max-width:640px">
+    <div class="form-title">${isNew ? 'Новый экспонат' : esc(a.title)}</div>
+
+    <div class="field">
+      <label class="field-label">Название</label>
+      <input id="f-title" type="text" value="${esc(a?.title||'')}" placeholder="Название экспоната">
+    </div>
+    <div class="field">
+      <label class="field-label">Описание</label>
+      <textarea id="f-desc" rows="4">${esc(a?.desc||'')}</textarea>
+    </div>
+    <div class="field field-row cols-2">
+      <div>
+        <label class="field-label">Автор</label>
+        ${data.authors && data.authors.length
+          ? `<select id="f-artist"><option value="Автор неизвестен"${(a?.artist||'') === 'Автор неизвестен' ? ' selected' : ''}>Автор неизвестен</option>${data.authors.map(au => `<option value="${esc(au.name)}"${au.name === (a?.artist||data.authors[0].name) ? ' selected' : ''}>${esc(au.name)}</option>`).join('')}</select>`
+          : `<input id="f-artist" type="text" value="${esc(a?.artist||'')}">`}
+      </div>
+      <div>
+        <label class="field-label">Год</label>
+        <input id="f-date" type="text" value="${esc(a?.date||'2025')}">
+      </div>
+    </div>
+    <div class="field">
+      <label class="field-label">Статус</label>
+      <div class="status-toggle">
+        <button class="status-opt${status==='в городе'?' sel':''}"   data-val="в городе"  onclick="setStatus(this)"><span class="sdot"></span>в городе</button>
+        <button class="status-opt${status==='уничтожен'?' sel':''}" data-val="уничтожен" onclick="setStatus(this)"><span class="sdot"></span>уничтожен</button>
+      </div>
+      <input type="hidden" id="f-status" value="${status}">
+    </div>
+    <div class="field">
+      <label class="field-label">Адрес</label>
+      <input id="f-address" type="text" value="${esc(a?.address||'')}" placeholder="ул. Примерная, 1, Томск">
+    </div>
+    <div class="field field-row cols-2">
+      <div><label class="field-label">Широта (lat)</label><input id="f-lat" type="text" value="${a?.lat||''}"></div>
+      <div><label class="field-label">Долгота (lng)</label><input id="f-lng" type="text" value="${a?.lng||''}"></div>
+    </div>
+    <div class="field">
+      <label class="field-label">Материалы</label>
+      <input id="f-materials" type="text" value="${esc(a?.materials||'')}" placeholder="Табличка, алюминий. Объект, материал">
+    </div>
+    <div class="field">
+      <label class="field-label">Фотографии</label>
+      <div class="photos-list" id="photos-list">
+        ${(a?.photos||[]).map(url => photoRowHTML(url)).join('')}
+      </div>
+      <button class="btn-add-row" onclick="addPhoto()">+ Добавить фото</button>
+    </div>
+
+    <div class="divider"></div>
+    <div class="form-footer">
+      <div>${!isNew ? `<button class="btn-danger" onclick="deleteArtifact()">Удалить</button>` : ''}</div>
+      <button class="btn btn-black" onclick="saveArtifact()">Сохранить</button>
+    </div>
+  </div>`;
+}
+
+function photoRowHTML(url) {
+  return `<div class="photo-row">
+    <img class="photo-thumb" src="${esc(url)}" alt="" onerror="this.style.opacity=0.15">
+    <input class="photo-input" type="text" value="${esc(url)}" placeholder="https://..." oninput="syncThumb(this)">
+    <button class="icon-btn" onclick="this.closest('.photo-row').remove()">✕</button>
+  </div>`;
+}
+function addPhoto() {
+  document.getElementById('photos-list').insertAdjacentHTML('beforeend', photoRowHTML(''));
+}
+function syncThumb(input) {
+  input.closest('.photo-row').querySelector('.photo-thumb').src = input.value;
+}
+function setStatus(btn) {
+  document.querySelectorAll('.status-opt').forEach(b => b.classList.remove('sel'));
+  btn.classList.add('sel');
+  document.getElementById('f-status').value = btn.dataset.val;
+}
+
+function saveArtifact() {
+  const title = document.getElementById('f-title').value.trim();
+  if (!title) { toast('Введи название'); return; }
+  const photos = [...document.querySelectorAll('.photo-input')].map(i => i.value.trim()).filter(Boolean);
+  const obj = {
+    id:        editingId ?? nextId(),
+    title,
+    desc:      document.getElementById('f-desc').value.trim(),
+    artist:    document.getElementById('f-artist').value.trim(),
+    date:      document.getElementById('f-date').value.trim(),
+    status:    document.getElementById('f-status').value,
+    address:   document.getElementById('f-address').value.trim(),
+    lat:       parseFloat(document.getElementById('f-lat').value) || 0,
+    lng:       parseFloat(document.getElementById('f-lng').value) || 0,
+    materials: document.getElementById('f-materials').value.trim(),
+    photos,
+  };
+  if (editingId !== null) {
+    const idx = data.artifacts.findIndex(a => a.id === editingId);
+    data.artifacts[idx] = obj;
+  } else {
+    data.artifacts.push(obj);
+    editingId = obj.id;
+  }
+  persist();
+  document.getElementById('badge-artifacts').textContent = data.artifacts.length;
+  renderArtifactList();
+  document.querySelector('.form-title').textContent = obj.title;
+  toast('Сохранено ✓');
+}
+
+function deleteArtifact() {
+  if (editingId === null) return;
+  if (!confirm('Удалить этот экспонат?')) return;
+  data.artifacts = data.artifacts.filter(a => a.id !== editingId);
+  persist();
+  editingId = null;
+  document.getElementById('badge-artifacts').textContent = data.artifacts.length;
+  renderArtifactList();
+  document.getElementById('form-area').innerHTML = '<div class="empty-state">Экспонат удалён</div>';
+  toast('Удалено');
+}
+
+/* ════════════════════════════════════════════════════════════════════════════
+   SECTION: О МУЗЕЕ
+═══════════════════════════════════════════════════════════════════════════ */
+function renderAboutSection(panel) {
+  updateTopbarBtn('');
+  panel.innerHTML = `<div class="editor-area"><div class="editor-max">
+    <div class="editor-title">Музей <span class="editor-subtitle">— факты и текст манифеста</span></div>
+
+    <div class="settings-group-title" style="margin-bottom:12px">Факты (список справа)</div>
+    <div class="list-rows" id="about-rows">
+      ${data.about.stats.map((s, i) => `
+        <div class="list-row">
+          <div class="list-row-num">${i+1}</div>
+          <div class="list-row-inputs">
+            <input type="text" value="${esc(s)}" placeholder="Факт о музее">
+            <button class="icon-btn" onclick="this.closest('.list-row').remove()">✕</button>
+          </div>
+        </div>`).join('')}
+    </div>
+    <button class="btn-add-row" onclick="addAboutRow()">+ Добавить строку</button>
+
+    <div class="divider"></div>
+
+    <div class="settings-group-title" style="margin-bottom:12px">Текст манифеста (абзацы под фактами)</div>
+    <div class="list-rows" id="manifest-rows">
+      ${data.manifest.paragraphs.map((p, i) => `
+        <div class="list-row">
+          <div class="list-row-num">${i+1}</div>
+          <div class="list-row-inputs">
+            <textarea rows="3">${esc(p)}</textarea>
+            <button class="icon-btn" style="margin-top:8px" onclick="this.closest('.list-row').remove()">✕</button>
+          </div>
+        </div>`).join('')}
+    </div>
+    <button class="btn-add-row" onclick="addManifestRow()">+ Добавить абзац</button>
+    <div style="margin-top:10px;font-size:0.75rem;opacity:0.35">Можно использовать &lt;strong&gt;текст&lt;/strong&gt; для жирного</div>
+
+    <div class="divider"></div>
+    <div style="display:flex;justify-content:flex-end">
+      <button class="btn btn-black" onclick="saveAbout()">Сохранить</button>
+    </div>
+  </div></div>`;
+}
+
+function addAboutRow() {
+  const rows = document.getElementById('about-rows');
+  const n = rows.children.length + 1;
+  rows.insertAdjacentHTML('beforeend', `
+    <div class="list-row">
+      <div class="list-row-num">${n}</div>
+      <div class="list-row-inputs">
+        <input type="text" value="" placeholder="Факт о музее">
+        <button class="icon-btn" onclick="this.closest('.list-row').remove()">✕</button>
+      </div>
+    </div>`);
+}
+
+function addManifestRow() {
+  const rows = document.getElementById('manifest-rows');
+  const n = rows.children.length + 1;
+  rows.insertAdjacentHTML('beforeend', `
+    <div class="list-row">
+      <div class="list-row-num">${n}</div>
+      <div class="list-row-inputs">
+        <textarea rows="3" placeholder="Текст абзаца"></textarea>
+        <button class="icon-btn" style="margin-top:8px" onclick="this.closest('.list-row').remove()">✕</button>
+      </div>
+    </div>`);
+}
+
+function saveAbout() {
+  data.about.stats = [...document.querySelectorAll('#about-rows input')]
+    .map(i => i.value.trim()).filter(Boolean);
+  data.manifest.paragraphs = [...document.querySelectorAll('#manifest-rows textarea')]
+    .map(t => t.value.trim()).filter(Boolean);
+  persist();
+  toast('Сохранено ✓');
+}
+
+/* ════════════════════════════════════════════════════════════════════════════
+   SECTION: КОНТАКТЫ
+═══════════════════════════════════════════════════════════════════════════ */
+function renderContactsSection(panel) {
+  updateTopbarBtn('');
+  panel.innerHTML = `<div class="editor-area"><div class="editor-max">
+    <div class="editor-title">Контакты</div>
+    <div class="list-rows" id="contacts-rows">
+      ${data.contacts.map((c, i) => `
+        <div class="list-row">
+          <div class="list-row-num">${i+1}</div>
+          <div class="list-row-inputs">
+            <input class="key-input" type="text" value="${esc(c.key)}" placeholder="Название поля">
+            <input type="text" value="${esc(c.val)}" placeholder="Значение">
+            <button class="icon-btn" onclick="this.closest('.list-row').remove()">✕</button>
+          </div>
+        </div>`).join('')}
+    </div>
+    <button class="btn-add-row" onclick="addContactRow()">+ Добавить контакт</button>
+    <div class="divider"></div>
+    <div style="display:flex;justify-content:flex-end">
+      <button class="btn btn-black" onclick="saveContacts()">Сохранить</button>
+    </div>
+  </div></div>`;
+}
+
+function addContactRow() {
+  const rows = document.getElementById('contacts-rows');
+  const n = rows.children.length + 1;
+  rows.insertAdjacentHTML('beforeend', `
+    <div class="list-row">
+      <div class="list-row-num">${n}</div>
+      <div class="list-row-inputs">
+        <input class="key-input" type="text" value="" placeholder="Название поля">
+        <input type="text" value="" placeholder="Значение">
+        <button class="icon-btn" onclick="this.closest('.list-row').remove()">✕</button>
+      </div>
+    </div>`);
+}
+
+function saveContacts() {
+  const rows = document.querySelectorAll('#contacts-rows .list-row');
+  data.contacts = [...rows].map(row => {
+    const inputs = row.querySelectorAll('input');
+    return { key: inputs[0].value.trim(), val: inputs[1].value.trim() };
+  }).filter(c => c.key);
+  persist();
+  toast('Сохранено ✓');
+}
+
+/* ════════════════════════════════════════════════════════════════════════════
+   SECTION: АВТОРЫ
+═══════════════════════════════════════════════════════════════════════════ */
+function renderAuthorsSection(panel) {
+  editingAuthorId = null;
+  updateTopbarBtn(`<button class="btn btn-black" onclick="newAuthor()">+ Новый автор</button>`);
+  panel.innerHTML = `
+    <div class="artifact-list-panel" id="alist-panel-authors"></div>
+    <div class="form-area" id="form-area-authors">
+      <div class="empty-state">Выбери автора или создай нового</div>
+    </div>`;
+  renderAuthorList();
+}
+
+function renderAuthorList() {
+  const panel = document.getElementById('alist-panel-authors');
+  if (!panel) return;
+  const authors = data.authors || [];
+  const count = authors.length;
+  panel.innerHTML =
+    `<div class="alist-count">${count} автор${count === 1 ? '' : count < 5 ? 'а' : 'ов'}</div>` +
+    authors.map(a => {
+      const works = data.artifacts.filter(art => art.artist === a.name).length;
+      return `<div class="alist-item${editingAuthorId === a.id ? ' active' : ''}" onclick="selectAuthor(${a.id})">
+        <div>
+          <div class="alist-name">${esc(a.name)}</div>
+          <div class="alist-meta">${works} работ${works === 1 ? 'а' : works < 5 ? 'ы' : ''}</div>
+        </div>
+      </div>`;
+    }).join('');
+}
+
+function selectAuthor(id) {
+  editingAuthorId = id;
+  renderAuthorList();
+  renderAuthorForm((data.authors || []).find(a => a.id === id));
+}
+
+function newAuthor() {
+  editingAuthorId = null;
+  renderAuthorList();
+  renderAuthorForm(null);
+}
+
+function renderAuthorForm(a) {
+  const fa = document.getElementById('form-area-authors');
+  if (!fa) return;
+  const isNew = !a;
+  fa.innerHTML = `<div class="form-max" style="max-width:640px">
+    <div class="form-title">${isNew ? 'Новый автор' : esc(a.name)}</div>
+    <div class="field">
+      <label class="field-label">Имя</label>
+      <input id="fa-name" type="text" value="${esc(a?.name||'')}" placeholder="Имя автора">
+    </div>
+    <div class="field">
+      <label class="field-label">Биография</label>
+      <textarea id="fa-bio" rows="5">${esc(a?.bio||'')}</textarea>
+    </div>
+    <div class="field">
+      <label class="field-label">Фото</label>
+      <div style="display:flex;gap:8px;align-items:center">
+        <input id="fa-photo" type="text" value="${esc(a?.photo||'')}" placeholder="URL фото">
+        <label class="btn btn-ghost" style="cursor:pointer;white-space:nowrap">Загрузить
+          <input type="file" accept="image/*" style="display:none" onchange="loadAuthorPhotoForm(this)">
+        </label>
+      </div>
+      ${a?.photo ? `<img src="${esc(a.photo)}" style="width:72px;height:72px;object-fit:cover;margin-top:10px;background:#e8e8e8;border:1px solid var(--border)" onerror="this.style.display='none'">` : ''}
+    </div>
+    <div class="divider"></div>
+    <div class="form-footer">
+      <div>${!isNew ? `<button class="btn-danger" onclick="deleteAuthor()">Удалить автора</button>` : ''}</div>
+      <button class="btn btn-black" onclick="saveAuthor()">Сохранить</button>
+    </div>
+  </div>`;
+}
+
+function loadAuthorPhotoForm(input) {
+  if (!input.files || !input.files[0]) return;
+  const reader = new FileReader();
+  reader.onload = e => { document.getElementById('fa-photo').value = e.target.result; };
+  reader.readAsDataURL(input.files[0]);
+}
+
+function saveAuthor() {
+  const name = document.getElementById('fa-name').value.trim();
+  if (!name) { toast('Введи имя автора'); return; }
+  const obj = {
+    id:    editingAuthorId ?? Date.now(),
+    name,
+    bio:   document.getElementById('fa-bio').value.trim(),
+    photo: document.getElementById('fa-photo').value.trim(),
+  };
+  if (editingAuthorId !== null) {
+    const idx = (data.authors || []).findIndex(a => a.id === editingAuthorId);
+    if (idx !== -1) {
+      const oldName = data.authors[idx].name;
+      if (oldName !== name) {
+        data.artifacts.forEach(art => { if (art.artist === oldName) art.artist = name; });
+      }
+      data.authors[idx] = obj;
+    }
+  } else {
+    if (!data.authors) data.authors = [];
+    data.authors.push(obj);
+    editingAuthorId = obj.id;
+  }
+  persist();
+  toast('Сохранено ✓');
+  renderAuthorList();
+  document.querySelector('#form-area-authors .form-title').textContent = name;
+}
+
+function deleteAuthor() {
+  if (editingAuthorId === null) return;
+  data.authors = (data.authors || []).filter(a => a.id !== editingAuthorId);
+  editingAuthorId = null;
+  persist();
+  toast('Автор удалён');
+  renderAuthorsSection(document.getElementById('main-panel'));
+}
+
+/* ════════════════════════════════════════════════════════════════════════════
+   SECTION: НАСТРОЙКИ
+═══════════════════════════════════════════════════════════════════════════ */
+function renderSettingsSection(panel) {
+  updateTopbarBtn('');
+  const s = data.settings;
+  panel.innerHTML = `<div class="editor-area"><div class="editor-max">
+    <div class="editor-title">Настройки сайта</div>
+
+    <div class="settings-group">
+      <div class="settings-group-title">Логотип</div>
+      <div class="field">
+        <label class="field-label">Подпись к логотипу</label>
+        <textarea id="s-logo-sub" rows="2" style="resize:none">${esc(s.logoSub)}</textarea>
+      </div>
+      <div class="field">
+        <label class="field-label">Изображение логотипа (заменяет текст)</label>
+        <div style="display:flex;align-items:center;gap:14px;margin-bottom:8px">
+          ${s.logoImage
+            ? `<img src="${s.logoImage}" style="height:36px;max-width:140px;object-fit:contain;background:#f4f4f4;padding:4px;border-radius:6px">`
+            : `<span style="font-size:0.82rem;opacity:0.4">не загружено</span>`}
+          <label class="btn" style="cursor:pointer;font-size:0.82rem;padding:6px 14px">
+            Загрузить
+            <input type="file" accept="image/*" onchange="loadLogoImage(this)" style="display:none">
+          </label>
+          ${s.logoImage ? `<button onclick="data.settings.logoImage='';persist();renderSettingsSection(document.getElementById('main-panel'))" style="background:none;border:none;cursor:pointer;font-size:0.78rem;opacity:0.45;padding:0">✕ Удалить</button>` : ''}
+        </div>
+      </div>
+      <div class="field">
+        <label class="field-label">Фавикон</label>
+        <div style="display:flex;align-items:center;gap:14px;margin-bottom:8px">
+          ${s.faviconImage
+            ? `<img src="${s.faviconImage}" style="width:32px;height:32px;object-fit:contain;background:#f4f4f4;padding:2px;border-radius:4px">`
+            : `<span style="font-size:0.82rem;opacity:0.4">не загружен</span>`}
+          <label class="btn" style="cursor:pointer;font-size:0.82rem;padding:6px 14px">
+            Загрузить
+            <input type="file" accept="image/*" onchange="loadFaviconImage(this)" style="display:none">
+          </label>
+          ${s.faviconImage ? `<button onclick="data.settings.faviconImage='';persist();renderSettingsSection(document.getElementById('main-panel'))" style="background:none;border:none;cursor:pointer;font-size:0.78rem;opacity:0.45;padding:0">✕ Удалить</button>` : ''}
+        </div>
+      </div>
+      <div class="field">
+        <label class="field-label">Заголовок вкладки браузера</label>
+        <input id="s-site-title" type="text" value="${esc(s.siteTitle)}">
+      </div>
+    </div>
+
+    <div class="settings-group">
+      <div class="settings-group-title">Пункты меню</div>
+      ${s.nav.map(n => `
+        <div class="field">
+          <label class="field-label">${n.id}</label>
+          <input id="s-nav-${n.id}" type="text" value="${esc(n.label)}">
+        </div>`).join('')}
+    </div>
+
+    <div class="settings-group">
+      <div class="settings-group-title">Подвал (footer)</div>
+      <div class="field field-row cols-2">
+        <div>
+          <label class="field-label">Текст слева</label>
+          <input id="s-footer" type="text" value="${esc(s.footer)}">
+        </div>
+        <div>
+          <label class="field-label">Текст справа</label>
+          <input id="s-footer-sub" type="text" value="${esc(s.footerSub)}">
+        </div>
+      </div>
+    </div>
+
+    <div class="settings-group">
+      <div class="settings-group-title">Страница карты</div>
+      <div class="field field-row cols-2">
+        <div>
+          <label class="field-label">Заголовок</label>
+          <input id="s-map-label" type="text" value="${esc(s.mapLabel)}">
+        </div>
+        <div>
+          <label class="field-label">Подпись (город)</label>
+          <input id="s-map-city" type="text" value="${esc(s.mapCity)}">
+        </div>
+      </div>
+    </div>
+
+    <div class="divider"></div>
+    <div style="display:flex;justify-content:flex-end">
+      <button class="btn btn-black" onclick="saveSettings()">Сохранить</button>
+    </div>
+  </div></div>`;
+}
+
+function loadLogoImage(input) {
+  const file = input.files[0]; if (!file) return;
+  const reader = new FileReader();
+  reader.onload = e => {
+    data.settings.logoImage = e.target.result;
+    persist();
+    renderSettingsSection(document.getElementById('main-panel'));
+  };
+  reader.readAsDataURL(file);
+}
+
+function loadFaviconImage(input) {
+  const file = input.files[0]; if (!file) return;
+  const reader = new FileReader();
+  reader.onload = e => {
+    data.settings.faviconImage = e.target.result;
+    persist();
+    renderSettingsSection(document.getElementById('main-panel'));
+  };
+  reader.readAsDataURL(file);
+}
+
+function saveSettings() {
+  const s = data.settings;
+  s.logoSub   = document.getElementById('s-logo-sub').value;
+  s.siteTitle = document.getElementById('s-site-title').value.trim();
+  s.nav.forEach(n => {
+    const el = document.getElementById('s-nav-' + n.id);
+    if (el) n.label = el.value.trim();
+  });
+  s.footer    = document.getElementById('s-footer').value.trim();
+  s.footerSub = document.getElementById('s-footer-sub').value.trim();
+  s.mapLabel  = document.getElementById('s-map-label').value.trim();
+  s.mapCity   = document.getElementById('s-map-city').value.trim();
+  persist();
+  toast('Сохранено ✓');
+}
+
+/* ════════════════════════════════════════════════════════════════════════════
+   EXPORT
+═══════════════════════════════════════════════════════════════════════════ */
+function exportJSON() {
+  const json = JSON.stringify(data, null, 2);
+  const blob = new Blob([json], { type: 'application/json' });
+  const url  = URL.createObjectURL(blob);
+  const a    = document.createElement('a');
+  a.href = url; a.download = 'site-data.json';
+  document.body.appendChild(a); a.click();
+  document.body.removeChild(a); URL.revokeObjectURL(url);
+  toast('site-data.json скачан');
+}
+
+/* ════════════════════════════════════════════════════════════════════════════
+   HELPERS
+═══════════════════════════════════════════════════════════════════════════ */
+function plural(n) {
+  if (n % 10 === 1 && n % 100 !== 11) return '';
+  if ([2,3,4].includes(n % 10) && ![12,13,14].includes(n % 100)) return 'а';
+  return 'ов';
+}
+
+function updateTopbarBtn(html) {
+  document.querySelector('.topbar-actions').innerHTML =
+    `<button class="btn btn-ghost" onclick="exportJSON()">Скачать данные</button>` + html;
+}
+
+/* ════════════════════════════════════════════════════════════════════════════
+   SECTION: PUBLISH
+═══════════════════════════════════════════════════════════════════════════ */
+let ghConfig = JSON.parse(localStorage.getItem('artefact-gh') || '{}');
+
+function renderPublishSection(panel) {
+  updateTopbarBtn('');
+  panel.innerHTML = `
+    <div style="max-width:560px;padding:40px 32px">
+      <p style="font-size:0.85rem;opacity:0.5;margin-bottom:32px;line-height:1.6">
+        Нажми «Опубликовать» — данные запишутся прямо в твой репозиторий на GitHub,
+        и сайт обновится автоматически через 1–2 минуты.
+      </p>
+
+      <div style="display:flex;flex-direction:column;gap:16px;margin-bottom:32px">
+        <label style="font-size:0.82rem;font-weight:500">
+          GitHub Token
+          <a href="https://github.com/settings/tokens/new?scopes=repo&description=artefact-admin"
+             target="_blank" rel="noopener noreferrer" style="font-weight:400;opacity:0.45;margin-left:8px;font-size:0.78rem">
+            Создать токен ↗
+          </a>
+        </label>
+        <input id="gh-token" type="password" placeholder="ghp_xxxxxxxxxxxxxxxxxxxx"
+               value="${esc(ghConfig.token||'')}"
+               style="padding:10px 12px;border:1px solid #ddd;border-radius:6px;font-family:monospace;font-size:0.85rem;width:100%">
+        <div style="font-size:0.73rem;opacity:0.4;margin-top:4px">Токен хранится в localStorage этого браузера в открытом виде. Используй только на личном устройстве.</div>
+
+        <label style="font-size:0.82rem;font-weight:500">Имя пользователя GitHub</label>
+        <input id="gh-owner" type="text" placeholder="your-username"
+               value="${esc(ghConfig.owner||'')}"
+               style="padding:10px 12px;border:1px solid #ddd;border-radius:6px;font-size:0.9rem;width:100%">
+
+        <label style="font-size:0.82rem;font-weight:500">Название репозитория</label>
+        <input id="gh-repo" type="text" placeholder="artefact-site"
+               value="${esc(ghConfig.repo||'')}"
+               style="padding:10px 12px;border:1px solid #ddd;border-radius:6px;font-size:0.9rem;width:100%">
+
+        <label style="font-size:0.82rem;font-weight:500">Ветка</label>
+        <input id="gh-branch" type="text" placeholder="main"
+               value="${esc(ghConfig.branch||'main')}"
+               style="padding:10px 12px;border:1px solid #ddd;border-radius:6px;font-size:0.9rem;width:100%">
+      </div>
+
+
+
+      <div style="display:flex;gap:12px;align-items:center;flex-wrap:wrap">
+        <button class="btn btn-black" onclick="publishToGitHub()" style="padding:12px 28px;font-size:0.95rem">
+          ↑ Опубликовать сайт
+        </button>
+        <button class="btn btn-ghost" onclick="saveGhConfig()">Сохранить настройки</button>
+      </div>
+
+      <div id="publish-status" style="margin-top:24px;font-size:0.85rem;line-height:1.6"></div>
+    </div>`;
+}
+
+function saveGhConfig() {
+  ghConfig = {
+    token:  document.getElementById('gh-token').value.trim(),
+    owner:  document.getElementById('gh-owner').value.trim(),
+    repo:   document.getElementById('gh-repo').value.trim(),
+    branch: document.getElementById('gh-branch').value.trim() || 'main',
+  };
+  localStorage.setItem('artefact-gh', JSON.stringify(ghConfig));
+  toast('Настройки сохранены');
+}
+
+async function publishToGitHub() {
+  saveGhConfig();
+  const { token, owner, repo, branch } = ghConfig;
+  const status = document.getElementById('publish-status');
+
+  if (!token || !owner || !repo) {
+    status.innerHTML = '<span style="color:#c00">Заполни токен, имя пользователя и репозиторий</span>';
+    return;
+  }
+
+  const headers = {
+    'Authorization': 'token ' + token,
+    'Accept': 'application/vnd.github.v3+json',
+    'Content-Type': 'application/json',
+  };
+
+  try {
+    const START = '/* __SITE_DATA_START__ */';
+    const END   = '/* __SITE_DATA_END__ */';
+    let currentContent, sha;
+
+    // Получаем SHA с GitHub (нужен всегда для PUT-запроса)
+    status.innerHTML = '<span style="opacity:0.5">Получаю SHA с GitHub...</span>';
+    const shaRes = await fetch(
+      'https://api.github.com/repos/' + owner + '/' + repo + '/contents/index.html',
+      { headers }
+    );
+    if (!shaRes.ok) {
+      const err = await shaRes.json();
+      throw new Error(err.message || 'Ошибка GitHub API (' + shaRes.status + ')');
+    }
+    const shaData = await shaRes.json();
+    sha = shaData.sha;
+
+    // Шаблон: сначала локальный файл (актуальный HTML/CSS/JS), иначе GitHub-версия
+    if (localFileContent) {
+      currentContent = localFileContent;
+    } else {
+      currentContent = decodeURIComponent(escape(atob(shaData.content.replace(/\n/g, ''))));
+    }
+
+    const si = currentContent.indexOf(START);
+    const ei = currentContent.indexOf(END) + END.length;
+
+    if (si === -1 || ei === END.length - 1) {
+      throw new Error('Маркеры данных не найдены в index.html. Убедись что выбрал правильный файл.');
+    }
+
+    const newBlock = START + '\nconst SITE_DATA = ' + JSON.stringify(data, null, 2) + ';\n' + END;
+    const newContent = currentContent.slice(0, si) + newBlock + currentContent.slice(ei);
+
+    status.innerHTML = '<span style="opacity:0.5">Отправляю на GitHub...</span>';
+
+    const pushRes = await fetch(
+      'https://api.github.com/repos/' + owner + '/' + repo + '/contents/index.html',
+      {
+        method: 'PUT',
+        headers,
+        body: JSON.stringify({
+          message: 'Update site data via admin panel',
+          content: btoa(unescape(encodeURIComponent(newContent))),
+          sha,
+          branch,
+        }),
+      }
+    );
+
+    if (!pushRes.ok) {
+      const err = await pushRes.json();
+      throw new Error(err.message || 'Ошибка при записи (' + pushRes.status + ')');
+    }
+
+    persist();
+    status.innerHTML =
+      '<span style="color:#1a6ef5;font-weight:500">✓ Опубликовано!</span> ' +
+      'Сайт обновится через 1–2 минуты. ' +
+      '<a href="https://' + owner + '.github.io/' + repo + '" target="_blank" rel="noopener noreferrer" style="color:#1a6ef5">' +
+      'Открыть сайт ↗</a>';
+
+  } catch (e) {
+    status.innerHTML = '<span style="color:#c00">Ошибка: ' + esc(e.message) + '</span>';
+  }
+}
+
+/* ════════════════════════════════════════════════════════════════════════════
+   INIT
+═══════════════════════════════════════════════════════════════════════════ */
+setSection('artifacts');
+</script>
+</body>
+</html>
