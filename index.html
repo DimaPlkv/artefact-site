@@ -330,11 +330,11 @@
     }
     .card-promo:hover .card-photo img { transform: none; }
     @media (max-width: 768px) {
-      .card-promo { grid-column: span 2; grid-row: span 1; }
-      .card-promo .card-photo { aspect-ratio: 16/7; flex: unset; }
+      .card-promo { grid-column: span 2; grid-row: span 1; display: block; }
+      .card-promo .card-photo { aspect-ratio: 16/7; height: auto; }
     }
     @media (max-width: 480px) {
-      .card-promo { grid-column: span 1; grid-row: span 1; }
+      .card-promo { grid-column: span 1; }
       .card-promo .card-photo { aspect-ratio: 4/3; }
     }
     .card-mobile-meta { display: none; align-items: center; gap: 8px; margin-top: 7px; flex-wrap: wrap; }
