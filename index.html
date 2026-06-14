@@ -2308,7 +2308,7 @@ function renderGallery() {
         </div>
       </div>
     </div>`;
-  const mid = Math.floor(cards.length / 2);
+  const mid = Math.round(cards.length / 2 / 4) * 4;
   document.getElementById('gallery-grid').innerHTML =
     cards.slice(0, mid).join('') + promo + cards.slice(mid).join('');
 
