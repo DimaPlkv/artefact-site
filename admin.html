@@ -1266,12 +1266,7 @@ async function publishToGitHub() {
     const shaData = await shaRes.json();
     sha = shaData.sha;
 
-    // Шаблон: сначала локальный файл (актуальный HTML/CSS/JS), иначе GitHub-версия
-    if (localFileContent) {
-      currentContent = localFileContent;
-    } else {
-      currentContent = decodeURIComponent(escape(atob(shaData.content.replace(/\n/g, ''))));
-    }
+    currentContent = decodeURIComponent(escape(atob(shaData.content.replace(/\n/g, ''))));
 
     const si = currentContent.indexOf(START);
     const ei = currentContent.indexOf(END) + END.length;
