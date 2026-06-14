@@ -16,7 +16,7 @@
       --white: #fff;
       --border: rgba(0,0,0,0.1);
       --edge: 48px;
-      --nav-h: 64px;
+      --nav-h: 76px;
     }
 
     html { font-size: 16px; overflow-y: scroll; }
@@ -38,13 +38,27 @@
       align-items: center;
       justify-content: space-between;
       padding: 0 var(--edge);
-      background: var(--white);
-      transition: background 0.35s ease, color 0.35s ease, transform 0.3s ease;
+      background: rgba(255,255,255,0.72);
+      backdrop-filter: blur(24px) saturate(1.8);
+      -webkit-backdrop-filter: blur(24px) saturate(1.8);
+      transition: background 0.35s ease, color 0.35s ease, transform 0.3s ease, backdrop-filter 0.35s ease;
     }
     .site-nav.nav--hidden { transform: translateY(-100%); }
+    .site-nav.nav--menu-open {
+      background: #fff !important;
+      backdrop-filter: none !important;
+      -webkit-backdrop-filter: none !important;
+      transition: none !important;
+    }
+    .site-nav.nav--menu-open .nav-logo-main,
+    .site-nav.nav--menu-open .nav-logo-sub,
+    .site-nav.nav--menu-open .nav-btn { color: var(--black) !important; }
+    .site-nav.nav--menu-open .nav-hamburger span { background: var(--black) !important; }
 
     .site-nav.nav--transparent {
       background: transparent;
+      backdrop-filter: none;
+      -webkit-backdrop-filter: none;
     }
     .site-nav.nav--transparent .nav-logo-main,
     .site-nav.nav--transparent .nav-logo-sub,
@@ -71,6 +85,7 @@
     }
 
     .nav-links { display: flex; gap: 32px; list-style: none; }
+    .nav-right { display: flex; align-items: center; gap: 32px; }
 
     .nav-btn {
       background: none;
@@ -82,11 +97,24 @@
       color: var(--black);
       cursor: pointer;
       opacity: 1;
-      transition: opacity 0.15s, color 0.35s ease;
+      transition: color 0.35s ease;
       padding: 0;
+      position: relative;
     }
-    .nav-btn:hover  { opacity: 0.35; }
-    .nav-btn.active { opacity: 1; }
+    .nav-btn::after {
+      content: '';
+      position: absolute;
+      bottom: -3px;
+      left: 0;
+      width: 0;
+      height: 1.5px;
+      background: currentColor;
+      transition: width 0.28s cubic-bezier(.22,.61,.36,1);
+    }
+    .nav-btn:hover::after       { width: 100%; }
+    .nav-btn.active             { cursor: default; }
+    .nav-btn.active::after      { width: 100%; }
+    .nav-btn.active:hover::after { width: 100%; }
 
     .nav-hamburger {
       display: none;
@@ -125,10 +153,10 @@
       position: fixed;
       top: var(--nav-h);
       left: 0; right: 0;
-      background: var(--white);
+      background: #fff;
       z-index: 999;
       padding: 16px var(--edge) 24px;
-      box-shadow: 0 8px 24px rgba(0,0,0,0.08);
+      box-shadow: 0 8px 24px rgba(0,0,0,0.06);
     }
     .nav-mobile-menu.open { display: block; }
     .nav-mobile-menu ul { list-style: none; display: flex; flex-direction: column; gap: 0; }
@@ -145,6 +173,7 @@
     @media (max-width: 768px) {
       .nav-links { display: none; }
       .nav-hamburger { display: flex; }
+      .nav-logo-sub { display: none; }
     }
 
     /* ─── VIEWS ──────────────────────────────────────────────────────────────── */
@@ -153,12 +182,38 @@
     #view-map.active   { display: flex; }
 
     /* ─── GALLERY ────────────────────────────────────────────────────────────── */
-    .gallery-section { padding: 48px var(--edge) 80px; }
+    .gallery-section { padding: clamp(36px,4.5vw,60px) var(--edge) 80px; scroll-margin-top: var(--nav-h); }
+    @media (max-width: 768px) { .desktop-br { display: none; } }
+
+    .gallery-intro { margin-bottom: clamp(56px,6vw,96px); }
+    .gallery-intro-title {
+      font-weight: 900;
+      font-size: clamp(52px, 9vw, 114px);
+      letter-spacing: -.04em; line-height: .88;
+      margin-bottom: clamp(24px, 3vw, 44px);
+    }
+    .gallery-intro-body {
+      display: grid; grid-template-columns: 2fr 1fr;
+      gap: clamp(24px, 5vw, 96px); align-items: end;
+    }
+    .gallery-intro-lead {
+      font-size: clamp(20px, 2.3vw, 32px);
+      font-weight: 700; line-height: 1.2; letter-spacing: -.025em;
+    }
+    .gallery-intro-hl {
+      background: linear-gradient(to top, rgba(47,174,104,.30) 42%, transparent 42%);
+      -webkit-box-decoration-break: clone;
+      box-decoration-break: clone;
+    }
+    @media (max-width: 768px) {
+      .gallery-intro-body { grid-template-columns: 1fr; gap: 18px; }
+      #artifacts-count-block { text-align: left; }
+    }
 
     .gallery-grid {
       display: grid;
-      grid-template-columns: repeat(3, 1fr);
-      column-gap: 14px;
+      grid-template-columns: repeat(4, 1fr);
+      column-gap: 24px;
       row-gap: 44px;
     }
 
@@ -169,7 +224,7 @@
       aspect-ratio: 4 / 3;
       overflow: hidden;
       background: #e8e8e8;
-      border-radius: 16px;
+      border-radius: 12px;
     }
     .card-photo img {
       width: 100%; height: 100%;
@@ -177,12 +232,19 @@
       display: block;
       transition: transform 0.55s ease;
     }
-    .card:hover .card-photo img { transform: scale(1.04); }
+    @media (hover: hover) { .card:hover .card-photo img { transform: scale(1.04); } }
+    .card-img-hover {
+      position: absolute;
+      inset: 0;
+      opacity: 0;
+      transition: transform 0.55s ease, opacity 0.45s ease;
+    }
+    @media (hover: hover) { .card:hover .card-img-hover { opacity: 1; } }
 
     .card-hover {
       position: absolute;
       inset: 0;
-      background: linear-gradient(to top, rgba(0,0,0,0.76) 0%, rgba(0,0,0,0) 55%);
+      background: linear-gradient(to top, rgba(0,0,0,0.76) 0%, rgba(0,0,0,0) 55%), linear-gradient(to bottom, rgba(0,0,0,0.32) 0%, rgba(0,0,0,0) 35%);
       opacity: 0;
       transition: opacity 0.22s ease;
       display: flex;
@@ -191,7 +253,7 @@
       padding: 16px 18px;
       color: #fff;
     }
-    .card:hover .card-hover { opacity: 1; }
+    @media (hover: hover) { .card:hover .card-hover { opacity: 1; } }
     .card-hover-bottom {
       display: flex; justify-content: space-between; align-items: flex-end;
     }
@@ -213,8 +275,22 @@
     }
     .status-live::before { background: #6de46d; }
     .status-gone::before { background: #e46d6d; }
+    .card-photo > .card-status {
+      position: absolute; top: 14px; left: 14px; z-index: 3;
+      color: #fff; opacity: 0; transition: opacity 0.22s;
+    }
+    @media (hover: hover) { .card:hover .card-photo > .card-status { opacity: 1; } }
+    @media (hover: none)  {
+      .card-photo > .card-status { opacity: 1; }
+      .card-photo::before {
+        content: ''; position: absolute; top: 0; left: 0; right: 0;
+        height: 60px; z-index: 2; pointer-events: none;
+        background: linear-gradient(to bottom, rgba(0,0,0,0.28) 0%, rgba(0,0,0,0) 100%);
+        border-radius: 12px 12px 0 0;
+      }
+    }
 
-    .card-hover-author { font-size: 1.05rem; font-weight: 500; margin-bottom: 6px; line-height: 1.2; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .card-hover-author { font-size: 1.05rem; font-weight: 500; margin-bottom: 6px; line-height: 1.2; }
     .card-hover-meta   { display: flex; align-items: center; gap: 10px; }
     .card-hover-count  { font-size: 0.8rem; font-weight: 300; opacity: 0.65; }
     .card-hover-arrow  {
@@ -224,11 +300,14 @@
       transform: scale(0.5) translateY(10px); opacity: 0;
       transition: transform 0.28s cubic-bezier(0.34,1.56,0.64,1), opacity 0.22s ease;
     }
-    .card:hover .card-hover-arrow { transform: scale(1) translateY(0); opacity: 1; transition-delay: 0.07s; }
+    @media (hover: hover) { .card:hover .card-hover-arrow { transform: scale(1) translateY(0); opacity: 1; transition-delay: 0.07s; } }
 
     .card-info  { padding: 13px 0 0; }
     .card-title { font-weight: 600; font-size: 1rem; letter-spacing: -0.02em; line-height: 1.3; margin-bottom: 4px; }
-    .card-date  { font-size: 0.88rem; font-weight: 300; opacity: 0.38; }
+    .card-date  { font-size: 0.88rem; font-weight: 300; opacity: 0.55; }
+    img.img-error { opacity: 0.15; filter: grayscale(1); }
+    .card-mobile-meta { display: none; align-items: center; gap: 8px; margin-top: 7px; flex-wrap: wrap; }
+    @media (max-width: 768px) { .card-mobile-meta { display: flex; } }
 
     /* ─── HERO PARALLAX ─────────────────────────────────────────────────────── */
     .hero {
@@ -257,17 +336,17 @@
       display: flex; justify-content: center;
     }
     .hero-layer-muzey {
-      top: 26%;
+      top: calc(18% + 46px);
       display: flex; justify-content: center;
     }
     .hero-layer-subtitle {
-      top: calc(56% + 80px);
+      top: calc(56% + 104px);
       display: flex; justify-content: center;
       z-index: 2;
     }
 
     .hero-artefact-svg { width: min(26vw, 360px); height: auto; }
-    .hero-muzey-svg    { width: min(56vw, 700px); height: auto; }
+    .hero-muzey-svg    { width: min(80vw, 1080px); height: auto; }
     .hero-subtitle-svg { width: min(50vw, 640px); height: auto; }
 
     .hero-layer-city {
@@ -276,6 +355,7 @@
     .hero-city-img {
       width: 100%; min-width: 1000px;
       height: auto; display: block;
+      filter: drop-shadow(0 12px 24px rgba(25,81,161,0.45));
     }
 
     .hero-hint {
@@ -293,8 +373,6 @@
     }
 
     /* ─── ABOUT PAGE ─────────────────────────────────────────────────────────── */
-    #view-about { padding-top: var(--nav-h); }
-
     .museum-block {
       position: relative;
       min-height: calc(100vh - var(--nav-h));
@@ -332,22 +410,23 @@
     /* ─── ARTIFACT PAGE ──────────────────────────────────────────────────────── */
     #view-artifact { padding-top: var(--nav-h); }
 
+    .art-page { padding: 0 var(--edge); }
+    .art-page .au-expl { margin-top: clamp(28px, 3.5vw, 48px); }
+
     .artifact-body {
       display: grid;
-      grid-template-columns: 55fr 45fr;
+      grid-template-columns: 1fr 1fr;
       align-items: start;
-      padding-left: var(--edge);
+      padding-top: 52px;
       margin-bottom: 100px;
     }
 
     .artifact-photo-col {
-      position: sticky;
-      top: calc(var(--nav-h) + 16px);
       aspect-ratio: 4 / 3;
       background: #ebebeb;
       overflow: hidden;
       align-self: start;
-      border-radius: 16px;
+      border-radius: 12px;
     }
 
     .photo-slider {
@@ -390,11 +469,11 @@
       bottom: 16px; right: 18px;
       font-size: 0.8rem; font-weight: 400; letter-spacing: 0.07em;
       color: #fff; background: rgba(0,0,0,0.35); padding: 4px 10px;
+      border-radius: 5px;
     }
 
     .artifact-content-col {
-      padding: 52px 52px 100px;
-      min-height: calc(100vh - var(--nav-h));
+      padding: 0 0 100px 52px;
     }
 
     .back-btn {
@@ -431,8 +510,9 @@
     }
 
     .artifact-desc {
-      font-weight: 300; font-size: 1.1rem; line-height: 1.82;
-      color: var(--black); margin-bottom: 40px;
+      font-weight: 300; font-size: 1.05rem; line-height: 1.82;
+      color: rgba(0,0,0,.68); margin-bottom: 40px;
+      white-space: pre-line;
     }
 
     .meta-row { padding: 15px 0; border-bottom: 1px solid var(--border); }
@@ -440,7 +520,7 @@
     .meta-group + .meta-group { margin-top: 28px; }
     .meta-key {
       font-size: 0.75rem; font-weight: 400; letter-spacing: 0.1em;
-      text-transform: uppercase; opacity: 0.32; margin-bottom: 5px;
+      text-transform: uppercase; opacity: 0.55; margin-bottom: 5px;
     }
     .meta-val { font-size: 1rem; font-weight: 400; line-height: 1.5; }
     /* inline block: author + year + status in one row on gray rounded bg */
@@ -450,23 +530,31 @@
       gap: 20px;
       padding: 20px;
       background: #f4f4f4;
-      border-radius: 14px;
+      border-radius: 10px;
       margin-bottom: 28px;
     }
     .meta-author-link {
       background: none; border: none;
-      cursor: pointer; font-family: 'Inter', sans-serif; font-size: 1rem;
+      cursor: pointer; font-family: 'Inter', sans-serif; font-size: inherit;
       font-weight: 400; padding: 3px 7px; color: var(--black);
-      border-radius: 7px; margin-left: -7px;
+      border-radius: 6px; margin: -3px 0 -3px -7px;
       transition: background 0.15s;
+      display: inline-flex; align-items: center; gap: 8px;
+      text-align: left;
     }
     .meta-author-link:hover { background: #efefef; }
+    .meta-author-avatar {
+      width: 24px; height: 24px; border-radius: 50%;
+      object-fit: cover; flex-shrink: 0;
+    }
     .popup-link {
-      font-size: 0.82rem; font-weight: 600; color: #000; text-decoration: none;
-      display: inline-block; padding: 4px 8px; border-radius: 7px; margin-left: -8px;
+      font-size: 0.88rem; font-weight: 600; color: #000; text-decoration: none;
+      display: block; padding: 12px 16px; border-radius: 8px;
+      background: #f0f0f0; text-align: center;
       transition: background 0.15s;
     }
-    .popup-link:hover { background: #f0f0f0; }
+    .popup-link:hover { background: #e4e4e4; }
+    .popup-link:focus { outline: none; }
 
     .status-indicator { display: inline-flex; align-items: center; gap: 7px; }
     .status-indicator::before {
@@ -476,7 +564,41 @@
     .status-live.status-indicator::before { background: #2ea62e; }
     .status-gone.status-indicator::before { background: #d63c3c; }
 
-    .artifact-map-el { height: 260px; margin-top: 36px; background: #f0f0f0; border-radius: 16px; overflow: hidden; }
+    .artifact-addr {
+      display: flex; align-items: center; gap: 10px;
+      margin-top: 36px; padding-top: 28px;
+      border-top: 1px solid var(--border);
+      background: none; border-left: none; border-right: none; border-bottom: none; cursor: pointer;
+      font-family: 'Inter', sans-serif;
+      font-size: clamp(14px, 1.3vw, 18px); font-weight: 600;
+      letter-spacing: -.02em;
+      color: var(--black);
+      width: 100%; text-align: left;
+      transition: opacity .15s;
+    }
+    .artifact-addr-arrow { margin-left: auto; opacity: .3; flex-shrink: 0; transition: transform .28s cubic-bezier(.22,.61,.36,1), opacity .2s; }
+    .artifact-addr:hover .artifact-addr-arrow { transform: translateX(8px); opacity: .65; }
+    #art-addr-text { position: relative; }
+    #art-addr-text::after {
+      content: ''; position: absolute; bottom: -1px; left: 0;
+      width: 0; height: 1px; background: currentColor;
+      transition: width 0.28s cubic-bezier(.22,.61,.36,1);
+    }
+    .artifact-addr:hover #art-addr-text::after { width: 100%; }
+    .expl-anchor-btn {
+      background: none; border: none;
+      font-family: inherit; font-size: inherit; font-weight: inherit; letter-spacing: inherit;
+      cursor: pointer; color: inherit; text-align: left;
+      padding: 3px 7px; margin: -3px 0 -3px -7px;
+      border-radius: 6px; transition: background 0.15s;
+    }
+    .expl-anchor-btn:hover { background: #efefef; }
+    .map-loading {
+      position: absolute; inset: 0; display: flex; align-items: center; justify-content: center;
+      font-size: 0.82rem; font-weight: 300; opacity: 0.4; pointer-events: none;
+      transition: opacity 0.3s;
+    }
+    .map-loading.hidden { opacity: 0; }
 
     /* ─── PHOTO LIGHTBOX ─────────────────────────────────────────────────────── */
     .photo-lightbox {
@@ -582,12 +704,20 @@
       margin-bottom: 28px; color: rgba(0,0,0,0.68);
     }
     .manifest-text p strong { font-weight: 700; color: var(--black); }
+    .manifest-text a { color: #0066cc; text-decoration: none; transition: opacity 0.15s; }
+    .manifest-text a:hover { opacity: 0.7; }
     .manifest-text p:last-child { margin-bottom: 0; }
+    .manifest-h { font-size: 1.3rem; font-weight: 600; letter-spacing: -0.02em; color: var(--black); margin: 52px 0 8px; }
+    .manifest-text .manifest-h:first-child { margin-top: 0; }
+    .manifest-text p:has(> strong:only-child) { margin-top: 28px; margin-bottom: 4px; }
+    .manifest-h + p:has(> strong:only-child) { margin-top: 0; }
+    .manifest-list { list-style: disc; padding-left: 1.4em; margin: 0 0 28px; }
+    .manifest-list li { font-weight: 300; font-size: 1.15rem; line-height: 1.82; color: rgba(0,0,0,0.68); }
 
     .contact-item { padding: 20px 0; border-bottom: 1px solid var(--border); }
     .contact-key {
       font-size: 0.75rem; font-weight: 400; letter-spacing: 0.1em;
-      text-transform: uppercase; opacity: 0.32; margin-bottom: 6px;
+      text-transform: uppercase; opacity: 0.55; margin-bottom: 6px;
     }
     .contact-val { font-size: 1rem; font-weight: 300; line-height: 1.6; }
     .contact-val a {
@@ -610,8 +740,66 @@
       border-bottom: 1px solid var(--border);
       flex-shrink: 0;
     }
-    .map-topbar-label { font-size: 0.88rem; font-weight: 400; letter-spacing: -0.01em; }
-    .map-topbar-city  { font-size: 0.78rem; font-weight: 300; opacity: 0.35; }
+    .map-topbar-label { display: none; }
+    @media (min-width: 961px) { .map-topbar { display: none; } }
+    .map-list-toggle {
+      display: none; position: absolute; bottom: 32px; left: 72px; right: 72px;
+      background: #000; color: #fff; border: none; border-radius: 10px;
+      padding: 14px 20px; font-family: 'Inter', sans-serif; font-size: 0.95rem;
+      font-weight: 500; cursor: pointer; z-index: 10;
+      box-shadow: 0 4px 16px rgba(0,0,0,0.25);
+    }
+    @media (max-width: 960px) {
+      .map-topbar-label { display: block; font-size: 0.88rem; font-weight: 400; letter-spacing: -0.01em; }
+      .map-list-toggle { display: block; transition: opacity 0.2s; }
+      .map-sidebar {
+        display: block !important;
+        position: absolute;
+        top: 16px; left: 50%;
+        transform: translateX(-50%) scale(0.97);
+        width: min(360px, calc(100% - 32px));
+        max-height: calc(100% - 110px); overflow: auto;
+        background: #fff; border-radius: 16px;
+        box-shadow: 0 8px 40px rgba(0,0,0,0.18);
+        z-index: 20;
+        opacity: 0; pointer-events: none;
+        transition: opacity 0.22s ease, transform 0.22s ease;
+      }
+      .map-sidebar.open {
+        transform: translateX(-50%) scale(1);
+        opacity: 1; pointer-events: auto;
+      }
+      .map-sidebar { scrollbar-width: none; }
+      .map-sidebar::-webkit-scrollbar { display: none; }
+      .map-sidebar-header { display: none; }
+      .map-sidebar-item .card-status { margin-top: 8px; }
+    }
+    .map-topbar-city  { font-size: 0.78rem; font-weight: 300; opacity: 0.55; }
+    .map-sidebar-header { padding: 16px 20px 10px; font-size: 0.78rem; font-weight: 300; opacity: 0.55; border-bottom: 1px solid var(--border); }
+    .map-sidebar-footer { padding: 20px 24px; font-size: 0.82rem; font-weight: 300; opacity: 0.55; border-top: 1px solid var(--border); display: flex; justify-content: space-between; }
+
+    /* Map sidebar title block (desktop only) */
+    .map-sidebar-head { display: none; }
+    @media (min-width: 961px) {
+      .map-sidebar {
+        display: flex;
+        flex-direction: column;
+        overflow: hidden;
+      }
+      .map-sidebar-head {
+        display: flex;
+        justify-content: space-between;
+        align-items: flex-end;
+        padding: 0 var(--edge) 40px var(--edge);
+        flex-shrink: 0;
+      }
+      .map-sidebar-list {
+        overflow-y: auto;
+        flex: 1;
+        padding-top: 16px;
+      }
+      .map-sidebar-header { display: none; }
+    }
 
     /* Map + sidebar side by side */
     .map-body {
@@ -620,171 +808,491 @@
       min-height: 0;
     }
 
-    .main-map-el { flex: 1; }
+    .main-map-el { flex: 1; border-left: 1px solid var(--border); }
 
     .map-sidebar {
-      width: 300px;
       flex-shrink: 0;
-      border-left: 1px solid var(--border);
       overflow-y: auto;
+    }
+    @media (min-width: 961px) {
+      .map-sidebar { width: calc(50% - var(--edge)); }
     }
 
     .map-sidebar-item {
-      padding: 18px 24px;
+      padding: 18px var(--edge);
       border-bottom: 1px solid var(--border);
       cursor: pointer;
       transition: background 0.15s;
     }
+    @media (min-width: 961px) {
+      .map-sidebar-item {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 16px;
+        border-bottom: none;
+        position: relative;
+        transition: padding-left .3s cubic-bezier(.22,.61,.36,1);
+      }
+      .map-sidebar-item::after {
+        content: '';
+        position: absolute;
+        bottom: 0; left: var(--edge); right: var(--edge);
+        height: 1px; background: var(--border);
+      }
+      .map-sidebar-item:last-child::after { display: none; }
+    }
     .map-sidebar-item:hover    { background: #f5f5f5; }
     .map-sidebar-item.is-active { background: #f0f0f0; }
+    @media (hover: hover) {
+      .map-sidebar-item:hover { padding-left: calc(var(--edge) + 10px); }
+      .map-sidebar-item:hover .map-sidebar-arrow { opacity: .65; transform: translateX(5px); }
+    }
+    .map-sidebar-item-left { min-width: 0; }
+    .map-sidebar-arrow {
+      display: flex; align-items: center;
+      opacity: .2; flex-shrink: 0;
+      transition: opacity .2s, transform .28s cubic-bezier(.22,.61,.36,1);
+    }
 
     .map-sidebar-name {
       font-weight: 600;
-      font-size: 0.88rem;
-      letter-spacing: -0.01em;
+      font-size: 1rem;
+      letter-spacing: -0.02em;
       line-height: 1.3;
       margin-bottom: 4px;
     }
     .map-sidebar-addr {
-      font-size: 0.78rem;
+      font-size: 0.88rem;
       font-weight: 300;
-      opacity: 0.42;
-      margin-bottom: 8px;
+      opacity: 0.55;
     }
 
     /* ─── AUTHORS LIST ──────────────────────────────────────────────────────────── */
-    .author-row {
+    /* ── AUTHORS LIST PAGE ───────────────────────────────────────────────────── */
+    #view-authors { padding-top: var(--nav-h); min-height: 100vh; }
+    #view-authors.active { display: flex; flex-direction: column; }
+    #view-authors .al-page { flex: 1; }
+    .al-page { padding: 0 var(--edge); }
+
+    .al-name-row { margin-top: 14px; }
+    .al-name {
+      font-weight: 900;
+      font-size: clamp(52px, 9vw, 114px);
+      line-height: .88; letter-spacing: -.04em;
+      padding: clamp(12px, 1.8vw, 26px) 0 clamp(10px, 1.2vw, 16px);
+    }
+
+    .al-lead-row {
+      display: flex; justify-content: space-between; align-items: flex-end;
+      gap: clamp(24px, 5vw, 80px);
+      padding-bottom: clamp(20px, 2.5vw, 36px);
+    }
+    .al-lead {
+      font-size: clamp(20px, 2.3vw, 32px);
+      font-weight: 700; line-height: 1.22; letter-spacing: -.025em;
+      max-width: 34ch;
+    }
+    .al-count-block { text-align: right; flex-shrink: 0; }
+    .al-count-num {
+      font-size: clamp(28px, 4.5vw, 64px);
+      font-weight: 900; letter-spacing: -.04em; line-height: 1;
+    }
+    .al-count-label {
+      font-size: 0.65rem; font-weight: 400;
+      text-transform: uppercase; letter-spacing: .12em; opacity: .38;
+      margin-top: 5px;
+    }
+
+    .al-registry { padding: clamp(12px, 1.5vw, 20px) 0 clamp(60px, 8vw, 120px); margin-top: -24px; }
+    .al-registry-label {
+      font-size: 0.65rem; font-weight: 400;
+      text-transform: uppercase; letter-spacing: .12em; opacity: .38;
+      margin-bottom: clamp(8px, 1.5vw, 18px);
+    }
+
+    .al-row {
       display: grid;
       grid-template-columns: 72px 1fr auto;
-      gap: 24px;
       align-items: center;
-      padding: 20px 0;
-      border-bottom: 1px solid var(--border);
-      border-top: none; border-left: none; border-right: none;
+      gap: clamp(16px, 2.5vw, 36px);
+      padding: clamp(14px, 1.8vw, 22px) 0;
+      border-top: 1px solid var(--border);
       cursor: pointer;
-      transition: opacity 0.15s;
-      background: none;
-      width: 100%;
-      text-align: left;
-      font-family: 'Inter', sans-serif;
-      color: var(--black);
+      background: none; border-left: none; border-right: none; border-bottom: none;
+      font-family: 'Inter', sans-serif; color: var(--black);
+      width: 100%; text-align: left;
+      transition: padding-left .3s cubic-bezier(.22,.61,.36,1);
     }
-    .author-row:hover { opacity: 0.45; }
+    .al-row:first-child { border-top: none; }
+    .al-row:last-child { border-bottom: 1px solid var(--border); }
+    @media (hover: hover) {
+      .al-row:hover { padding-left: 10px; }
+      .al-row:hover .al-row-arrow { opacity: .65; transform: translateX(5px); }
+    }
 
-    .author-row-photo {
-      width: 72px; height: 72px;
-      object-fit: cover;
-      background: #e8e8e8;
-      display: block;
-      flex-shrink: 0;
-      border-radius: 16px;
+    .al-row-avatar {
+      width: 72px; height: 72px; border-radius: 50%;
+      overflow: hidden; background: var(--black); flex-shrink: 0;
     }
-    .author-row-name  { font-weight: 600; font-size: 1.05rem; letter-spacing: -0.02em; }
-    .author-row-count { font-size: 0.88rem; font-weight: 300; opacity: 0.38; white-space: nowrap; }
+    .al-row-avatar img { width: 100%; height: 100%; object-fit: cover; display: block; }
+
+    .al-row-name {
+      font-size: clamp(18px, 2vw, 30px);
+      font-weight: 700; letter-spacing: -.025em; line-height: 1.1;
+    }
+
+    .al-row-meta {
+      display: flex; align-items: center;
+      gap: clamp(10px, 1.5vw, 22px); flex-shrink: 0;
+    }
+    .al-row-technique {
+      font-size: 0.65rem; font-weight: 400;
+      text-transform: uppercase; letter-spacing: .1em; opacity: .35;
+    }
+    .al-row-works { font-size: 0.85rem; font-weight: 500; opacity: .45; white-space: nowrap; }
+    .al-row-arrow {
+      display: flex; align-items: center;
+      opacity: .2;
+      transition: opacity .2s, transform .28s cubic-bezier(.22,.61,.36,1);
+    }
 
     /* ─── AUTHOR PAGE ───────────────────────────────────────────────────────────── */
+    /* ── AUTHOR PAGE ────────────────────────────────────────────────────────── */
     #view-author { padding-top: var(--nav-h); }
+    .au-page { padding: 0 var(--edge); }
 
-    .author-body {
-      display: grid;
-      grid-template-columns: 55fr 45fr;
-      align-items: start;
-      padding-left: var(--edge);
-      margin-bottom: 100px;
+    .au-crumb {
+      padding-top: 14px;
     }
-    .author-photo-col {
+
+    .au-name-row {
+      margin-top: 14px;
+    }
+    .au-name {
+      font-weight: 900;
+      font-size: clamp(52px, 9vw, 114px);
+      line-height: .88;
+      letter-spacing: -.04em;
+      padding: clamp(12px, 1.8vw, 26px) 0 clamp(18px, 2.2vw, 32px);
+    }
+    .au-ln { display: block; }
+
+    .au-expl {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      border-top: 1px solid var(--border);
+      border-bottom: 1px solid var(--border);
+    }
+    .ab-page .au-expl,
+    .au-page .au-expl { margin-top: clamp(28px, 3.5vw, 48px); }
+    .au-expl-cell {
+      padding: 16px 20px;
+      border-left: 1px solid rgba(0,0,0,.06);
+      display: flex; flex-direction: column; justify-content: center;
+    }
+    .au-expl-cell:first-child { border-left: none; padding-left: 0; }
+    .au-expl-key {
+      font-size: 0.68rem; font-weight: 400; text-transform: uppercase;
+      letter-spacing: .12em; opacity: .38;
+    }
+    .au-expl-val {
+      font-size: 16px; font-weight: 400;
+      margin-top: 5px; letter-spacing: -.01em;
+    }
+    .au-expl-val small { font-weight: 400; opacity: .55; font-size: .82em; }
+
+    .au-hero {
+      display: grid;
+      grid-template-columns: minmax(0, 1.05fr) minmax(0, 1fr);
+      gap: clamp(28px, 4.5vw, 80px);
+      padding: clamp(32px, 4.5vw, 72px) 0 clamp(40px, 6vw, 100px);
+      align-items: start;
+    }
+    .au-portrait {
       position: sticky;
       top: calc(var(--nav-h) + 16px);
-      aspect-ratio: 4 / 3;
       overflow: hidden;
       background: #e8e8e8;
+      border-radius: 12px;
+      aspect-ratio: 4/3;
       align-self: start;
-      border-radius: 16px;
     }
-    .author-photo-col img {
-      width: 100%; height: 100%;
-      object-fit: cover;
-      display: block;
+    .au-portrait img {
+      width: 100%; height: 100%; object-fit: cover; display: block;
+      transition: transform 1.4s cubic-bezier(.22,.61,.36,1);
+      transform: scale(1.02);
     }
-    .author-photo-placeholder {
-      width: 100%; height: 100%;
-      display: flex; align-items: center; justify-content: center;
-      font-size: 6rem; opacity: 0.1;
+    .au-portrait:hover img { transform: scale(1.06); }
+
+    .au-statement { display: flex; flex-direction: column; }
+    .au-quote {
+      font-weight: 600;
+      font-size: clamp(20px, 2.3vw, 32px);
+      line-height: 1.15; letter-spacing: -.025em;
     }
-    .author-content-col {
-      padding: 52px 52px 100px;
-      min-height: calc(100vh - var(--nav-h));
+    .au-quote-hl {
+      background: linear-gradient(to top, rgba(47,174,104,.30) 42%, transparent 42%);
+      -webkit-box-decoration-break: clone;
+      box-decoration-break: clone;
     }
-    .author-name {
-      font-weight: 900;
-      font-size: clamp(2rem, 3.5vw, 3rem);
-      letter-spacing: -0.03em; line-height: 1.05;
-      margin-bottom: 24px;
+    .au-bio {
+      margin-top: auto;
+      padding-top: clamp(26px, 3.2vw, 48px);
+      font-weight: 300; font-size: 1.05rem;
+      line-height: 1.82; white-space: pre-line;
+      color: rgba(0,0,0,.68);
     }
-    .author-bio {
-      font-weight: 300; font-size: 1.1rem; line-height: 1.82;
-      color: var(--black); margin-bottom: 52px;
+    .au-sign {
+      display: flex; align-items: center; gap: 10px; margin-top: 24px;
     }
-    .author-works-label {
-      font-size: 0.75rem; font-weight: 400; letter-spacing: 0.1em;
-      text-transform: uppercase; opacity: 0.32; margin-bottom: 20px;
+    .au-sign-dot {
+      width: 7px; height: 7px; border-radius: 50%; background: var(--black);
+      opacity: .25; flex-shrink: 0;
     }
-    .author-works-grid {
-      display: grid;
-      grid-template-columns: repeat(2, 1fr);
-      column-gap: 14px;
-      row-gap: 28px;
+    .au-sign-label {
+      font-size: 0.72rem; font-weight: 400; text-transform: uppercase;
+      letter-spacing: .1em; opacity: .38;
+    }
+
+    .au-collection {
+      padding: 0 0 clamp(60px, 8vw, 120px);
+    }
+    .au-col-head {
+      display: flex; justify-content: space-between; align-items: baseline;
+      gap: 24px; flex-wrap: wrap;
+      margin-bottom: clamp(22px, 3vw, 40px);
+    }
+    .au-col-title {
+      font-size: clamp(18px, 2vw, 30px); font-weight: 700;
+      letter-spacing: -.025em; line-height: 1.1;
+    }
+    .au-col-meta {
+      text-align: right;
+      font-size: 0.78rem; font-weight: 400; opacity: .42;
+      letter-spacing: .04em; line-height: 1.4;
+    }
+    .au-col-meta b { display: block; font-size: 1.05rem; font-weight: 600; opacity: 1; color: var(--black); }
+
+    .au-works-grid {
+      display: grid; grid-template-columns: repeat(4, 1fr);
+      column-gap: 24px; row-gap: 44px;
       align-items: start;
     }
-    .author-works-grid .card { min-width: 0; }
+
+    /* ── ABOUT PAGE ─────────────────────────────────────────────────────────── */
+    #view-about { padding-top: var(--nav-h); }
+    .ab-page { padding: 0 var(--edge); }
+
+    .ab-name-row {
+      margin-top: 14px;
+    }
+    .ab-name {
+      font-weight: 900;
+      font-size: clamp(52px, 9vw, 114px);
+      line-height: .88;
+      letter-spacing: -.04em;
+      padding: clamp(12px, 1.8vw, 26px) 0 clamp(18px, 2.2vw, 32px);
+    }
+
+    .ab-body {
+      display: grid;
+      grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+      gap: clamp(28px, 5vw, 96px);
+      padding: clamp(36px, 4.5vw, 72px) 0 clamp(60px, 8vw, 120px);
+      align-items: start;
+    }
+    .ab-lead {
+      position: sticky;
+      top: calc(var(--nav-h) + 24px);
+      align-self: start;
+      font-size: clamp(20px, 2.3vw, 32px);
+      font-weight: 600;
+      line-height: 1.22;
+      letter-spacing: -.025em;
+    }
+    .ab-lead p + p { margin-top: 1em; }
+    .ab-manifest h3 {
+      font-size: 0.72rem; font-weight: 400; text-transform: uppercase;
+      letter-spacing: .12em; opacity: .38;
+      padding-top: 44px; margin-bottom: 14px;
+      border-top: 1px solid var(--border);
+      margin-top: 0;
+    }
+    .ab-manifest h3:first-child { border-top: none; padding-top: 0; }
+    .ab-manifest p {
+      font-weight: 300; font-size: 1.05rem; line-height: 1.82;
+      margin-bottom: 22px; color: rgba(0,0,0,.68);
+    }
+    .ab-manifest p strong { font-weight: 600; color: var(--black); }
+    .ab-manifest p:has(> strong:only-child) { margin: 28px 0 6px; font-size: 1.1rem; }
+    .ab-manifest p:last-child { margin-bottom: 0; }
+    .ab-manifest a {
+      color: inherit; text-decoration: none;
+      position: relative;
+    }
+    .ab-manifest a::after {
+      content: ''; position: absolute; bottom: -1px; left: 0;
+      width: 0; height: 1px; background: currentColor;
+      transition: width 0.28s cubic-bezier(.22,.61,.36,1);
+    }
+    .ab-manifest a:hover::after { width: 100%; }
+    .ab-manifest ul {
+      list-style: none; padding: 0; margin: 0 0 28px;
+    }
+    .ab-manifest ul li {
+      padding: 5px 0;
+      font-weight: 300; font-size: 1rem; color: rgba(0,0,0,.65);
+      display: flex; align-items: center; gap: 10px;
+    }
+    .ab-manifest ul li::before {
+      content: "";
+      width: 5px; height: 5px; border-radius: 50%;
+      background: var(--black); opacity: .22; flex-shrink: 0;
+    }
 
     /* MapLibre controls z-index */
     .maplibregl-ctrl-group { z-index: 500 !important; }
     /* MapLibre popup style */
     .maplibregl-popup-content {
-      border-radius: 16px !important;
-      padding: 20px 24px !important;
-      min-width: 260px !important;
+      border-radius: 12px !important;
+      padding: 16px !important;
+      min-width: 240px !important;
       box-shadow: 0 8px 32px rgba(0,0,0,0.12) !important;
     }
     .maplibregl-popup-tip { display: none !important; }
 
+    /* ─── NEXT ARTIFACT ──────────────────────────────────────────────────────── */
+    .artifact-next {
+      display: flex; align-items: center; justify-content: space-between;
+      padding: clamp(28px, 4vw, 52px) 0;
+      background: none;
+      cursor: pointer;
+      border: none; border-top: 1px solid var(--border);
+      width: 100%; text-align: left;
+      font-family: 'Inter', sans-serif; color: var(--black);
+    }
+    .artifact-next-label {
+      font-size: 0.65rem; text-transform: uppercase; letter-spacing: .12em;
+      opacity: .45; margin-bottom: 10px;
+      display: flex; align-items: center; gap: 7px;
+    }
+    .artifact-next-author {
+      background: rgba(0,0,0,.08); border-radius: 999px;
+      padding: 2px 9px; text-transform: none; letter-spacing: 0;
+      font-size: 0.68rem; opacity: 1; color: var(--black);
+    }
+    .artifact-next-title {
+      font-weight: 800; font-size: clamp(22px, 3.5vw, 52px);
+      letter-spacing: -.035em; line-height: 1;
+    }
+    .artifact-next-arrow {
+      opacity: .3; flex-shrink: 0;
+      margin-left: clamp(24px, 4vw, 64px);
+      transition: transform 0.28s cubic-bezier(.22,.61,.36,1), opacity .2s;
+    }
+    .artifact-next:hover .artifact-next-arrow { transform: translateX(10px); opacity: .65; }
+
     /* ─── FOOTER ─────────────────────────────────────────────────────────────── */
     .site-footer {
+      position: relative;
       padding: 24px var(--edge);
-      border-top: 1px solid var(--border);
       display: flex; justify-content: space-between;
-      font-size: 0.82rem; font-weight: 300; opacity: 0.32;
+      font-size: 0.82rem; font-weight: 300; opacity: 0.55;
     }
+    .site-footer::before {
+      content: '';
+      position: absolute;
+      top: 0; left: var(--edge); right: var(--edge);
+      height: 1px;
+      background: var(--border);
+    }
+    /* ── Donate button + modal ── */
+    .nav-donate-btn {
+      background: #41C767; color: #fff; border: none; border-radius: 100px;
+      padding: 13px 24px; font-family: 'Inter', sans-serif; font-size: 0.9rem;
+      font-weight: 600; cursor: pointer; white-space: nowrap;
+      transition: background 0.15s;
+    }
+    .nav-donate-btn:hover { background: #35a855; }
+    .donate-overlay {
+      display: none; position: fixed; inset: 0; z-index: 1000;
+      background: rgba(0,0,0,0.45); align-items: center; justify-content: center;
+      padding: 24px;
+    }
+    .donate-overlay.open { display: flex; }
+    .donate-modal {
+      background: #fff; border-radius: 16px; padding: 36px 32px 32px;
+      max-width: 400px; width: 100%; position: relative;
+      box-shadow: 0 16px 48px rgba(0,0,0,0.2);
+    }
+    .donate-close {
+      position: absolute; top: 16px; right: 16px;
+      background: none; border: none; font-size: 1rem; cursor: pointer;
+      opacity: 0.4; transition: opacity 0.15s; padding: 4px 8px;
+    }
+    .donate-close:hover { opacity: 1; }
+    .donate-title { font-size: 1.15rem; font-weight: 600; letter-spacing: -0.02em; margin-bottom: 14px; }
+    .donate-text { font-size: 0.95rem; font-weight: 300; line-height: 1.65; color: rgba(0,0,0,0.65); margin-bottom: 24px; }
+    .donate-btns { display: flex; flex-direction: column; gap: 10px; }
+    .donate-btn {
+      display: block; text-align: center; background: var(--black); color: #fff;
+      text-decoration: none; border-radius: 10px; padding: 14px 20px;
+      font-family: 'Inter', sans-serif; font-size: 0.95rem; font-weight: 500;
+      transition: background 0.15s;
+    }
+    .donate-btn:hover { background: #222; }
+    .site-footer a {
+      color: inherit; text-decoration: none;
+      position: relative;
+    }
+    .site-footer a::after {
+      content: ''; position: absolute; bottom: -1px; left: 0;
+      width: 0; height: 1px; background: currentColor;
+      transition: width 0.28s cubic-bezier(.22,.61,.36,1);
+    }
+    .site-footer a:hover::after { width: 100%; }
 
     /* ─── RESPONSIVE ─────────────────────────────────────────────────────────── */
     @media (max-width: 960px) {
       :root { --edge: 24px; }
+      .hero { max-height: 640px; }
 
       .museum-stats-grid { grid-template-columns: 1fr; gap: 0; }
-      .gallery-grid { grid-template-columns: repeat(2, 1fr); column-gap: 10px; row-gap: 36px; }
+      .gallery-grid { grid-template-columns: repeat(2, 1fr); column-gap: 16px; row-gap: 36px; }
 
-      .artifact-body { grid-template-columns: 1fr; padding-left: 0; }
-      .artifact-photo-col { position: relative; top: auto; height: auto; aspect-ratio: 4 / 3; border-radius: 0; }
+      .artifact-body { grid-template-columns: 1fr; }
+      .artifact-photo-col { position: relative; top: auto; height: auto; aspect-ratio: 4 / 3; border-radius: 10px; }
       .artifact-content-col {
         border-left: none; border-top: 1px solid var(--border);
-        padding: 40px 24px 0px; min-height: auto;
+        padding: 40px 0 0; min-height: auto;
       }
 
-      .author-body { grid-template-columns: 1fr; padding-left: 0; }
-      .author-photo-col { position: relative; top: auto; height: auto; aspect-ratio: 4 / 3; border-radius: 0; }
-      .author-content-col {
-        border-left: none; border-top: 1px solid var(--border);
-        padding: 40px 24px 100px; min-height: auto;
-      }
-      .author-works-grid { grid-template-columns: repeat(2, 1fr); }
+      .al-lead-row { flex-direction: column; align-items: flex-start; gap: 20px; }
+      .al-row { grid-template-columns: 52px 1fr auto; gap: 14px; }
+      .al-row-avatar { width: 52px; height: 52px; }
+      .al-row-technique { display: none; }
+      .au-hero { grid-template-columns: 1fr; }
+      .au-portrait { position: relative; top: auto; aspect-ratio: 3/4; max-height: 72vh; border-radius: 10px; }
+      .au-expl { grid-template-columns: 1fr 1fr; }
+      .au-expl-cell:nth-child(3) { border-left: none; padding-left: 0; }
+      .au-expl-cell:nth-child(1),
+      .au-expl-cell:nth-child(2) { border-bottom: 1px solid rgba(0,0,0,.06); }
+      .au-statement { margin-top: 0; }
+      .au-bio { margin-top: 24px; padding-top: 0; }
+      .au-works-grid { grid-template-columns: repeat(2, 1fr); column-gap: 16px; row-gap: 36px; }
+      .ab-body { grid-template-columns: 1fr; }
+      .ab-lead { position: relative; top: auto; }
 
       .inner-layout { grid-template-columns: 1fr; }
-      .inner-left { position: relative; top: auto; padding: 48px 0 32px; border-bottom: 1px solid var(--border); }
+      .inner-left { position: relative; top: auto; padding: 48px 0 32px; }
       .inner-right { padding: 40px 0 60px; }
 
       /* Map: hide sidebar on small screens */
       .map-sidebar { display: none; }
+
+      .artifact-next-author { display: none; }
+      .artifact-addr { font-size: 1rem; font-weight: 400; }
     }
 
     @media (max-width: 540px) {
@@ -793,12 +1301,14 @@
       .nav-btn { font-size: 0.88rem; }
       .museum-content { padding-bottom: 40px; }
       .hero { height: 520px; }
-      .hero-layer-artefact { top: calc(14% + 70px); }
-      .hero-layer-muzey    { top: calc(24% + 70px); }
+      .hero-layer-artefact { top: calc(20% + 70px); }
+      .hero-layer-muzey    { top: calc(30% + 86px); }
       .hero-layer-subtitle { top: calc(56% + 70px); }
       .hero-artefact-svg { width: min(38vw, 180px); }
       .hero-muzey-svg    { width: min(78vw, 380px); }
       .hero-subtitle-svg { width: min(70vw, 340px); }
+      .meta-row-inline { grid-template-columns: 1fr; gap: 16px; }
+      .nav-donate-btn { padding: 11px 20px; font-size: 0.88rem; }
     }
 
     /* ─── HERO INTRO ANIMATION ────────────────────────────────────────────────── */
@@ -853,13 +1363,15 @@
     <span class="nav-logo-main"><svg id="nav-logo-svg" height="28" viewBox="0 0 415 81" fill="none" xmlns="http://www.w3.org/2000/svg" style="display:block"><path d="M387.731 62.551V29.5777H374.879V18.2974H414.877V29.5777H402.069V62.551H387.731Z" fill="currentColor"/><path d="M355.185 62.551L341.528 39.4263L355.615 18.2974H370.521L356.649 38.6454L371.9 62.551H355.185ZM326.795 62.551V18.2974H340.925V34.22H354.323V45.5004H340.925V62.551H326.795Z" fill="currentColor"/><path d="M288.697 63.827C285.75 63.827 283.106 63.2637 280.766 62.1371C278.426 60.9815 276.577 59.3493 275.219 57.2405C273.861 55.1028 273.182 52.5461 273.182 49.5707C273.182 47.0285 273.803 44.7752 275.045 42.8108C276.317 40.8464 278.223 39.2287 280.766 37.9576C283.309 36.6865 286.501 35.8343 290.344 35.401C294.216 34.9388 298.738 34.9388 303.909 35.401L304.039 44.2408C301.295 43.7497 298.81 43.5041 296.585 43.5041C294.389 43.4752 292.511 43.663 290.951 44.0674C289.42 44.443 288.235 45.0352 287.397 45.8441C286.559 46.6529 286.14 47.6496 286.14 48.834C286.14 50.3651 286.718 51.5351 287.874 52.3439C289.058 53.1528 290.633 53.5572 292.598 53.5572C294.302 53.5572 295.834 53.2539 297.192 52.6473C298.579 52.0406 299.677 51.1595 300.486 50.004C301.323 48.8196 301.742 47.3752 301.742 45.6707V35.5743C301.742 33.9855 301.41 32.5844 300.746 31.3711C300.081 30.1578 299.026 29.2189 297.582 28.5545C296.166 27.8611 294.274 27.5145 291.904 27.5145C289.622 27.5145 287.354 27.8611 285.1 28.5545C282.846 29.2189 280.824 30.23 279.033 31.5877L275.392 21.8379C278.252 20.0469 281.315 18.7325 284.58 17.8947C287.845 17.028 291.052 16.5947 294.201 16.5947C298.362 16.5947 302.017 17.2592 305.166 18.588C308.344 19.9169 310.829 21.9679 312.621 24.7412C314.412 27.5145 315.308 31.0677 315.308 35.401V62.527H303.043V57.8471C301.627 59.7538 299.677 61.2271 297.192 62.267C294.707 63.307 291.875 63.827 288.697 63.827Z" fill="currentColor"/><path d="M175.761 63.8273C170.94 63.8273 166.708 62.8594 163.063 60.9235C159.419 58.9588 156.578 56.2284 154.541 52.7323C152.503 49.2074 151.484 45.0901 151.484 40.3806C151.484 36.9712 152.073 33.8363 153.249 30.9759C154.454 28.1154 156.119 25.6451 158.242 23.5648C160.395 21.4845 162.92 19.8809 165.818 18.7541C168.745 17.5984 171.959 17.0205 175.46 17.0205C179.305 17.0205 182.735 17.7139 185.748 19.1008C188.761 20.4588 191.243 22.3657 193.194 24.8216C195.174 27.2487 196.538 30.1235 197.284 33.4462C198.03 36.74 198.058 40.3228 197.37 44.1944H164.398C164.426 45.928 164.943 47.4449 165.947 48.7451C166.952 50.0453 168.329 51.071 170.08 51.8222C171.83 52.5445 173.867 52.9057 176.192 52.9057C178.775 52.9057 181.228 52.5734 183.552 51.9089C185.877 51.2155 188.101 50.1609 190.224 48.7451L194.658 58.3665C193.309 59.4066 191.559 60.3457 189.407 61.1836C187.283 61.9926 185.016 62.6282 182.606 63.0905C180.224 63.5817 177.942 63.8273 175.761 63.8273ZM165.259 34.6164H183.94C183.883 32.3916 183.065 30.6147 181.486 29.2856C179.908 27.9565 177.77 27.292 175.073 27.292C172.347 27.292 170.08 27.9565 168.272 29.2856C166.493 30.6147 165.488 32.3916 165.259 34.6164Z" fill="currentColor"/><path d="M119.944 62.551V29.5777H107.229V18.2974H146.802V29.5777H134.13V62.551H119.944Z" fill="currentColor"/><path d="M53.1895 80.8479V18.3231H65.5376V23.4033C67.1957 21.4638 69.3046 19.9152 71.8644 18.7573C74.4533 17.5994 77.4495 17.0205 80.8528 17.0205C85.0998 17.0205 88.8813 17.9902 92.1975 19.9297C95.5427 21.8691 98.1752 24.6045 100.095 28.136C102.015 31.6675 102.975 35.778 102.975 40.4673C102.975 43.7672 102.422 46.8501 101.317 49.7158C100.24 52.5526 98.6988 55.042 96.6917 57.184C94.6845 59.2971 92.3138 60.9471 89.5795 62.1339C86.8742 63.3207 83.8781 63.9141 80.591 63.9141C77.9731 63.9141 75.5587 63.4944 73.3479 62.6549C71.1663 61.8155 69.2028 60.6287 67.4575 59.0945V80.8479H53.1895ZM78.1912 51.6697C80.2565 51.6697 82.1037 51.221 83.7326 50.3237C85.3616 49.3974 86.6415 48.0948 87.5723 46.4159C88.5032 44.737 88.9686 42.7541 88.9686 40.4673C88.9686 38.1516 88.4886 36.1687 87.5287 34.5188C86.5979 32.8399 85.318 31.5517 83.689 30.6544C82.0891 29.7281 80.2565 29.265 78.1912 29.265C76.155 29.265 74.3224 29.7281 72.6935 30.6544C71.0645 31.5517 69.7846 32.8399 68.8537 34.5188C67.9229 36.1687 67.4575 38.1516 67.4575 40.4673C67.4575 42.7541 67.9229 44.737 68.8537 46.4159C69.7846 48.0948 71.0499 49.3974 72.6498 50.3237C74.2788 51.221 76.1259 51.6697 78.1912 51.6697Z" fill="currentColor"/><path d="M15.5156 63.827C12.5685 63.827 9.92477 63.2637 7.58443 62.1371C5.24409 60.9815 3.39494 59.3493 2.03696 57.2405C0.678987 55.1028 0 52.5461 0 49.5707C0 47.0285 0.621201 44.7752 1.8636 42.8108C3.1349 40.8464 5.04184 39.2287 7.58443 37.9576C10.127 36.6865 13.3197 35.8343 17.1625 35.401C21.0342 34.9388 25.5559 34.9388 30.7278 35.401L30.8578 44.2408C28.113 43.7497 25.6282 43.5041 23.4034 43.5041C21.2075 43.4752 19.3295 43.663 17.7692 44.0674C16.2379 44.443 15.0533 45.0352 14.2154 45.8441C13.3775 46.6529 12.9585 47.6496 12.9585 48.834C12.9585 50.3651 13.5364 51.5351 14.6921 52.3439C15.8767 53.1528 17.4514 53.5572 19.4161 53.5572C21.1208 53.5572 22.6522 53.2539 24.0101 52.6473C25.397 52.0406 26.4949 51.1595 27.3039 50.004C28.1418 48.8196 28.5608 47.3752 28.5608 45.6707V35.5743C28.5608 33.9855 28.2285 32.5844 27.564 31.3711C26.8994 30.1578 25.8448 29.2189 24.4002 28.5545C22.9844 27.8611 21.0919 27.5145 18.7227 27.5145C16.4402 27.5145 14.172 27.8611 11.9184 28.5545C9.66473 29.2189 7.64222 30.23 5.85085 31.5877L2.21032 21.8379C5.07073 20.0469 8.1334 18.7325 11.3983 17.8947C14.6632 17.028 17.8704 16.5947 21.0197 16.5947C25.1803 16.5947 28.8353 17.2592 31.9846 18.588C35.1629 19.9169 37.6477 21.9679 39.439 24.7412C41.2304 27.5145 42.1261 31.0677 42.1261 35.401V62.527H29.861V57.8471C28.4452 59.7538 26.4949 61.2271 24.0101 62.267C21.5253 63.307 18.6938 63.827 15.5156 63.827Z" fill="currentColor"/><path fill-rule="evenodd" clip-rule="evenodd" d="M242.766 17.4648C246.751 17.8804 250.3 18.6786 253.409 19.8643C258.197 21.6609 261.83 24.2982 264.311 27.7754C266.82 31.2237 268.075 35.4397 268.075 40.4238C268.075 44.162 267.325 47.4802 265.825 50.3779C264.354 53.2757 262.22 55.7102 259.422 57.6807C257.408 59.0991 255.072 60.275 252.415 61.2129L246.493 50.9541C249.156 50.0846 251.101 48.7784 252.327 47.0312C253.567 45.2636 254.188 43.0608 254.188 40.4238C254.187 37.7581 253.553 35.556 252.284 33.8174C251.044 32.0497 249.053 30.7307 246.313 29.8613C245.259 29.5121 244.077 29.231 242.766 29.0176V44.498L242.76 44.4883V80.8477H228.575V63.3701C224.674 62.951 221.185 62.1571 218.106 60.9834C213.319 59.1578 209.669 56.5066 207.16 53.0293C204.651 49.552 203.396 45.35 203.396 40.4238C203.397 35.4687 204.68 31.2527 207.247 27.7754C209.814 24.2981 213.52 21.6609 218.365 19.8643C221.378 18.7291 224.782 17.9469 228.575 17.5176V0H242.766V17.4648ZM228.575 29.0098C227.249 29.2242 226.052 29.5077 224.984 29.8613C222.302 30.7307 220.327 32.0498 219.058 33.8174C217.818 35.556 217.197 37.7581 217.197 40.4238C217.197 43.0608 217.817 45.2636 219.058 47.0312C220.327 48.7988 222.317 50.117 225.028 50.9863C226.086 51.3219 227.268 51.5918 228.575 51.7979V29.0098Z" fill="currentColor"/><path d="M250.345 80.8599C250.729 77.2846 251.43 74.0556 252.448 71.1714L262.787 77.1392C262.768 77.1968 262.747 77.2546 262.729 77.313C262.393 78.3706 262.124 79.5531 261.918 80.8599H250.345Z" fill="currentColor"/></svg></span>
     <span class="nav-logo-sub">музей<br>размером с город</span>
   </div>
-  <ul class="nav-links">
-    <li><button class="nav-btn active" data-nav="main"     onclick="navigateToGallery()">Галерея</button></li>
-    <li><button class="nav-btn"        data-nav="authors"  onclick="navigate('authors')">Авторы</button></li>
-    <li><button class="nav-btn"        data-nav="map"      onclick="navigate('map')">Карта</button></li>
-    <li><button class="nav-btn"        data-nav="about"    onclick="navigate('about')">Музей</button></li>
-    <li><button class="nav-btn"        data-nav="contacts" onclick="navigate('contacts')">Контакты</button></li>
-  </ul>
+  <div class="nav-right">
+    <ul class="nav-links">
+      <li><button class="nav-btn active" data-nav="main"     onclick="navigateToGallery()">Галерея</button></li>
+      <li><button class="nav-btn"        data-nav="authors"  onclick="navigate('authors')">Авторы</button></li>
+      <li><button class="nav-btn"        data-nav="map"      onclick="navigate('map')">Карта</button></li>
+      <li><button class="nav-btn"        data-nav="about"    onclick="navigate('about')">Музей</button></li>
+    </ul>
+    <button class="nav-donate-btn" onclick="openDonateModal()">Поддержать</button>
+  </div>
   <button class="nav-hamburger" id="nav-hamburger" aria-label="Меню" onclick="toggleMobileMenu()">
     <span></span><span></span><span></span>
   </button>
@@ -871,7 +1383,6 @@
     <li><button class="nav-btn"        data-nav="authors"  onclick="navigate('authors');closeMobileMenu()">Авторы</button></li>
     <li><button class="nav-btn"        data-nav="map"      onclick="navigate('map');closeMobileMenu()">Карта</button></li>
     <li><button class="nav-btn"        data-nav="about"    onclick="navigate('about');closeMobileMenu()">Музей</button></li>
-    <li><button class="nav-btn"        data-nav="contacts" onclick="navigate('contacts');closeMobileMenu()">Контакты</button></li>
   </ul>
 </div>
 <div class="nav-overlay" id="nav-overlay" onclick="closeMobileMenu()"></div>
@@ -904,12 +1415,12 @@
 
     <!-- МУЗЕЙ -->
     <div class="hero-layer hero-layer-muzey" data-speed="0.36">
-      <svg class="hero-muzey-svg" width="815" height="313" viewBox="0 0 815 313" fill="none" xmlns="http://www.w3.org/2000/svg">
-<path d="M664.908 310.657C661.909 310.657 660.41 309.033 660.41 305.785V70.0313C660.41 66.7829 661.909 65.1588 664.908 65.1588H708.76C711.509 65.1588 712.883 66.7829 712.883 70.0313V144.618C712.883 149.615 712.758 156.112 712.508 164.108C712.258 171.854 711.884 179.975 711.384 188.47C710.884 196.716 710.384 204.712 709.885 212.458C709.385 220.204 708.885 226.701 708.385 231.948H709.135C710.634 225.951 712.134 219.454 713.633 212.458C715.382 205.462 717.756 196.591 720.754 185.847C724.002 175.102 727.875 161.359 732.373 144.618L754.862 68.532C755.111 66.2832 756.486 65.1588 758.984 65.1588H809.958C812.707 65.1588 814.081 66.7829 814.081 70.0313V305.785C814.081 309.033 812.582 310.657 809.583 310.657H766.106C763.107 310.657 761.608 309.033 761.608 305.785V237.945C761.608 232.198 761.733 225.326 761.983 217.33C762.233 209.335 762.608 200.964 763.107 192.218C763.607 183.223 764.107 174.727 764.607 166.731C765.356 158.736 765.981 151.864 766.481 146.117H765.731C764.232 152.364 762.483 159.235 760.484 166.731C758.735 174.228 756.236 183.598 752.987 194.842C749.989 206.086 745.866 220.454 740.619 237.945L720.004 307.284C719.255 309.533 717.631 310.657 715.132 310.657H664.908ZM737.246 47.9176C728 47.9176 720.129 46.4184 713.633 43.4199C707.386 40.4215 702.389 37.1732 698.64 33.675C697.641 32.6755 697.141 31.0513 697.141 28.8025V3.6904C697.141 -0.307537 698.765 -1.05715 702.014 1.44157C706.761 4.6899 711.884 7.31355 717.381 9.31252C723.128 11.3115 729.749 12.311 737.246 12.311C744.992 12.311 751.613 11.3115 757.11 9.31252C762.857 7.31355 767.98 4.6899 772.477 1.44157C773.727 0.19221 774.851 -0.182602 775.851 0.317134C776.85 0.816885 777.35 1.94131 777.35 3.6904V28.8025C777.35 31.0513 776.85 32.6755 775.851 33.675C771.853 37.4231 766.73 40.7963 760.484 43.7948C754.237 46.5434 746.491 47.9176 737.246 47.9176Z" fill="white"/>
-<path d="M527.904 310.657C525.156 310.657 523.781 309.033 523.781 305.784V70.0307C523.781 66.7824 525.156 65.1582 527.904 65.1582H644.469C647.218 65.1582 648.592 66.7824 648.592 70.0307V109.385C648.592 112.634 647.218 114.258 644.469 114.258H579.253V163.358H638.097C640.846 163.358 642.22 164.982 642.22 168.23V205.336C642.22 208.584 640.846 210.209 638.097 210.209H579.253V261.557H644.469C647.218 261.557 648.592 263.181 648.592 266.43V305.784C648.592 309.033 647.218 310.657 644.469 310.657H527.904Z" fill="white"/>
-<path d="M438.085 312.906C419.845 312.906 405.227 309.908 394.233 303.911C383.488 297.664 376.117 289.044 372.119 278.049C368.121 267.055 366.872 254.312 368.371 239.819C368.621 237.32 369.246 235.821 370.245 235.321C371.495 234.572 372.994 234.197 374.743 234.197H414.098C417.096 234.197 418.47 235.696 418.22 238.695C417.221 247.94 418.345 255.061 421.594 260.059C424.842 265.056 430.464 267.555 438.46 267.555C446.206 267.555 451.703 265.181 454.952 260.433C458.2 255.436 459.824 247.565 459.824 236.821C459.824 226.826 458.075 219.704 454.577 215.457C451.328 211.209 444.707 209.085 434.712 209.085H419.72C416.971 209.085 415.597 207.461 415.597 204.212V170.48C415.597 167.231 416.971 165.607 419.72 165.607H430.214C439.46 165.607 445.706 163.109 448.955 158.111C452.203 153.114 453.827 145.493 453.827 135.248C453.827 126.003 452.578 119.256 450.079 115.008C447.58 110.511 442.583 108.262 435.087 108.262C427.841 108.262 422.968 110.511 420.469 115.008C417.971 119.506 417.221 125.878 418.22 134.123C418.22 137.622 416.846 139.371 414.098 139.371H373.244C371.744 139.371 370.62 139.121 369.87 138.621C369.121 138.121 368.621 136.747 368.371 134.498C366.372 112.26 371.12 94.7688 382.614 82.0253C394.358 69.2819 413.223 62.9102 439.21 62.9102C461.698 62.9102 478.689 68.1574 490.183 78.652C501.927 89.1466 507.799 105.138 507.799 126.627C507.799 139.871 505.301 151.365 500.303 161.11C495.556 170.855 489.184 178.101 481.188 182.848V183.598C490.933 187.346 498.929 193.968 505.176 203.463C511.423 212.958 514.546 224.702 514.546 238.695C514.546 263.182 507.799 281.673 494.306 294.166C481.063 306.66 462.323 312.906 438.085 312.906Z" fill="white"/>
-<path d="M228.269 310.657C226.77 310.657 225.646 310.157 224.896 309.158C224.146 307.908 224.146 306.409 224.896 304.66L252.257 229.699L199.409 71.1551C198.16 67.1572 199.284 65.1582 202.782 65.1582H257.129C259.628 65.1582 261.003 66.2826 261.252 68.5315L274.371 130C276.12 136.996 277.494 143.743 278.493 150.239C279.743 156.486 280.867 163.233 281.867 170.479H282.616C284.116 163.233 285.365 156.486 286.364 150.239C287.364 143.743 288.738 136.996 290.487 130L303.98 68.5315C304.23 66.2826 305.605 65.1582 308.103 65.1582H362.825C366.323 65.1582 367.448 67.0322 366.198 70.7803L285.99 307.284C285.49 309.532 283.866 310.657 281.117 310.657H228.269Z" fill="white"/>
-<path d="M4.49768 310.657C1.49923 310.657 0 309.158 0 306.159L3.37326 70.0307C3.37326 66.7824 4.74756 65.1582 7.49614 65.1582H61.4684C64.4668 65.1582 66.091 66.2826 66.3409 68.5315L98.9491 183.597L131.182 68.5315C131.932 66.2826 133.681 65.1582 136.43 65.1582H190.402C193.151 65.1582 194.525 66.7824 194.525 70.0307L197.898 306.159C197.898 309.158 196.399 310.657 193.4 310.657H147.299C144.551 310.657 143.176 309.033 143.176 305.784L142.427 224.451C142.177 209.209 142.427 196.091 143.176 185.096C143.926 174.102 144.8 164.107 145.8 155.112H145.05C142.801 162.858 140.428 170.854 137.929 179.1C135.43 187.345 132.807 195.341 130.058 203.087L103.447 279.548C102.697 281.547 101.448 282.546 99.6987 282.546H97.8247C96.3254 282.546 95.201 281.547 94.4514 279.548L67.8401 203.087C64.8416 195.091 62.093 187.095 59.5943 179.1C57.0956 170.854 54.8468 162.858 52.8478 155.112H52.0982C53.0977 164.107 53.8473 174.102 54.347 185.096C55.0966 196.091 55.4715 209.209 55.4715 224.451L54.7218 305.784C54.7218 309.033 53.3475 310.657 50.599 310.657H4.49768Z" fill="white"/>
+      <svg class="hero-muzey-svg" width="1727" height="471" viewBox="0 0 1727 471" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <path d="M1409.36 98.8158H1508.89V290.719H1511.76L1642.08 98.8158H1726.57V465.437H1627.04V272.818H1624.89L1492.42 465.437H1409.36V98.8158ZM1604.13 0H1666.42C1666.3 23.2719 1657.41 41.8893 1639.75 55.8524C1622.09 69.6962 1598.28 76.6181 1568.32 76.6181C1538.13 76.6181 1514.2 69.6962 1496.54 55.8524C1478.88 41.8893 1470.1 23.2719 1470.22 0H1531.81C1531.69 7.51861 1534.37 14.4405 1539.86 20.7656C1545.47 26.9715 1554.96 30.0744 1568.32 30.0744C1581.09 30.0744 1590.22 27.0312 1595.71 20.9447C1601.2 14.8582 1604.01 7.87662 1604.13 0Z" fill="white"/>
+        <path d="M1107.89 465.437V98.8154H1372.12V179.014H1207.43V242.027H1358.51V322.225H1207.43V385.238H1371.4V465.437H1107.89Z" fill="white"/>
+        <path d="M926.774 470.449C897.893 470.449 872.234 465.496 849.798 455.59C827.481 445.566 809.937 431.782 797.167 414.238C784.398 396.695 777.953 376.526 777.834 353.731H878.082C878.201 360.773 880.349 367.098 884.526 372.707C888.823 378.197 894.671 382.493 902.07 385.596C909.469 388.699 917.942 390.25 927.49 390.25C936.679 390.25 944.795 388.639 951.836 385.417C958.877 382.075 964.367 377.481 968.305 371.633C972.243 365.785 974.153 359.102 974.034 351.583C974.153 344.184 971.885 337.62 967.231 331.892C962.696 326.163 956.311 321.688 948.076 318.466C939.842 315.243 930.354 313.632 919.613 313.632H882.378V244.891H919.613C929.519 244.891 938.231 243.28 945.749 240.057C953.387 236.835 959.295 232.36 963.472 226.631C967.768 220.903 969.857 214.339 969.737 206.94C969.857 199.779 968.126 193.454 964.546 187.964C960.965 182.474 955.953 178.178 949.509 175.075C943.183 171.972 935.844 170.421 927.49 170.421C918.42 170.421 910.304 172.032 903.144 175.254C896.103 178.476 890.553 182.952 886.496 188.68C882.438 194.409 880.349 200.973 880.23 208.372H784.995C785.114 185.935 791.26 166.124 803.433 148.939C815.725 131.754 832.553 118.268 853.915 108.482C875.277 98.6958 899.802 93.8027 927.49 93.8027C954.581 93.8027 978.509 98.3974 999.275 107.587C1020.16 116.776 1036.45 129.427 1048.15 145.538C1059.96 161.53 1065.81 179.849 1065.69 200.495C1065.93 221.022 1058.89 237.849 1044.57 250.977C1030.36 264.105 1012.34 271.862 990.503 274.249V277.113C1020.1 280.336 1042.36 289.406 1057.28 304.323C1072.19 319.122 1079.53 337.739 1079.29 360.176C1079.41 381.658 1072.97 400.693 1059.96 417.281C1047.07 433.87 1029.11 446.878 1006.08 456.306C983.163 465.735 956.729 470.449 926.774 470.449Z" fill="white"/>
+        <path d="M518.51 470.449V393.115H536.411C546.913 393.115 555.208 392.279 561.294 390.609C567.5 388.818 572.274 385.715 575.615 381.3C579.076 376.765 582 370.44 584.387 362.324L587.967 351.583L450.484 98.8154H552.164L628.782 247.755L687.499 98.8154H787.747L661.721 385.238C654.799 400.275 646.565 414.298 637.017 427.306C627.47 440.195 615.595 450.638 601.393 458.634C587.192 466.511 569.588 470.449 548.584 470.449H518.51Z" fill="white"/>
+        <path d="M0 98.8154H123.878L209.089 306.472H213.385L298.596 98.8154H422.473V465.437H325.09V253.484H322.226L240.595 462.572H181.878L100.248 252.052H97.3837V465.437H0V98.8154Z" fill="white"/>
       </svg>
     </div>
 
@@ -935,36 +1446,48 @@
 
     <!-- City panorama -->
     <div class="hero-layer hero-layer-city" data-speed="0.1">
-      <img class="hero-city-img" src="Images/City.png" alt="">
+      <img class="hero-city-img" src="Images/город.png" alt="">
     </div>
 
     <button class="hero-scroll-arrow" onclick="document.getElementById('gallery-section').scrollIntoView({behavior:'smooth'})">
       <svg width="28" height="28" viewBox="0 0 28 28" fill="none" xmlns="http://www.w3.org/2000/svg">
-        <path d="M5 10L14 19L23 10" stroke="currentColor" stroke-width="2.5" stroke-linecap="square" stroke-linejoin="miter"/>
+        <path d="M5 10L14 19L23 10" stroke="currentColor" stroke-width="2" stroke-linecap="square" stroke-linejoin="miter"/>
       </svg>
     </button>
   </div>
   <!-- ─── /HERO ──────────────────────────────────────────────────────────────── -->
 
-  <section class="gallery-section" id="gallery-section" style="padding-top: calc(var(--nav-h) + 48px)">
+  <section class="gallery-section" id="gallery-section">
+    <div class="gallery-intro">
+      <h2 class="gallery-intro-title">Галерея</h2>
+      <div class="gallery-intro-body">
+        <p class="gallery-intro-lead">Превращаем элементы города в&nbsp;экспонаты, чтобы <span class="gallery-intro-hl">решать его&nbsp;проблемы и&nbsp;замечать красоту</span></p>
+        <div class="al-count-block" id="artifacts-count-block"></div>
+      </div>
+    </div>
     <div class="gallery-grid" id="gallery-grid"></div>
   </section>
   <footer class="site-footer">
-    <span>© Артефакт, 2025</span>
+    <span>© Артефакт, 2026</span>
     <span>Музей размером с город</span>
   </footer>
 </div>
 
 <!-- ═══ О МУЗЕЕ VIEW ════════════════════════════════════════════════════════ -->
-<div id="view-about" class="view inner-page">
-  <div class="inner-layout">
-    <div class="inner-left">
-      <h1 class="page-display-title">музей</h1>
+<div id="view-about" class="view">
+  <div class="ab-page">
+
+    <div class="ab-name-row">
+      <h1 class="ab-name">О музее</h1>
     </div>
-    <div class="inner-right">
-      <div class="about-stats" id="about-stats"></div>
-      <div class="manifest-text" id="about-manifest" style="margin-top:52px;padding-top:48px;border-top:1px solid var(--border)"></div>
+
+    <div class="au-expl" id="about-expl"></div>
+
+    <div class="ab-body">
+      <div class="ab-lead" id="about-lead"></div>
+      <div class="ab-manifest" id="about-manifest"></div>
     </div>
+
   </div>
   <footer class="site-footer">
     <span id="footer-copy-about"></span>
@@ -974,28 +1497,51 @@
 
 <!-- ═══ ARTIFACT VIEW ════════════════════════════════════════════════════════ -->
 <div id="view-artifact" class="view">
-  <div class="artifact-body">
+  <div class="art-page">
 
-    <div class="artifact-photo-col">
-      <div class="photo-slider" id="photo-slider">
-        <img class="slider-img" id="slider-img" src="" alt="">
-        <button class="slide-btn is-prev" id="btn-prev" onclick="slidePhoto(-1)"><svg width="18" height="18" viewBox="0 0 18 18" fill="none"><path d="M11 3L5 9L11 15" stroke="currentColor" stroke-width="2" stroke-linecap="square" stroke-linejoin="miter"/></svg></button>
-        <button class="slide-btn is-next" id="btn-next" onclick="slidePhoto(1)"><svg width="18" height="18" viewBox="0 0 18 18" fill="none"><path d="M7 3L13 9L7 15" stroke="currentColor" stroke-width="2" stroke-linecap="square" stroke-linejoin="miter"/></svg></button>
-        <div class="slide-counter" id="slide-counter"></div>
+    <div class="au-crumb">
+      <button class="back-btn" onclick="navigateToGallery()"><svg width="16" height="16" viewBox="0 0 18 18" fill="none"><path d="M11 3L5 9L11 15" stroke="currentColor" stroke-width="2" stroke-linecap="square" stroke-linejoin="miter"/></svg> В галерею</button>
+    </div>
+
+    <div class="au-name-row">
+      <h1 class="au-name" id="art-title"></h1>
+    </div>
+
+    <div class="au-expl" id="art-expl"></div>
+
+    <div class="artifact-body">
+
+      <div class="artifact-photo-col">
+        <div class="photo-slider" id="photo-slider">
+          <img class="slider-img" id="slider-img" src="" alt="">
+          <button class="slide-btn is-prev" id="btn-prev" onclick="slidePhoto(-1)"><svg width="16" height="16" viewBox="0 0 18 18" fill="none"><path d="M11 3L5 9L11 15" stroke="currentColor" stroke-width="2" stroke-linecap="square" stroke-linejoin="miter"/></svg></button>
+          <button class="slide-btn is-next" id="btn-next" onclick="slidePhoto(1)"><svg width="16" height="16" viewBox="0 0 18 18" fill="none"><path d="M7 3L13 9L7 15" stroke="currentColor" stroke-width="2" stroke-linecap="square" stroke-linejoin="miter"/></svg></button>
+          <div class="slide-counter" id="slide-counter"></div>
+        </div>
       </div>
+
+      <div class="artifact-content-col">
+        <div class="artifact-desc" id="art-desc"></div>
+        <button class="artifact-addr" id="art-addr-block">
+          <svg width="12" height="15" viewBox="0 0 12 15" fill="currentColor"><path d="M6 0C3.24 0 1 2.24 1 5c0 3.75 5 10 5 10s5-6.25 5-10c0-2.76-2.24-5-5-5Zm0 6.75A1.75 1.75 0 1 1 6 3.25a1.75 1.75 0 0 1 0 3.5Z"/></svg>
+          <span id="art-addr-text"></span>
+          <div class="artifact-addr-arrow"><svg width="20" height="20" viewBox="0 0 20 20" fill="none"><path d="M7 4L13 10L7 16" stroke="currentColor" stroke-width="2" stroke-linecap="square" stroke-linejoin="miter"/></svg></div>
+        </button>
+      </div>
+
     </div>
 
-    <div class="artifact-content-col">
-      <button class="back-btn" onclick="navigateToGallery()"><svg width="18" height="18" viewBox="0 0 18 18" fill="none"><path d="M11 3L5 9L11 15" stroke="currentColor" stroke-width="2" stroke-linecap="square" stroke-linejoin="miter"/></svg> В галерею</button>
-      <h1 class="artifact-title" id="art-title"></h1>
-      <div class="artifact-desc"  id="art-desc"></div>
-      <div class="artifact-meta"  id="art-meta"></div>
-      <div class="artifact-map-el" id="artifact-map"></div>
-    </div>
+    <button class="artifact-next" id="artifact-next-block">
+      <div>
+        <div class="artifact-next-label">Следующий экспонат</div>
+        <div class="artifact-next-title" id="artifact-next-title"></div>
+      </div>
+      <div class="artifact-next-arrow"><svg width="16" height="16" viewBox="0 0 18 18" fill="none"><path d="M7 3L13 9L7 15" stroke="currentColor" stroke-width="2" stroke-linecap="square" stroke-linejoin="miter"/></svg></div>
+    </button>
 
   </div>
   <footer class="site-footer">
-    <span>© Артефакт, 2025</span>
+    <span>© Артефакт, 2026</span>
     <span>Музей размером с город</span>
   </footer>
 </div>
@@ -1011,20 +1557,28 @@
     </div>
   </div>
   <footer class="site-footer">
-    <span>© Артефакт, 2025</span>
+    <span>© Артефакт, 2026</span>
     <span>Музей размером с город</span>
   </footer>
 </div>
 
 <!-- ═══ AUTHORS LIST VIEW ════════════════════════════════════════════════════ -->
-<div id="view-authors" class="view inner-page">
-  <div class="inner-layout">
-    <div class="inner-left">
-      <h1 class="page-display-title">авто-<br>ры</h1>
+<div id="view-authors" class="view">
+  <div class="al-page">
+
+    <div class="al-name-row">
+      <h1 class="al-name">Авторы</h1>
     </div>
-    <div class="inner-right">
+
+    <div class="al-lead-row">
+      <p class="al-lead">Те, кто превращает <span class="gallery-intro-hl">город в музей</span></p>
+      <div class="al-count-block" id="authors-count-block"></div>
+    </div>
+
+    <div class="al-registry">
       <div id="authors-list"></div>
     </div>
+
   </div>
   <footer class="site-footer">
     <span id="footer-copy-authors"></span>
@@ -1034,18 +1588,44 @@
 
 <!-- ═══ AUTHOR PAGE VIEW ═════════════════════════════════════════════════════ -->
 <div id="view-author" class="view">
-  <div class="author-body">
-    <div class="author-photo-col" id="author-photo-col"></div>
-    <div class="author-content-col">
-      <button class="back-btn" onclick="navigate('authors')"><svg width="18" height="18" viewBox="0 0 18 18" fill="none"><path d="M11 3L5 9L11 15" stroke="currentColor" stroke-width="2" stroke-linecap="square" stroke-linejoin="miter"/></svg> Авторы</button>
-      <h1 class="author-name" id="author-name"></h1>
-      <div class="author-bio" id="author-bio"></div>
-      <div class="author-works-label">Работы</div>
-      <div class="author-works-grid" id="author-works-grid"></div>
+  <div class="au-page">
+
+    <div class="au-crumb">
+      <button class="back-btn" onclick="navigate('authors')"><svg width="16" height="16" viewBox="0 0 18 18" fill="none"><path d="M11 3L5 9L11 15" stroke="currentColor" stroke-width="2" stroke-linecap="square" stroke-linejoin="miter"/></svg> Авторы</button>
     </div>
+
+    <div class="au-name-row">
+      <h1 class="au-name" id="author-name"></h1>
+    </div>
+
+    <div class="au-expl" id="author-expl"></div>
+
+    <div class="au-hero">
+      <figure class="au-portrait" id="author-photo-col"></figure>
+      <div class="au-statement">
+        <p class="au-quote" id="author-quote"></p>
+        <div class="au-bio" id="author-bio"></div>
+      </div>
+    </div>
+
+    <div class="au-collection" id="author-collection">
+      <div class="au-col-head">
+        <h2 class="au-col-title">Работы в городе</h2>
+      </div>
+      <div class="au-works-grid" id="author-works-grid"></div>
+    </div>
+
+    <button class="artifact-next" id="author-next-block">
+      <div>
+        <div class="artifact-next-label">Следующий автор</div>
+        <div class="artifact-next-title" id="author-next-name"></div>
+      </div>
+      <div class="artifact-next-arrow"><svg width="16" height="16" viewBox="0 0 18 18" fill="none"><path d="M7 3L13 9L7 15" stroke="currentColor" stroke-width="2" stroke-linecap="square" stroke-linejoin="miter"/></svg></div>
+    </button>
+
   </div>
   <footer class="site-footer">
-    <span>© Артефакт, 2025</span>
+    <span>© Артефакт, 2026</span>
     <span>Музей размером с город</span>
   </footer>
 </div>
@@ -1054,20 +1634,21 @@
 <div id="view-map" class="view">
   <div class="map-topbar">
     <span class="map-topbar-label" id="map-topbar-label">Карта экспонатов</span>
-    <span class="map-topbar-city" id="map-topbar-city">Томск — и другие города</span>
+    <span class="map-topbar-city" id="map-topbar-city"></span>
   </div>
-  <div class="map-body">
-    <div id="main-map" class="main-map-el"></div>
+  <div class="map-body" style="position:relative;">
     <div id="map-sidebar" class="map-sidebar"></div>
+    <div id="main-map" class="main-map-el" style="position:relative;"><div class="map-loading" id="main-map-loading">Загрузка карты…</div></div>
+    <button class="map-list-toggle" id="map-list-toggle" onclick="toggleMapList()">Список экспонатов</button>
   </div>
 </div>
 
 <!-- ═══ PHOTO LIGHTBOX ════════════════════════════════════════════════════════ -->
 <div id="photo-lightbox" class="photo-lightbox" onclick="closeLightbox()">
   <button class="lightbox-close" onclick="closeLightbox()">✕</button>
-  <button class="lb-btn lb-prev" onclick="event.stopPropagation(); lightboxStep(-1)"><svg width="18" height="18" viewBox="0 0 18 18" fill="none"><path d="M11 3L5 9L11 15" stroke="currentColor" stroke-width="2" stroke-linecap="square" stroke-linejoin="miter"/></svg></button>
+  <button class="lb-btn lb-prev" onclick="event.stopPropagation(); lightboxStep(-1)"><svg width="16" height="16" viewBox="0 0 18 18" fill="none"><path d="M11 3L5 9L11 15" stroke="currentColor" stroke-width="2" stroke-linecap="square" stroke-linejoin="miter"/></svg></button>
   <img id="lightbox-img" class="lightbox-img" src="" alt="" onclick="event.stopPropagation()">
-  <button class="lb-btn lb-next" onclick="event.stopPropagation(); lightboxStep(1)"><svg width="18" height="18" viewBox="0 0 18 18" fill="none"><path d="M7 3L13 9L7 15" stroke="currentColor" stroke-width="2" stroke-linecap="square" stroke-linejoin="miter"/></svg></button>
+  <button class="lb-btn lb-next" onclick="event.stopPropagation(); lightboxStep(1)"><svg width="16" height="16" viewBox="0 0 18 18" fill="none"><path d="M7 3L13 9L7 15" stroke="currentColor" stroke-width="2" stroke-linecap="square" stroke-linejoin="miter"/></svg></button>
   <div class="lb-counter" id="lb-counter"></div>
 </div>
 
@@ -1081,50 +1662,401 @@ const SITE_DATA = {
   artifacts: [
     {
       id: 1,
-      title: 'Октябрьский взвоз',
-      desc: '',
-      artist: 'Автор неизвестен', date: '2025', status: 'в городе',
-      address: 'Октябрьский взвоз, Томск', lat: 56.4968, lng: 84.9502,
-      materials: '',
+      title: 'Октябрьский взвоз (руины)',
+      desc: 'Естественная деконструкция ступеней и стен вкупе с многослойной живописью анонимных уличных художников создаёт неповторимое ощущение течения времени.\n\nВазоны, в которых раньше цвели цветы, превратились в урны, ступени почти исчезли, стены осыпаются — всё это погружает зрителя в максимально иммерсивную обстановку. Он становится участником масштабного эксперимента по преодолению городской среды.',
+      artist: 'Теодор Маркович Брилль и студенты ТГАСУ', date: 'Оригинал 1958, реконструкция 2004', status: 'В городе',
+      address: 'Октябрьский взвоз, Томск', lat: 56.492909, lng: 84.95391,
+      materials: 'Бетон, кирпич, арматура',
       photos: [
-        'photos/oktyabrsky-vzvoz/IMG_7002.jpg',
-        'photos/oktyabrsky-vzvoz/IMG_7003.jpg',
-        'photos/oktyabrsky-vzvoz/IMG_7004.jpg',
-        'photos/oktyabrsky-vzvoz/IMG_7005.jpg',
-        'photos/oktyabrsky-vzvoz/IMG_7006.jpg',
-        'photos/oktyabrsky-vzvoz/IMG_7007.jpg',
-        'photos/oktyabrsky-vzvoz/IMG_7008.jpg',
-        'photos/oktyabrsky-vzvoz/IMG_7009.jpg',
-        'photos/oktyabrsky-vzvoz/IMG_7010.jpg',
-        'photos/oktyabrsky-vzvoz/IMG_7011.jpg',
-        'photos/oktyabrsky-vzvoz/IMG_7014.jpg',
-        'photos/oktyabrsky-vzvoz/IMG_7015.jpg',
-        'photos/oktyabrsky-vzvoz/IMG_7016.jpg'
+        'photos/oktyabrsky-vzvoz/1-cover.jpg',
+        'photos/oktyabrsky-vzvoz/2.jpg',
+        'photos/oktyabrsky-vzvoz/3.jpg',
+        'photos/oktyabrsky-vzvoz/4.jpg',
+        'photos/oktyabrsky-vzvoz/5.jpg',
+        'photos/oktyabrsky-vzvoz/6.jpg',
+        'photos/oktyabrsky-vzvoz/7.jpg',
+        'photos/oktyabrsky-vzvoz/8.jpg',
+        'photos/oktyabrsky-vzvoz/9.jpg',
+        'photos/oktyabrsky-vzvoz/10.jpg'
+      ]
+    },
+    {
+      id: 11,
+      title: 'Пикселизация городской среды',
+      desc: 'Скучный бетонный блок превращается в культовый объект из игры Minecraft. Реальность деформируется, виртуальный мир проникает в реальный, подменяя часть ландшафта под себя и свои правила. Цифровизация аналогового мира наступает прямо сейчас.\n\nТеперь стоять и ожидать зелёного света на пешеходном переходе стало интереснее.',
+      artist: 'Григорий Ф. Майнкрафт',
+      date: 'Май 2026',
+      status: 'В городе',
+      address: 'Площадь Ленина, 11, Томск',
+      lat: 56.48858,
+      lng: 84.948165,
+      materials: 'Железобетон, трафарет, аэрозольная краска',
+      photos: [
+        'photos/minecraft-tsum/1-cover.jpg',
+        'photos/minecraft-tsum/2.jpg',
+        'photos/minecraft-tsum/3.jpg',
+        'photos/minecraft-tsum/4.jpg',
+        'photos/minecraft-tsum/5.jpg',
+        'photos/minecraft-tsum/6.jpg'
+      ]
+    },
+    {
+      id: 2,
+      title: 'Венера Советская',
+      desc: 'Современная интерпретация классического женского образа. Гипертрофированные изгибы тела контрастируют с грубой фактурой фанеры и битого кирпича.\n\nОсобую пикантность композиции придают остатки объявления «Помощь людям», расположенные стратегически верно.\n\nГлавный акцент — знак вопроса вместо лица. Кто эта девушка? О чём она мыслит, что будет с улицей, городом, человечеством? Это символ неопределённости бытия и вопрос, на который нет ответа.',
+      artist: 'Автор неизвестен', date: 'Около 2025', status: 'В городе',
+      address: 'Советская улица, 16, Томск', lat: 56.480734, lng: 84.953422,
+      materials: 'Аэрозольная краска',
+      photos: [
+        'photos/venera-sovetskaya/1-cover.jpg',
+        'photos/venera-sovetskaya/2.jpg',
+        'photos/venera-sovetskaya/3.jpg',
+        'photos/venera-sovetskaya/4.jpg',
+        'photos/venera-sovetskaya/5.jpg',
+        'photos/venera-sovetskaya/6.jpg'
+      ]
+    },
+    {
+      id: 8,
+      title: 'Урна номер 1',
+      desc: 'Урна, которая боится своего вида.\n\nСерия уличных арт-объектов, объединённых одной темой: состоянием городской системы сбора мусора. В Томске стоит острая проблема с уборкой улиц и внешним видом контейнеров. Серия работ «Ожившие урны» предлагает обратить внимание на то, как выглядят городские урны и контейнерные площадки.\n\nСтарые урны необходимо менять, а новые устанавливать там, где они действительно требуются. Пока этого не происходит, томские урны будут сами обращать на себя внимание: оживать, говорить и кричать на прохожих.',
+      artist: 'Алик Баков',
+      date: 'Осень 2025',
+      status: 'Уничтожена',
+      address: 'Красноармейская улица, 103, Томск',
+      lat: 56.46005,
+      lng: 84.969476,
+      materials: 'Сталь, трафарет, аэрозольная краска',
+      photos: [
+        'photos/urna-dvorets/1-cover.jpg',
+        'photos/urna-dvorets/2.jpg',
+        'photos/urna-dvorets/3.jpg',
+        'photos/urna-dvorets/4.jpg'
+      ]
+    },
+    {
+      id: 3,
+      title: 'Дженга уровня хардкор',
+      desc: 'Интерактивная инсталляция для тех, кому обычные настолки кажутся простыми.\n\nПравила классические: нужно вытягивать по одному фундаментному блоку ФБС так, чтобы конструкция общим весом в 8,5 тонн не развалилась.\n\nКраны, вилочные погрузчики, гидравлические домкраты и лебёдки использовать нельзя!',
+      artist: 'Надя Грушева', date: 'Июль 2025', status: 'В городе',
+      address: 'Улица Белинского, 32, Томск', lat: 56.471521, lng: 84.958257,
+      materials: 'Железобетон, трафарет, аэрозольная краска',
+      photos: [
+        'photos/jenga/1-cover.jpg',
+        'photos/jenga/2.jpg',
+        'photos/jenga/3.jpg',
+        'photos/jenga/4.jpg',
+        'photos/jenga/5.jpg',
+        'photos/jenga/6.jpg'
+      ]
+    },
+    {
+      id: 4,
+      title: 'Маяковский против пожара',
+      desc: 'Плакат Всероссийского добровольного пожарного общества (ВДПО). Их размещали с целью противопожарной агитации жителей. В июне 1928 года поэт Владимир Маяковский написал 16 текстов для таких табличек.\n\nПеред вами стих №12 из серии «Для деревни». Иллюстрация нарисована неизвестным мастером, буквы нанесены по трафарету, а зазоры в них аккуратно докрашены вручную. Мир стремительно меняется, а плакат почти 70 лет висит на этой стене.',
+      artist: 'Автор неизвестен', date: 'Около 1957 года', status: 'В городе',
+      address: 'Учебная улица, 1, Томск', lat: 56.458794, lng: 84.939738,
+      materials: 'Трафарет, сталь, дерево, гвозди',
+      photos: [
+        'photos/mayakovskiy/1-cover.jpg',
+        'photos/mayakovskiy/2.jpg',
+        'photos/mayakovskiy/3.jpg',
+        'photos/mayakovskiy/4.jpg',
+        'photos/mayakovskiy/5.jpg',
+        'photos/mayakovskiy/6.jpg',
+        'photos/mayakovskiy/7.jpg'
+      ]
+    },
+    {
+      id: 5,
+      title: 'Отражённое будущее',
+      desc: 'Уникальный образец коммерческой недвижимости, который никогда не использовался по назначению. Здание выполнено в стилистике капиталистического романтизма. Деревянные вставки на фасаде — это оммаж томской деревянной архитектуре.\n\nЗдание-призрак служит огромным зеркалом, в котором отражается жизнь города.',
+      artist: 'Автор неизвестен',
+      date: '2007',
+      status: 'В городе',
+      address: 'Киевская улица, 57, Томск',
+      lat: 56.475849,
+      lng: 84.975174,
+      materials: 'Стекло, металл, бетон',
+      photos: [
+        'photos/otrajenie/1-cover.jpg',
+        'photos/otrajenie/2.jpg',
+        'photos/otrajenie/3.jpg',
+        'photos/otrajenie/4.jpg',
+        'photos/otrajenie/5.jpg',
+        'photos/otrajenie/6.jpg',
+        'photos/otrajenie/7.jpg'
+      ]
+    },
+    {
+      id: 6,
+      title: 'Листовки времён Ельцина',
+      desc: 'Посмотрите наверх: на козырьке здания сохранились остатки листовок, расклеенных в 1996 году. Это подлинный артефакт предвыборной кампании Бориса Ельцина, когда он повторно баллотировался в президенты Российской Федерации.\n\nСменилась эпоха, изменились мы и страна, а эти клочки бумаги продолжают висеть здесь уже тридцатый год, превратившись из агитации в часть культурного слоя.',
+      artist: 'Расклейщик листовок из 96-го',
+      date: '1996',
+      status: 'В городе',
+      address: 'Красноармейская улица, 135, Томск',
+      lat: 56.453605,
+      lng: 84.976647,
+      materials: 'Бумага, клей',
+      photos: [
+        'photos/eltsin/1-cover.jpg',
+        'photos/eltsin/2.jpg',
+        'photos/eltsin/3.jpg',
+        'photos/eltsin/4.jpg',
+        'photos/eltsin/5.jpg',
+        'photos/eltsin/6.jpg',
+        'photos/eltsin/9.jpg'
+      ]
+    },
+    {
+      id: 9,
+      title: 'Урна номер 2',
+      desc: 'Серия уличных арт-объектов, объединённых одной темой: состоянием городской системы сбора мусора. В Томске стоит острая проблема с уборкой улиц и внешним видом контейнеров. Серия работ «Ожившие урны» предлагает обратить внимание на то, как выглядят городские урны и контейнерные площадки.\n\nСтарые урны необходимо менять, а новые устанавливать там, где они действительно требуются. Пока этого не происходит, томские урны будут сами обращать на себя внимание: оживать, говорить и кричать на прохожих.',
+      artist: 'Алик Баков',
+      date: 'Осень 2025',
+      status: 'В городе',
+      address: 'Проспект Фрунзе, 119/38, Томск',
+      lat: 56.475926,
+      lng: 85.003809,
+      materials: 'Сталь, трафарет, аэрозольная краска',
+      photos: [
+        'photos/urna-frunze/1-cover.jpg',
+        'photos/urna-frunze/2.jpg'
+      ]
+    },
+    {
+      id: 7,
+      title: 'Многослойный палимпсест',
+      desc: 'По наслоениям граффити, тегов и объявлений можно отследить историю субкультурных течений города за последние 16 лет.\n\nНижние слои голубой краски символизируют надежду на стабильность. Хаотичные линии поверх них — поиск идентичности. Объявления добавляют работе социальный подтекст, напоминая о бренности бытия и кредитных обязательствах.',
+      artist: 'Соавторство анонимных художников и коммунальных служб',
+      date: '2015',
+      status: 'В городе',
+      address: 'Татарская улица, 58, Томск',
+      lat: 56.474639,
+      lng: 84.943508,
+      materials: 'Аэрозольная краска, клей, бумага, железобетон',
+      photos: [
+        'photos/palimpsest/1-cover.jpg',
+        'photos/palimpsest/2.jpg',
+        'photos/palimpsest/3.jpg',
+        'photos/palimpsest/4.jpg',
+        'photos/palimpsest/5.jpg',
+        'photos/palimpsest/6.jpg'
+      ]
+    },
+    {
+      id: 10,
+      title: 'Ты невыносима',
+      desc: 'Типичный образец оставленных элементов инфраструктуры посреди города. Железобетонный блок лежит на этом месте более 16 лет. Это часть улицы, часть жизни города.\n\nНадпись выводит массивный артефакт из категории незаметного в поле общественного внимания. Блок становится видимым, он начинает говорить и в какой-то степени украшать место.',
+      artist: 'Надя Грушева',
+      date: 'Май 2026',
+      status: 'В городе',
+      address: 'Проспект Фрунзе, 34, Томск',
+      lat: 56.476305,
+      lng: 84.961882,
+      materials: 'Железобетон, трафарет, аэрозольная краска',
+      photos: [
+        'photos/ti-nevinosima/1-cover.jpg',
+        'photos/ti-nevinosima/2.jpg',
+        'photos/ti-nevinosima/3.jpg',
+        'photos/ti-nevinosima/4.jpg',
+        'photos/ti-nevinosima/5.jpg'
+      ]
+    },
+    {
+      id: 12,
+      title: 'Урна на Кирова',
+      desc: 'Урна — от лат. Urna urbana vulgaris\n\nТиповой элемент благоустройства, утративший первоначальный внешний вид. Подобные объекты формируют устойчивый визуальный фон города.\n\nСостояние не соответствует базовым ожиданиям от городской среды, однако воспринимается жителями как допустимое.',
+      artist: 'Автор неизвестен',
+      date: 'Начало XXI века',
+      status: 'Уничтожена',
+      address: 'Проспект Кирова, 56в, Томск',
+      lat: 56.466483,
+      lng: 84.979515,
+      materials: 'Металл',
+      photos: [
+        'photos/urna-kirova/1-cover.jpg',
+        'photos/urna-kirova/2.jpg',
+        'photos/urna-kirova/3.jpg',
+        'photos/urna-kirova/4.jpg',
+        'photos/urna-kirova/5.jpg',
+        'photos/urna-kirova/6.jpg'
+      ]
+    },
+    {
+      id: 13,
+      title: 'Пиксель на тротуаре',
+      desc: 'Еще один бетонный блок превращается в элемент из Minecraft. Виртуальный мир проникает в реальный, подменяя часть ландшафта под себя и свои правила. Цифровизация аналогового мира наступает прямо сейчас.\n\nБлок закрывал технический элемент, оставшийся после установки фонарей на проспекте. Теперь он стал заметен, ярок и разнообразил скучную среду.',
+      artist: 'Григорий Ф. Майнкрафт',
+      date: 'Май 2026',
+      status: 'В городе',
+      address: 'Площадь Ленина, 11',
+      lat: 56.488474,
+      lng: 84.948978,
+      materials: 'Железобетон, трафарет, аэрозольная краска',
+      photos: [
+        'photos/urna-chasovnya/1-cover.jpg',
+        'photos/urna-chasovnya/2.jpg',
+        'photos/urna-chasovnya/3.jpg',
+        'photos/urna-chasovnya/4.jpg',
+        'photos/urna-chasovnya/5.jpg',
+        'photos/urna-chasovnya/6.jpg'
+      ]
+    },
+    {
+      id: 14,
+      title: 'Урна на Смайле',
+      desc: 'Урна — от лат. Urna urbana vulgaris\n\nТиповой элемент благоустройства, утративший первоначальный внешний вид. Подобные объекты формируют устойчивый визуальный фон города.\n\nСостояние не соответствует базовым ожиданиям от городской среды, однако воспринимается жителями как допустимое.',
+      artist: 'Автор неизвестен',
+      date: 'Начало XXI века',
+      status: 'Уничтожена',
+      address: 'Учебная улица, 48д',
+      lat: 56.459093,
+      lng: 84.965465,
+      materials: 'Металл',
+      photos: [
+        'photos/urna-smayil/1-cover.jpg',
+        'photos/urna-smayil/2.jpg',
+        'photos/urna-smayil/3.jpg',
+        'photos/urna-smayil/4.jpg',
+        'photos/urna-smayil/5.jpg'
+      ]
+    },
+    {
+      id: 15,
+      title: 'Течение времени',
+      desc: '«Река течет из года в год, и человеческие истории совершаются на берегу. Совершаются, чтобы назавтра же быть забытыми, а реке — продолжать своё течение».\n\nЦитата из романа «Невыносимая легкость бытия» Милана Кундеры. Плита. Река. Жизнь.',
+      artist: 'Надя Грушева',
+      date: 'Август 2025',
+      status: 'В городе',
+      address: 'Мельничная улица, 40Б ст3, Томск',
+      lat: 56.50307,
+      lng: 84.935925,
+      materials: 'Железобетон, трафарет, аэрозольная краска',
+      photos: [
+        'photos/reka-techet/1-cover.jpg',
+        'photos/reka-techet/2.jpg',
+        'photos/reka-techet/3.jpg',
+        'photos/reka-techet/4.jpg',
+        'photos/reka-techet/5.jpg',
+        'photos/reka-techet/6.jpg'
+      ]
+    },
+    {
+      id: 16,
+      title: 'Невыносимая легкость',
+      desc: 'Цитата из романа «Невыносимая легкость бытия» Милана Кундеры мягкой пушинкой легла на тяжелый кусок плиты. Теперь набережная реки Ушайки преобразилась, плита стала экспонатом музея, а люди могут задумываться о бренности бытия и своей судьбе.',
+      artist: 'Надя Грушева',
+      date: 'Сентябрь 2025',
+      status: 'В городе',
+      address: 'Площадь Ленина, 10, Томск',
+      lat: 56.484999,
+      lng: 84.945486,
+      materials: 'Железобетон, трафарет, аэрозольная краска',
+      photos: [
+        'photos/nevinosimaya/1-cover.jpg',
+        'photos/nevinosimaya/2.jpg',
+        'photos/nevinosimaya/3.jpg',
+        'photos/nevinosimaya/4.jpg',
+        'photos/nevinosimaya/5.jpg'
+      ]
+    },
+    {
+      id: 17,
+      title: 'Дамбережная',
+      desc: 'Место, где вы сейчас стоите — защитная дамба длиной 720 метров. В 1915 году её спроектировал городской инженер и профессор Томского технологического института (сейчас ТПУ) Яков Николин, чтобы спасти город от разрушительных паводков.\n\nСвой нынешний вид с плитами дамба обрела в 80-х годах прошлого века. К 400-летию Томска в 2004 году её обновили, но с тех пор почти четверть века здесь не было ремонта. Поэтому советуем вам внимательно смотреть под ноги и быть аккуратными.',
+      artist: 'Автор неизвестен',
+      date: '1915 – настоящее время',
+      status: 'В городе',
+      address: 'Площадь Ленина, 6, Томск',
+      lat: 56.486796,
+      lng: 84.944651,
+      materials: 'Армированный бетон, речной воздух',
+      photos: [
+        'photos/damberezhnaya/1-cover.jpg',
+        'photos/damberezhnaya/2.jpg',
+        'photos/damberezhnaya/3.jpg',
+        'photos/damberezhnaya/4.jpg',
+        'photos/damberezhnaya/5.jpg'
+      ]
+    },
+    {
+      id: 18,
+      title: 'Шифр 1905',
+      desc: 'Перед вами не просто технический шкаф, а сложная система кодировки. Символ в центре и тексты в сочетании с числами создают ощущение тайного послания.\n\nЭто координаты времени, места? Частота подпольного радио? Или процент разбитых дорог и тротуаров в городе?\n\nДанный артефакт транслирует смыслы, понятные только тем, кто готов остановиться и всмотреться в серый металл, пока остальной город несётся мимо.',
+      artist: 'Автор неизвестен',
+      date: 'Около 2025 года',
+      status: 'В городе',
+      address: 'Переулок 1905 года, 7в, Томск',
+      lat: 56.493549,
+      lng: 84.948418,
+      materials: 'Аэрозольная краска, маркеры, бумага',
+      photos: [
+        'photos/shifr/1-cover.jpg',
+        'photos/shifr/2.jpg',
+        'photos/shifr/3.jpg',
+        'photos/shifr/4.jpg',
+        'photos/shifr/5.jpg'
+      ]
+    },
+    {
+      id: 19,
+      title: 'Урна вокзальная',
+      desc: 'Урна — от лат. Urna urbana vulgaris\n\nТиповой элемент благоустройства, утративший первоначальный внешний вид. Подобные объекты формируют устойчивый визуальный фон города.\n\nСостояние не соответствует базовым ожиданиям от городской среды, однако воспринимается жителями как допустимое.',
+      artist: 'Автор неизвестен',
+      date: 'Начало XXI века',
+      status: 'В городе',
+      address: 'Вокзальная улица, 69, Томск',
+      lat: 56.506135,
+      lng: 84.996706,
+      materials: 'Металл',
+      photos: [
+        'photos/urna-vokzal/1-cover.jpg',
+        'photos/urna-vokzal/2.jpg',
+        'photos/urna-vokzal/3.jpg',
+        'photos/urna-vokzal/4.jpg',
+        'photos/urna-vokzal/5.jpg',
+        'photos/urna-vokzal/6.jpg'
       ]
     }
   ],
   about: {
-    stats: [
-      'Площадь — весь город',
-      'Посетителей — 650 000 в год',
-      'Открыт круглосуточно',
-      'Вход бесплатный',
-      'Работы уничтожаются временем и посетителями',
-      'За экспонатами нет охраны',
-      'Будут филиалы в других городах',
-      'Каждый житель — невольный участник выставки',
-      'Ни одна работа не застрахована и не защищена',
-      'Экспонаты исчезают и разрушаются в режиме Live',
-      'Будут открываться локальные экспозиции'
+    facts: [
+      { k: 'Площадь',          v: '294 км²' },
+      { k: 'Посетителей в год', v: '650 000' },
+      { k: 'Работает',         v: 'Круглосуточно' },
+      { k: 'Вход',             v: 'Бесплатно' }
     ]
   },
   manifest: {
     paragraphs: [
-      'Город — это музей, в который никто не купил билет. Каждый угол, каждая облупившаяся стена, каждая потёртая скамейка несут в себе историю — немую, незамеченную, обесцененную ежедневным прохождением мимо.',
-      '<strong>«Артефакт»</strong> — это проект, который возвращает городским объектам их музейный статус. Мы не строим стен и не охраняем экспонаты. Мы вешаем таблички.',
-      'Табличка — это жест. Акт признания. Она говорит: вот это заслуживает внимания. Вот этот предмет важен. Не потому что красив или дорог, а потому что он здесь, он существует, он часть общей памяти.',
-      'Иногда тексты серьёзны. Иногда — иронически точны. Но всегда честны. Мы не приукрашиваем городскую среду — мы её описываем. С уважением и с юмором, которого она заслуживает.',
-      'Проект начался в Томске. Но город — любой. Музей открыт круглосуточно. Вход свободный. Экспонаты везде.'
+      'Превращаем элементы города в экспонаты, чтобы решать его проблемы и замечать красоту.',
+      'Город перестаёт быть декорацией и становится пространством, которое можно изучать, рассматривать и менять.',
+      '# Контекст',
+      'Томск десятилетиями копит проблемы: раздолбанные дороги, заброшки, рассыпающаяся набережная, дыры в стенах, старые рамки от объявлений. Всё это часть городского ландшафта — привычного, незаметного, почти невидимого.',
+      'Когда проблему нельзя устранить быстро — её можно переосмыслить. Не смириться, а посмотреть на неё иначе. Вырвать объект из привычного контекста, обратить на него внимание — и он перестанет быть фоном.',
+      '# Как это работает',
+      'Мы работаем с городским пространством напрямую. Вешаем таблички, наносим трафареты, красим арматуру — любым визуальным способом выделяем объект и наделяем его смыслом. Иногда это классическая музейная табличка с описанием. Иногда — текст на стене или цвет, который меняет восприятие места.',
+      'Каждый экспонат отмечен на интерактивной карте на сайте: адрес, описание, привязка к местности.',
+      '# Две цели музея',
+      '<strong>Подсветить невидимое</strong>',
+      'Вырвать проблему из слепой зоны — превратить в точку интереса. Заметить, удивиться, возмутиться, начать разговор. Главное — перестать считать городские проблемы нормой и начать требовать перемен.',
+      '<strong>Эстетизировать повседневность</strong>',
+      'Учиться видеть красивое в несовершенстве. Замечать интересное в привычных местах. Смотреть на город с любопытством — не как на досадный фон, а как на живое пространство с историей и характером.',
+      '# Особенности музея',
+      '- Площадь музея 294 км²',
+      '- 650 000 посетителей в год',
+      '- Музей открыт круглосуточно',
+      '- Вход бесплатный',
+      '- Работы уничтожаются временем и посетителями',
+      '- За экспонатами нет охраны',
+      '- Каждый житель — участник выставки',
+      '- Ни одна работа не застрахована и не защищена',
+      '- В планах — экспонаты в других городах страны',
+      '# Предлагайте экспонаты и идеи',
+      'Предлагайте места для новых объектов. Пишите свои идеи и предложения в телеграм бот <a href="https://t.me/Ne_besit_bot">@Ne_besit_bot</a>.',
+      'Куратор музея: <a href="https://t.me/Dima_Plkv">Дима Поляков</a>'
     ]
   },
   contacts: [
@@ -1135,22 +2067,37 @@ const SITE_DATA = {
   ],
   authors: [
     {
-      id: 1,
-      name: 'Dima Plkv',
-      bio: 'Основатель проекта «Артефакт». Вешает таблички на городские объекты с 2025 года. Убеждён, что любая вещь в городе заслуживает описания — будь то скамейка, люк или несанкционированный шлагбаум.',
-      photo: 'https://picsum.photos/seed/author_plkv/600/800'
-    },
-    {
       id: 2,
-      name: 'Марина Сова',
-      bio: 'Художник и исследователь городской среды. Собирает истории вещей, которые никто не замечает. Верит, что у каждого брошенного предмета есть достоинство.',
-      photo: 'https://picsum.photos/seed/author_sova/600/800'
+      name: 'Надя Грушева',
+      bio: 'Работает в технике трафарет. Создаёт на стенах цитаты из песен, стихов и случайных фраз — размещает их там, где место либо усиливает смысл, либо, наоборот, создаёт неожиданное противоречие.\n\nВыросла в Анжеро-Судженске. 26 лет. Говорит, что город научил её замечать детали, которые другие не видят.',
+      photo: 'photos/hudozhniki/nadya-grusheva.jpg',
+      technique: 'Трафарет',
+      hometown: 'Анжеро-Судженск',
+      yearJoined: 2024,
+      quote: 'Я работаю с тем, что уже существует в мире: объединяю места и тексты.',
+      quoteHl: 'объединяю места и тексты.'
     },
     {
       id: 3,
-      name: 'Артём Белый',
-      bio: 'Архитектор по образованию, наблюдатель по призванию. Документирует стихийную архитектуру города — то, что строят без проектов, по необходимости.',
-      photo: 'https://picsum.photos/seed/author_bely/600/800'
+      name: 'Григорий Ф. Майнкрафт',
+      technique: 'Трафарет',
+      hometown: 'Томск, пос. Светлый',
+      yearJoined: 2025,
+      quote: 'Для меня нет плохой городской среды — она для меня большой плейграунд в котором я живу ежедневно',
+      quoteHl: 'Для меня нет плохой городской среды',
+      bio: 'Ярый фанат Minecraft с момента выхода игры. Каждый брошенный бетонный блок в городе для него это куб из этой культовой игры.\n\nЗемля, вода, лава и прочие элементы игровой вселенной он переносит на улицы. Простая идея превращает городские улицы в игровую площадку. Дети рады, взрослые... тоже!',
+      photo: 'photos/hudozhniki/grigoriy-filippovich-mainkraft.jpg'
+    },
+    {
+      id: 1,
+      name: 'Алик Баков',
+      bio: 'Начинающий молодой художник из Стрежевого. С детства любит выплескивать во внешний мир свой талант: рисует, пишет стихи, учится на журналиста, пробует себя в танцах.\n\nВ музее представлены фактически его первые работы. Художник оживляет городские урны, пробует обратить внимание на их состояние, «говорит» с ними и передает сообщения зрителю.',
+      photo: 'photos/hudozhniki/alik-bakov.jpg',
+      technique: 'Джиу-джитсу',
+      hometown: 'Стрежевой',
+      yearJoined: 2025,
+      quote: 'Я не знаю, что вам сказать умного или вдохновляющего. Спросите меня через лет 10, я пока впитываю мир',
+      quoteHl: 'я пока впитываю мир'
     }
   ],
   settings: {
@@ -1163,11 +2110,10 @@ const SITE_DATA = {
       { id: 'main',     label: 'Галерея' },
       { id: 'authors',  label: 'Авторы' },
       { id: 'map',      label: 'Карта' },
-      { id: 'about',    label: 'Музей' },
-      { id: 'contacts', label: 'Контакты' }
+      { id: 'about',    label: 'О музее' },
     ],
-    footer:    '© Артефакт, 2025',
-    footerSub: 'Музей размером с город',
+    footer:    '2026 © Артефакт — музей размером с город',
+    footerSub: 'Проект <a href="https://t.me/gorodnebesit" target="_blank" rel="noopener">«Город не бесит»</a>',
     mapLabel:  'Карта экспонатов',
     mapCity:   'Томск — и другие города'
   }
@@ -1188,9 +2134,20 @@ const markerMap     = {};
 
 /* ── MapLibre marker element ────────────────────────────────────────────────── */
 const MAP_STYLE = 'https://tiles.openfreemap.org/styles/positron';
-function makeDotEl() {
+function setMapLanguageRu(map) {
+  map.on('load', () => {
+    map.getStyle().layers.forEach(layer => {
+      if (layer.type === 'symbol' && layer.layout && layer.layout['text-field']) {
+        map.setLayoutProperty(layer.id, 'text-field', ['coalesce', ['get', 'name:ru'], ['get', 'name']]);
+      }
+    });
+  });
+}
+
+function makeDotEl(status) {
   const el = document.createElement('div');
-  el.style.cssText = 'width:12px;height:12px;background:#000;border-radius:50%;border:2px solid #fff;box-shadow:0 1px 5px rgba(0,0,0,0.4);cursor:pointer';
+  const color = status === 'В городе' ? '#2ea62e' : '#d63c3c';
+  el.style.cssText = `width:24px;height:24px;background:${color};border-radius:50%;border:3px solid #fff;box-shadow:0 2px 8px rgba(0,0,0,0.35);cursor:pointer`;
   return el;
 }
 
@@ -1199,7 +2156,16 @@ function escHtml(s) {
   return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
 }
 function escHtmlStrong(s) {
-  return escHtml(s).replace(/&lt;(\/?strong)&gt;/g, '<$1>');
+  return escHtml(s)
+    .replace(/&lt;(\/?strong)&gt;/g, '<$1>')
+    .replace(/&lt;a href="([^"&]+)"&gt;/g, '<a href="$1" target="_blank" rel="noopener">')
+    .replace(/&lt;\/a&gt;/g, '</a>');
+}
+function pluralArtifacts(n) {
+  const mod10 = n % 10, mod100 = n % 100;
+  if (mod10 === 1 && mod100 !== 11) return n + ' экспонат';
+  if (mod10 >= 2 && mod10 <= 4 && (mod100 < 10 || mod100 >= 20)) return n + ' экспоната';
+  return n + ' экспонатов';
 }
 
 /* ── Navigation ─────────────────────────────────────────────────────────────── */
@@ -1208,7 +2174,7 @@ function updateNavTheme() {
   const onMain = currentView === 'main';
   const scrolled = window.scrollY > 400;
   const isMobile = window.innerWidth <= 768;
-  if (onMain && !scrolled && !isMobile) {
+  if (onMain && !scrolled) {
     nav.classList.add('nav--transparent');
   } else {
     nav.classList.remove('nav--transparent');
@@ -1228,7 +2194,7 @@ window.addEventListener('scroll', () => {
 }, { passive: true });
 window.addEventListener('resize', updateNavTheme, { passive: true });
 
-function navigate(view, artifactId) {
+function navigate(view, artifactId, noPush) {
   document.querySelectorAll('.view').forEach(v => v.classList.remove('active'));
   document.querySelectorAll('.nav-btn').forEach(b =>
     b.classList.toggle('active', b.dataset.nav === view)
@@ -1249,9 +2215,20 @@ function navigate(view, artifactId) {
   } else {
     document.getElementById('view-' + view).classList.add('active');
     if (view === 'map') {
+      const cityEl = document.getElementById('map-topbar-city');
+      if (cityEl) cityEl.textContent = '';
+      const labelEl = document.getElementById('map-topbar-label');
+      if (labelEl) labelEl.textContent = `Карта экспонатов (${artifacts.length})`;
       renderMapSidebar();
       setTimeout(initMainMap, 60);
     }
+  }
+
+  if (!noPush) {
+    const params = new URLSearchParams();
+    params.set('v', view);
+    if (artifactId !== undefined) params.set('id', artifactId);
+    history.pushState({ view, artifactId }, '', '?' + params.toString());
   }
 
   window.scrollTo(0, 0);
@@ -1259,33 +2236,51 @@ function navigate(view, artifactId) {
   if (view === 'main' && window._heroParallaxReset) window._heroParallaxReset();
 }
 
+window.addEventListener('popstate', e => {
+  if (e.state) navigate(e.state.view, e.state.artifactId, true);
+});
+
 /* ── Gallery ────────────────────────────────────────────────────────────────── */
 function renderGallery() {
   document.getElementById('gallery-grid').innerHTML = artifacts.map(a => {
-    const cls = a.status === 'в городе' ? 'status-live' : 'status-gone';
+    const cls = a.status === 'В городе' ? 'status-live' : 'status-gone';
     return `
       <div class="card" onclick="navigate('artifact', ${a.id})">
         <div class="card-photo">
-          <img src="${a.photos[0]}" alt="${escHtml(a.title)}" loading="lazy" decoding="async">
+          <img src="${a.photos[0]}" alt="${escHtml(a.title)}" loading="lazy" decoding="async" onerror="this.classList.add('img-error')">
+          ${a.photos[1] ? `<img class="card-img-hover" src="${a.photos[1]}" alt="${escHtml(a.title)}" loading="lazy" decoding="async" onerror="this.classList.add('img-error')">` : ''}
+          <span class="card-status ${cls}">${escHtml(a.status)}</span>
           <div class="card-hover">
             <div class="card-hover-bottom">
               <div class="card-hover-left">
                 <div class="card-hover-author">${escHtml(a.artist)}</div>
                 <div class="card-hover-meta">
-                  <span class="card-status ${cls}">${escHtml(a.status)}</span>
-                  <span class="card-hover-count">${a.photos.length} фото</span>
+                  <span class="card-hover-count">${escHtml(a.date)}</span>
                 </div>
               </div>
-              <div class="card-hover-arrow"><svg width="16" height="16" viewBox="0 0 16 16" fill="none"><path d="M5 3L11 8L5 13" stroke="white" stroke-width="1.8" stroke-linecap="square" stroke-linejoin="miter"/></svg></div>
+              <div class="card-hover-arrow"><svg width="16" height="16" viewBox="0 0 18 18" fill="none"><path d="M7 3L13 9L7 15" stroke="white" stroke-width="2" stroke-linecap="square" stroke-linejoin="miter"/></svg></div>
             </div>
           </div>
         </div>
         <div class="card-info">
           <div class="card-title">${escHtml(a.title)}</div>
-          <div class="card-date">${escHtml(a.date)}</div>
+          <div class="card-date">${a.photos.length} фото</div>
         </div>
       </div>`;
   }).join('');
+
+  const countEl = document.getElementById('artifacts-count-block');
+  if (countEl) {
+    const n = artifacts.length;
+    const mod10 = n % 10, mod100 = n % 100;
+    const label = (mod100 >= 11 && mod100 <= 19) ? 'экспонатов'
+      : mod10 === 1 ? 'экспонат'
+      : (mod10 >= 2 && mod10 <= 4) ? 'экспоната'
+      : 'экспонатов';
+    countEl.innerHTML =
+      '<div class="al-count-num">' + String(n).padStart(2, '0') + '</div>' +
+      '<div class="al-count-label">' + label + '</div>';
+  }
 }
 
 /* ── Artifact page ──────────────────────────────────────────────────────────── */
@@ -1297,34 +2292,46 @@ function renderArtifact(a) {
   document.getElementById('art-title').textContent = a.title;
   document.getElementById('art-desc').textContent  = a.desc;
 
-  const statusCls = a.status === 'в городе' ? 'status-live' : 'status-gone';
+  const statusCls = a.status === 'В городе' ? 'status-live' : 'status-gone';
   const authorObj = (SITE_DATA.authors || []).find(au => au.name === a.artist);
   const artistHtml = authorObj
-    ? `<button class="meta-author-link" onclick="navigate('author',${authorObj.id})">${escHtml(a.artist)}</button>`
-    : escHtml(a.artist);
+    ? `<button class="meta-author-link" onclick="navigate('author',${authorObj.id})"><img class="meta-author-avatar" src="${escHtml(authorObj.photo)}" alt="">${escHtml(a.artist)}</button>`
+    : escHtml(a.artist || '—');
 
-  document.getElementById('art-meta').innerHTML =
-    `<div class="meta-row-inline">
-      <div class="meta-inline-item">
-        <div class="meta-key">Автор</div>
-        <div class="meta-val">${artistHtml}</div>
-      </div>
-      <div class="meta-inline-item">
-        <div class="meta-key">Год</div>
-        <div class="meta-val">${escHtml(a.date)}</div>
-      </div>
-      <div class="meta-inline-item">
-        <div class="meta-key">Статус</div>
-        <div class="meta-val"><span class="status-indicator ${statusCls}">${escHtml(a.status)}</span></div>
-      </div>
-    </div>
-    <div class="meta-group">
-      ${metaRow('Материалы', a.materials, false)}
-      ${metaRow('Местоположение', a.address, false)}
-    </div>`;
+  const explFields = [
+    { k: 'Автор',    v: artistHtml,                                                          html: true },
+    { k: 'Год',      v: escHtml(a.date || '—'),                                              html: true },
+    { k: 'Статус',   v: `<span class="status-indicator ${statusCls}">${escHtml(a.status)}</span>`, html: true },
+    { k: 'Материал', v: escHtml(a.materials || '—'),                                         html: true },
+  ];
+  document.getElementById('art-expl').innerHTML = explFields.map(f =>
+    '<div class="au-expl-cell">' +
+      '<div class="au-expl-key">' + escHtml(f.k) + '</div>' +
+      '<div class="au-expl-val">' + f.v + '</div>' +
+    '</div>'
+  ).join('');
 
   setSlide(a, 0);
-  setTimeout(() => initArtifactMap(a), 60);
+
+  const addrText = document.getElementById('art-addr-text');
+  const addrBtn  = document.getElementById('art-addr-block');
+  if (addrText) addrText.textContent = a.address || '';
+  if (addrBtn)  addrBtn.onclick = () => navigateToMapArtifact(a.id);
+
+  const arts = SITE_DATA.artifacts;
+  const idx = arts.findIndex(x => x.id === a.id);
+  const next = arts[(idx + 1) % arts.length];
+  const nextBtn = document.getElementById('artifact-next-block');
+  if (nextBtn && next) {
+    document.getElementById('artifact-next-title').textContent  = next.title;
+    nextBtn.onclick = () => navigate('artifact', next.id);
+  }
+}
+
+/* ── Navigate to map and open artifact popup ────────────────────────────────── */
+function navigateToMapArtifact(id) {
+  navigate('map');
+  setTimeout(() => zoomTo(id), 150);
 }
 
 /* ── Navigate to gallery (scroll past hero) ─────────────────────────────────── */
@@ -1348,6 +2355,8 @@ function setSlide(a, idx) {
   if (fadeTimer) clearTimeout(fadeTimer);
   img.classList.add('fading');
   fadeTimer = setTimeout(() => {
+    img.classList.remove('img-error');
+    img.onerror = () => img.classList.add('img-error');
     img.src = a.photos[idx];
     img.alt = a.title;
     img.classList.remove('fading');
@@ -1373,7 +2382,10 @@ function openLightbox() {
   const lb = document.getElementById('photo-lightbox');
   const total = currentArtifact.photos.length;
   const solo = total <= 1;
-  document.getElementById('lightbox-img').src = currentArtifact.photos[currentPhotoIdx];
+  const lbImg = document.getElementById('lightbox-img');
+  lbImg.classList.remove('img-error');
+  lbImg.onerror = () => lbImg.classList.add('img-error');
+  lbImg.src = currentArtifact.photos[currentPhotoIdx];
   document.getElementById('lb-counter').textContent = solo ? '' : `${currentPhotoIdx + 1} / ${total}`;
   lb.querySelector('.lb-prev').style.display = solo ? 'none' : 'flex';
   lb.querySelector('.lb-next').style.display = solo ? 'none' : 'flex';
@@ -1391,7 +2403,10 @@ function lightboxStep(dir) {
   const total = currentArtifact.photos.length;
   const newIdx = (currentPhotoIdx + dir + total) % total;
   setSlide(currentArtifact, newIdx);
-  document.getElementById('lightbox-img').src = currentArtifact.photos[newIdx];
+  const lbImg2 = document.getElementById('lightbox-img');
+  lbImg2.classList.remove('img-error');
+  lbImg2.onerror = () => lbImg2.classList.add('img-error');
+  lbImg2.src = currentArtifact.photos[newIdx];
   document.getElementById('lb-counter').textContent = `${newIdx + 1} / ${total}`;
 }
 
@@ -1412,8 +2427,10 @@ function initArtifactMap(a) {
       zoom: 16,
       scrollZoom: false
     });
+    artMap.once('load', () => { const l = document.getElementById('artifact-map-loading'); if (l) l.classList.add('hidden'); });
     artMap.addControl(new maplibregl.NavigationControl({ showCompass: false }), 'bottom-right');
-    artMarker = new maplibregl.Marker({ element: makeDotEl() })
+    setMapLanguageRu(artMap);
+    artMarker = new maplibregl.Marker({ element: makeDotEl(a.status) })
       .setLngLat([a.lng, a.lat])
       .addTo(artMap);
   } else {
@@ -1425,9 +2442,20 @@ function initArtifactMap(a) {
 }
 
 /* ── Main map ───────────────────────────────────────────────────────────────── */
+function fitAllMarkers() {
+  if (!mainMap || !artifacts.length) return;
+  Object.values(markerMap).forEach(m => { const p = m.getPopup(); if (p && p.isOpen()) m.togglePopup(); });
+  document.querySelectorAll('.map-sidebar-item').forEach(el => el.classList.remove('is-active'));
+  const lngs = artifacts.map(a => a.lng);
+  const lats = artifacts.map(a => a.lat);
+  mainMap.fitBounds(
+    [[Math.min(...lngs), Math.min(...lats)], [Math.max(...lngs), Math.max(...lats)]],
+    { padding: 60, maxZoom: 15, duration: 600 }
+  );
+}
 function initMainMap() {
   const el = document.getElementById('main-map');
-  if (mainMap) { mainMap.resize(); return; }
+  if (mainMap) { mainMap.resize(); fitAllMarkers(); return; }
 
   mainMap = new maplibregl.Map({
     container: el,
@@ -1436,24 +2464,31 @@ function initMainMap() {
     zoom: 13
   });
 
+  mainMap.once('load', () => {
+    const l = document.getElementById('main-map-loading'); if (l) l.classList.add('hidden');
+    fitAllMarkers();
+  });
   mainMap.addControl(new maplibregl.NavigationControl({ showCompass: false }), 'bottom-right');
+  setMapLanguageRu(mainMap);
 
   artifacts.forEach(a => {
-    const dot = a.status === 'в городе' ? '#2ea62e' : '#d63c3c';
+    const dot = a.status === 'В городе' ? '#2ea62e' : '#d63c3c';
+    const cover = a.photos && a.photos.length ? a.photos[0] : '';
     const popup = new maplibregl.Popup({ offset: 14, closeButton: false }).setHTML(`
-      <div style="font-family:'Inter',sans-serif;min-width:190px;padding:2px 0">
+      <div style="font-family:'Inter',sans-serif;width:100%;padding:0">
+        ${cover ? `<img src="${escHtml(cover)}" style="width:100%;aspect-ratio:4/3;object-fit:cover;border-radius:8px;margin-bottom:10px;display:block">` : ''}
         <div style="font-weight:700;font-size:0.9rem;margin-bottom:4px;line-height:1.3">${escHtml(a.title)}</div>
-        <div style="font-size:0.78rem;opacity:0.5;margin-bottom:8px">${escHtml(a.address)}</div>
+        <div style="font-size:0.78rem;opacity:0.55;margin-bottom:8px">${escHtml(a.address)}</div>
         <div style="display:flex;align-items:center;gap:6px;font-size:0.78rem;margin-bottom:12px">
           <span style="width:7px;height:7px;border-radius:50%;background:${dot};display:inline-block;flex-shrink:0"></span>
           ${escHtml(a.status)}
         </div>
         <a href="#" class="popup-link" onclick="navigate('artifact',${a.id});return false;">
-          Открыть <svg style="display:inline;vertical-align:middle" width="14" height="14" viewBox="0 0 14 14" fill="none"><path d="M3 7H11M11 7L7 3M11 7L7 11" stroke="currentColor" stroke-width="1.8" stroke-linecap="square" stroke-linejoin="miter"/></svg>
+          Смотреть <svg style="display:inline;vertical-align:middle;margin-left:4px" width="14" height="14" viewBox="0 0 14 14" fill="none"><path d="M3 7H11M11 7L7 3M11 7L7 11" stroke="currentColor" stroke-width="1.8" stroke-linecap="square" stroke-linejoin="miter"/></svg>
         </a>
       </div>
     `);
-    const marker = new maplibregl.Marker({ element: makeDotEl() })
+    const marker = new maplibregl.Marker({ element: makeDotEl(a.status) })
       .setLngLat([a.lng, a.lat])
       .setPopup(popup)
       .addTo(mainMap);
@@ -1462,21 +2497,56 @@ function initMainMap() {
 }
 
 /* ── Map sidebar ────────────────────────────────────────────────────────────── */
+function toggleMapList() {
+  const sb = document.getElementById('map-sidebar');
+  const btn = document.getElementById('map-list-toggle');
+  const open = sb.classList.toggle('open');
+  btn.textContent = open ? '✕ Закрыть' : 'Список экспонатов';
+}
+function closeMapList() {
+  const sb = document.getElementById('map-sidebar');
+  const btn = document.getElementById('map-list-toggle');
+  sb.classList.remove('open');
+  if (btn) btn.textContent = 'Список экспонатов';
+}
 function renderMapSidebar() {
   const sidebar = document.getElementById('map-sidebar');
   if (sidebar.childElementCount > 0) return;
-  sidebar.innerHTML = artifacts.map(a => {
-    const cls = a.status === 'в городе' ? 'status-live' : 'status-gone';
+
+  const n = artifacts.length;
+  const mod10 = n % 10, mod100 = n % 100;
+  const countLabel = (mod100 >= 11 && mod100 <= 19) ? 'экспонатов'
+    : mod10 === 1 ? 'экспонат'
+    : (mod10 >= 2 && mod10 <= 4) ? 'экспоната'
+    : 'экспонатов';
+
+  sidebar.innerHTML =
+    `<div class="map-sidebar-head">` +
+      `<div class="al-name-row"><h1 class="al-name">Карта</h1></div>` +
+      `<div class="al-count-block">` +
+        `<div class="al-count-num">${String(n).padStart(2, '0')}</div>` +
+        `<div class="al-count-label">${countLabel}</div>` +
+      `</div>` +
+    `</div>` +
+    `<div class="map-sidebar-list">` +
+    `<div class="map-sidebar-header">Карта экспонатов (${artifacts.length})</div>` + artifacts.map(a => {
+    const cls = a.status === 'В городе' ? 'status-live' : 'status-gone';
     return `
       <div class="map-sidebar-item" data-id="${a.id}" onclick="zoomTo(${a.id})">
-        <div class="map-sidebar-name">${escHtml(a.title)}</div>
-        <div class="map-sidebar-addr">${escHtml(a.address)}</div>
-        <span class="card-status ${cls}" style="font-size:0.73rem">${escHtml(a.status)}</span>
+        <div class="map-sidebar-item-left">
+          <div class="map-sidebar-name">${escHtml(a.title)}</div>
+          <div class="map-sidebar-addr">${escHtml(a.address)}</div>
+        </div>
+        <div style="display:flex;align-items:center;gap:10px;flex-shrink:0">
+          <span class="card-status ${cls}" style="font-size:0.73rem">${escHtml(a.status)}</span>
+          <span class="map-sidebar-arrow"><svg width="16" height="16" viewBox="0 0 18 18" fill="none"><path d="M7 3L13 9L7 15" stroke="currentColor" stroke-width="2" stroke-linecap="square" stroke-linejoin="miter"/></svg></span>
+        </div>
       </div>`;
-  }).join('');
+  }).join('') + `</div>`;
 }
 
 function zoomTo(id) {
+  closeMapList();
   Object.values(markerMap).forEach(m => {
     const p = m.getPopup();
     if (p && p.isOpen()) m.togglePopup();
@@ -1484,11 +2554,14 @@ function zoomTo(id) {
 
   document.querySelectorAll('.map-sidebar-item').forEach(el => el.classList.remove('is-active'));
   const sideEl = document.querySelector(`.map-sidebar-item[data-id="${id}"]`);
-  if (sideEl) sideEl.classList.add('is-active');
+  if (sideEl) {
+    sideEl.classList.add('is-active');
+    sideEl.scrollIntoView({ block: 'nearest', behavior: 'smooth' });
+  }
 
   if (!mainMap) return;
   const a = artifacts.find(x => x.id === id);
-  mainMap.flyTo({ center: [a.lng, a.lat], zoom: 17 });
+  mainMap.flyTo({ center: [a.lng, a.lat], zoom: 17, padding: { top: 40, bottom: 360, left: 40, right: 40 } });
   setTimeout(() => { if (markerMap[id]) markerMap[id].togglePopup(); }, 500);
 }
 
@@ -1521,21 +2594,72 @@ sliderEl.addEventListener('touchend', e => {
 
 /* ── Static page renderers ───────────────────────────────────────────────────── */
 function renderAbout() {
-  const stats = document.getElementById('about-stats');
-  if (stats) stats.innerHTML = SITE_DATA.about.stats.map(s => '<div class="stat-row">' + escHtml(s) + '</div>').join('');
+  const ps = SITE_DATA.manifest.paragraphs || [];
+
+  // Facts explication bar
+  const explEl = document.getElementById('about-expl');
+  if (explEl) {
+    const facts = (SITE_DATA.about && SITE_DATA.about.facts) || [];
+    explEl.innerHTML = facts.map(f =>
+      '<div class="au-expl-cell">' +
+        '<div class="au-expl-key">' + escHtml(f.k) + '</div>' +
+        '<div class="au-expl-val">' + escHtml(f.v) + '</div>' +
+      '</div>'
+    ).join('');
+  }
+
+  // Lead paragraphs: all plain paragraphs before the first heading
+  const leadEl = document.getElementById('about-lead');
+  const leadTexts = [];
+  if (leadEl) {
+    let li = 0;
+    while (li < ps.length && !ps[li].startsWith('# ') && !ps[li].startsWith('- ')) {
+      leadTexts.push(ps[li]); li++;
+    }
+    leadEl.innerHTML = leadTexts.map(t => '<p>' + escHtml(t) + '</p>').join('')
+      .replace('чтобы решать его проблемы и замечать красоту.', 'чтобы <span class="gallery-intro-hl">решать его проблемы и замечать красоту.</span>');
+  }
+
+  // Manifest body (skip lead paragraphs)
   const mf = document.getElementById('about-manifest');
-  if (mf) mf.innerHTML = (SITE_DATA.manifest.paragraphs || []).map(p => '<p>' + escHtmlStrong(p) + '</p>').join('');
+  if (mf) {
+    let i = leadTexts.length;
+    let html = '';
+    while (i < ps.length) {
+      if (ps[i].startsWith('# ')) {
+        html += '<h3>' + escHtml(ps[i].slice(2)) + '</h3>'; i++;
+      } else if (ps[i].startsWith('- ')) {
+        html += '<ul>';
+        while (i < ps.length && ps[i].startsWith('- ')) { html += '<li>' + escHtmlStrong(ps[i].slice(2)) + '</li>'; i++; }
+        html += '</ul>';
+      } else {
+        html += '<p>' + escHtmlStrong(ps[i]) + '</p>'; i++;
+      }
+    }
+    mf.innerHTML = html;
+  }
+
   const fc = document.getElementById('footer-copy-about');
   const fs = document.getElementById('footer-sub-about');
-  if (fc) fc.textContent = SITE_DATA.settings.footer || '';
-  if (fs) fs.textContent = SITE_DATA.settings.footerSub || '';
+  if (fc) fc.innerHTML = SITE_DATA.settings.footer || '';
+  if (fs) fs.innerHTML = SITE_DATA.settings.footerSub || '';
+}
+function contactLink(key, val) {
+  const v = escHtml(val);
+  const k = key.toLowerCase();
+  if (!val || val.includes('example') || val === '@username') return v;
+  if (k.includes('почт') || k.includes('email') || val.includes('@') && val.includes('.')) return `<a href="mailto:${v}">${v}</a>`;
+  if (k.includes('telegram') || k.includes('тг')) return `<a href="https://t.me/${v.replace('@','')}" target="_blank" rel="noopener">${v}</a>`;
+  if (k.includes('instagram') || k.includes('инст')) return `<a href="https://instagram.com/${v.replace('@','')}" target="_blank" rel="noopener">${v}</a>`;
+  if (val.startsWith('http')) return `<a href="${v}" target="_blank" rel="noopener">${v}</a>`;
+  return v;
 }
 function renderContacts() {
   const el = document.getElementById('contacts-list');
   if (!el) return;
   el.innerHTML = SITE_DATA.contacts.map(c =>
     '<div class="contact-item"><div class="contact-key">' + escHtml(c.key) + '</div>' +
-    '<div class="contact-val">' + escHtml(c.val) + '</div></div>'
+    '<div class="contact-val">' + contactLink(c.key, c.val) + '</div></div>'
   ).join('');
 }
 
@@ -1551,52 +2675,139 @@ function renderAuthorsList() {
   const el = document.getElementById('authors-list');
   if (!el) return;
   const authors = SITE_DATA.authors || [];
+
+  // Count block
+  const countEl = document.getElementById('authors-count-block');
+  if (countEl) {
+    const n = authors.length;
+    const mod10 = n % 10, mod100 = n % 100;
+    const label = (mod100 >= 11 && mod100 <= 19) ? 'авторов'
+      : mod10 === 1 ? 'автор'
+      : (mod10 >= 2 && mod10 <= 4) ? 'автора'
+      : 'авторов';
+    countEl.innerHTML =
+      '<div class="al-count-num">' + String(n).padStart(2, '0') + '</div>' +
+      '<div class="al-count-label">' + label + '</div>';
+  }
+
+  // Author rows
   el.innerHTML = authors.map(a => {
     const count = artifacts.filter(art => art.artist === a.name).length;
-    const photoHtml = a.photo
-      ? '<img class="author-row-photo" src="' + escHtml(a.photo) + '" alt="">'
-      : '<div class="author-row-photo"></div>';
-    return '<button class="author-row" onclick="navigate(\'author\',' + a.id + ')">' +
-      photoHtml +
-      '<span class="author-row-name">' + escHtml(a.name) + '</span>' +
-      '<span class="author-row-count">' + pluralWorks(count) + '</span>' +
-      '</button>';
+    const avatarImg = a.photo
+      ? '<img src="' + escHtml(a.photo) + '" alt="' + escHtml(a.name) + '" onerror="this.style.display=\'none\'">'
+      : '';
+    const technique = a.technique
+      ? '<span class="al-row-technique">' + escHtml(a.technique) + '</span>' : '';
+    return '<button class="al-row" onclick="navigate(\'author\',' + a.id + ')">' +
+      '<div class="al-row-avatar">' + avatarImg + '</div>' +
+      '<div class="al-row-name">' + escHtml(a.name) + '</div>' +
+      '<div class="al-row-meta">' +
+        technique +
+        '<span class="al-row-works">' + pluralWorks(count) + '</span>' +
+        '<span class="al-row-arrow"><svg width="16" height="16" viewBox="0 0 18 18" fill="none"><path d="M7 3L13 9L7 15" stroke="currentColor" stroke-width="2" stroke-linecap="square" stroke-linejoin="miter"/></svg></span>' +
+      '</div>' +
+    '</button>';
   }).join('');
 
-  const copy = SITE_DATA.settings.footer || '';
-  const sub  = SITE_DATA.settings.footerSub || '';
   const fc = document.getElementById('footer-copy-authors');
   const fs = document.getElementById('footer-sub-authors');
-  if (fc) fc.textContent = copy;
-  if (fs) fs.textContent = sub;
+  if (fc) fc.innerHTML = SITE_DATA.settings.footer || '';
+  if (fs) fs.innerHTML = SITE_DATA.settings.footerSub || '';
 }
 
 function renderAuthorPage(authorId) {
   const a = (SITE_DATA.authors || []).find(x => x.id === authorId);
   if (!a) return;
 
+  // Portrait
   const photoCol = document.getElementById('author-photo-col');
-  photoCol.innerHTML = a.photo
-    ? '<img src="' + escHtml(a.photo) + '" alt="' + escHtml(a.name) + '">'
-    : '<div class="author-photo-placeholder">◯</div>';
+  if (a.photo) {
+    const img = document.createElement('img');
+    img.alt = a.name;
+    img.onerror = () => img.style.opacity = '.25';
+    img.src = a.photo;
+    photoCol.innerHTML = '';
+    photoCol.appendChild(img);
+  } else {
+    photoCol.innerHTML = '<div style="width:100%;height:100%;display:flex;align-items:center;justify-content:center;font-size:6rem;opacity:.08">◯</div>';
+  }
 
-  document.getElementById('author-name').textContent = a.name;
+  // Name: natural wrapping, no forced line breaks
+  const nameEl = document.getElementById('author-name');
+  nameEl.textContent = a.name;
+
+  // Explication bar
+  const works = artifacts.filter(art => art.artist === a.name);
+  const expl = document.getElementById('author-expl');
+  const cells = [
+    { k: 'Техника',   v: a.technique  || '—', html: false },
+    { k: 'Город',     v: a.hometown   || '—', html: false },
+    { k: 'Работ',     v: '<button class="expl-anchor-btn" onclick="document.getElementById(\'author-collection\').scrollIntoView({behavior:\'smooth\'})">' + escHtml(String(works.length)) + '</button>', html: true },
+    { k: 'В музее с', v: a.yearJoined ? String(a.yearJoined) : '—', html: false }
+  ];
+  expl.innerHTML = cells.map(c =>
+    '<div class="au-expl-cell">' +
+      '<div class="au-expl-key">' + escHtml(c.k) + '</div>' +
+      '<div class="au-expl-val">' + (c.html ? c.v : escHtml(c.v)) + '</div>' +
+    '</div>'
+  ).join('');
+
+  // Quote
+  const quoteEl = document.getElementById('author-quote');
+  if (a.quote) {
+    let quoteFinal = escHtml(a.quote);
+    if (a.quoteHl) {
+      quoteFinal = quoteFinal.replace(escHtml(a.quoteHl), '<span class="gallery-intro-hl">' + escHtml(a.quoteHl) + '</span>');
+    }
+    quoteEl.innerHTML = '«' + quoteFinal + '»';
+    quoteEl.style.display = '';
+  } else {
+    quoteEl.style.display = 'none';
+  }
+
+  // Bio
   document.getElementById('author-bio').textContent = a.bio;
 
-  const works = artifacts.filter(art => art.artist === a.name);
-  document.getElementById('author-works-grid').innerHTML = works.map(art => {
-    const cls = art.status === 'в городе' ? 'status-live' : 'status-gone';
+
+  // Works count meta
+
+  // Works grid
+  document.getElementById('author-works-grid').innerHTML = works.map((art, i) => {
+    const live = art.status === 'В городе';
+    const statusCls = live ? 'status-live' : 'status-gone';
+    const artNum = 'АРТ—' + String(art.id).padStart(3, '0');
+    const count = art.photos.length + ' фото';
+    const arrow = '<svg width="16" height="16" viewBox="0 0 18 18" fill="none"><path d="M7 3L13 9L7 15" stroke="white" stroke-width="2" stroke-linecap="square" stroke-linejoin="miter"/></svg>';
     return '<div class="card" onclick="navigate(\'artifact\',' + art.id + ')">' +
       '<div class="card-photo">' +
-      '<img src="' + escHtml(art.photos[0] || '') + '" alt="" loading="lazy">' +
-      '<div class="card-hover"><div class="card-hover-bottom">' +
-      '<div class="card-hover-left"><div class="card-hover-meta"><span class="card-status ' + cls + '">' + escHtml(art.status) + '</span></div></div>' +
-      '<div class="card-hover-arrow"><svg width="16" height="16" viewBox="0 0 16 16" fill="none"><path d="M5 3L11 8L5 13" stroke="white" stroke-width="1.8" stroke-linecap="square" stroke-linejoin="miter"/></svg></div>' +
-      '</div></div></div>' +
-      '<div class="card-info"><div class="card-title">' + escHtml(art.title) + '</div>' +
-      '<div class="card-date">' + escHtml(art.date) + '</div></div>' +
-      '</div>';
+        '<img src="' + escHtml(art.photos[0] || '') + '" alt="' + escHtml(art.title) + '" loading="' + (i < 2 ? 'eager' : 'lazy') + '">' +
+        '<span class="card-status ' + statusCls + '">' + escHtml(art.status) + '</span>' +
+        '<div class="card-hover">' +
+          '<div class="card-hover-bottom">' +
+            '<div class="card-hover-left">' +
+              '<div class="card-hover-author">' + escHtml(art.title) + '</div>' +
+              '<div class="card-hover-meta"><span class="card-hover-count">' + count + '</span></div>' +
+            '</div>' +
+            '<div class="card-hover-arrow">' + arrow + '</div>' +
+          '</div>' +
+        '</div>' +
+      '</div>' +
+      '<div class="card-info">' +
+        '<div class="card-title">' + escHtml(art.title) + '</div>' +
+        '<div class="card-date">' + (art.date ? escHtml(art.date) : '') + '</div>' +
+      '</div>' +
+    '</div>';
   }).join('');
+
+  // Next author
+  const authors = SITE_DATA.authors || [];
+  const authorIdx = authors.findIndex(x => x.id === a.id);
+  const nextAuthor = authors[(authorIdx + 1) % authors.length];
+  const nextBtn = document.getElementById('author-next-block');
+  if (nextBtn && nextAuthor) {
+    document.getElementById('author-next-name').textContent = nextAuthor.name;
+    nextBtn.onclick = () => navigate('author', nextAuthor.id);
+  }
 }
 
 /* ── Init ───────────────────────────────────────────────────────────────────── */
@@ -1634,13 +2845,17 @@ function renderAuthorPage(authorId) {
   }
 
   if (s.mapLabel) { const el = document.getElementById('map-topbar-label'); if (el) el.textContent = s.mapLabel; }
-  if (s.mapCity)  { const el = document.getElementById('map-topbar-city');  if (el) el.textContent = s.mapCity;  }
+  { const el = document.getElementById('map-topbar-city'); if (el) el.textContent = pluralArtifacts(artifacts.length); }
 
   document.querySelectorAll('.site-footer').forEach(f => {
     const spans = f.querySelectorAll('span');
-    if (spans[0] && s.footer)    spans[0].textContent = s.footer;
-    if (spans[1] && s.footerSub) spans[1].textContent = s.footerSub;
+    if (spans[0] && s.footer)    spans[0].innerHTML = s.footer;
+    if (spans[1] && s.footerSub) spans[1].innerHTML = s.footerSub;
   });
+  const fmc = document.getElementById('footer-copy-map');
+  const fms = document.getElementById('footer-sub-map');
+  if (fmc && s.footer)    fmc.innerHTML = s.footer;
+  if (fms && s.footerSub) fms.innerHTML = s.footerSub;
 })();
 
 renderGallery();
@@ -1649,19 +2864,33 @@ renderContacts();
 renderAuthorsList();
 updateNavTheme();
 
+(function() {
+  const params = new URLSearchParams(location.search);
+  const v = params.get('v');
+  const id = params.get('id') ? parseInt(params.get('id')) : undefined;
+  if (v && v !== 'main') {
+    navigate(v, id, true);
+  } else {
+    history.replaceState({ view: 'main' }, '', location.pathname);
+  }
+})();
+
 /* ── Mobile menu ────────────────────────────────────────────────────────────── */
 function toggleMobileMenu() {
   var btn     = document.getElementById('nav-hamburger');
   var menu    = document.getElementById('nav-mobile-menu');
   var overlay = document.getElementById('nav-overlay');
+  var nav     = document.querySelector('.site-nav');
   var open = menu.classList.toggle('open');
   btn.classList.toggle('open', open);
   overlay.classList.toggle('open', open);
+  nav.classList.toggle('nav--menu-open', open);
 }
 function closeMobileMenu() {
   document.getElementById('nav-hamburger').classList.remove('open');
   document.getElementById('nav-mobile-menu').classList.remove('open');
   document.getElementById('nav-overlay').classList.remove('open');
+  document.querySelector('.site-nav').classList.remove('nav--menu-open');
 }
 
 /* ── Hero parallax ──────────────────────────────────────────────────────────── */
@@ -1687,6 +2916,32 @@ function closeMobileMenu() {
   update();
   window._heroParallaxReset = update;
 })();
+
+/* ── Donate modal ───────────────────────────────────────────────────────────── */
+function openDonateModal() {
+  document.getElementById('donate-modal').classList.add('open');
+  document.body.style.overflow = 'hidden';
+}
+function closeDonateModal() {
+  document.getElementById('donate-modal').classList.remove('open');
+  document.body.style.overflow = '';
+}
+document.addEventListener('keydown', e => {
+  if (e.key === 'Escape' && document.getElementById('donate-modal').classList.contains('open')) closeDonateModal();
+});
 </script>
+
+<!-- ═══ DONATE MODAL ══════════════════════════════════════════════════════════ -->
+<div id="donate-modal" class="donate-overlay" onclick="if(event.target===this)closeDonateModal()">
+  <div class="donate-modal">
+    <button class="donate-close" onclick="closeDonateModal()">✕</button>
+    <div class="donate-title">Поддержать музей «Артефакт»</div>
+    <p class="donate-text">Мы принимаем донаты через телеграм-сервис Tribute. Нас можно поддержать через приложение или сайт. Спасибо!</p>
+    <div class="donate-btns">
+      <a class="donate-btn" href="https://t.me/tribute/app?startapp=dLhZ" target="_blank" rel="noopener">Поддержать через ТГ</a>
+      <a class="donate-btn" href="https://web.tribute.tg/d/LhZ" target="_blank" rel="noopener">Поддержать через сайт</a>
+    </div>
+  </div>
+</div>
 </body>
 </html>
