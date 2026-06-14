@@ -319,7 +319,6 @@
     </div>
     <div class="nav-item" id="nav-about"    onclick="setSection('about')">Музей</div>
     <div class="nav-item" id="nav-authors"  onclick="setSection('authors')">Авторы</div>
-    <div class="nav-item" id="nav-contacts" onclick="setSection('contacts')">Контакты</div>
 
     <div class="nav-divider"></div>
     <div class="nav-section-label">Сайт</div>
@@ -1187,7 +1186,7 @@ function renderPublishSection(panel) {
             Создать токен ↗
           </a>
         </label>
-        <input id="gh-token" type="password" placeholder="ghp_xxxxxxxxxxxxxxxxxxxx"
+        <input id="gh-token" type="text" placeholder="ghp_xxxxxxxxxxxxxxxxxxxx"
                value="${esc(ghConfig.token||'')}"
                style="padding:10px 12px;border:1px solid #ddd;border-radius:6px;font-family:monospace;font-size:0.85rem;width:100%">
         <div style="font-size:0.73rem;opacity:0.4;margin-top:4px">Токен хранится в localStorage этого браузера в открытом виде. Используй только на личном устройстве.</div>
