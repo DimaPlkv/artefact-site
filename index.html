@@ -1446,6 +1446,15 @@
                  scroll-bounce 2s ease-in-out 1.17s infinite;
     }
 
+    /* ── SPLASH SCREEN ──────────────────────────────────────────── */
+    .splash {
+      position: fixed; inset: 0; z-index: 9999;
+      background: #000;
+      display: flex; align-items: center; justify-content: center;
+      transition: opacity 0.5s ease;
+    }
+    .splash.out { opacity: 0; pointer-events: none; }
+
     /* ── PWA IOS INSTALL MODAL ──────────────────────────────────── */
     .install-ios-overlay {
       display: none; position: fixed; inset: 0; z-index: 950;
@@ -3164,6 +3173,28 @@ if ('serviceWorker' in navigator) {
     navigator.serviceWorker.register('/service-worker.js').catch(function() {});
   });
 }
+
+/* ── SPLASH SCREEN ───────────────────────────────────────────────────────── */
+(function() {
+  var splash = document.getElementById('splash');
+  var logoSrc = document.getElementById('nav-logo-svg');
+  if (splash && logoSrc) {
+    var clone = logoSrc.cloneNode(true);
+    clone.removeAttribute('id');
+    clone.style.cssText = 'width:min(60vw,240px);height:auto;color:#fff;display:block;';
+    document.getElementById('splash-logo').appendChild(clone);
+  }
+  function hideSplash() {
+    if (!splash) return;
+    splash.classList.add('out');
+    setTimeout(function() { if (splash && splash.parentNode) splash.parentNode.removeChild(splash); }, 520);
+  }
+  if (document.readyState === 'complete') {
+    setTimeout(hideSplash, 400);
+  } else {
+    window.addEventListener('load', function() { setTimeout(hideSplash, 400); });
+  }
+})();
 </script>
 
 <!-- ═══ DONATE MODAL ══════════════════════════════════════════════════════════ -->
@@ -3197,6 +3228,9 @@ if ('serviceWorker' in navigator) {
     </div>
   </div>
 </div>
+
+<!-- ═══ SPLASH SCREEN ════════════════════════════════════════════════════ -->
+<div id="splash" class="splash"><div id="splash-logo"></div></div>
 
 <!-- ═══ IOS INSTALL MODAL ═════════════════════════════════════════════════ -->
 <div id="install-ios-modal" class="install-ios-overlay" onclick="if(event.target===this)closeInstallIosModal()">
