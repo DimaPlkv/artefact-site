@@ -1,4 +1,4 @@
-const CACHE = 'artefact-v1';
+const CACHE = 'artefact-v2';
 
 self.addEventListener('install', (e) => {
   e.waitUntil(
