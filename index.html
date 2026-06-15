@@ -103,7 +103,7 @@
     }
 
     .nav-links { display: flex; gap: 32px; list-style: none; align-items: center; }
-    .nav-right { display: flex; align-items: center; gap: 32px; }
+    .nav-right { display: flex; align-items: center; gap: 16px; }
 
     .nav-btn {
       background: none;
@@ -200,6 +200,8 @@
       .nav-links { display: none; }
       .nav-hamburger { display: flex; }
       .nav-logo-sub { display: none; }
+      .site-nav { justify-content: flex-start; gap: 16px; }
+      .nav-right { margin-left: auto; }
     }
 
     /* ─── VIEWS ──────────────────────────────────────────────────────────────── */
@@ -589,7 +591,7 @@
 
     .artifact-desc {
       font-weight: 300; font-size: 1.05rem; line-height: 1.82;
-      color: rgba(0,0,0,.68); margin-bottom: 40px;
+      color: var(--black); margin-bottom: 40px;
       white-space: pre-line;
     }
 
@@ -633,12 +635,13 @@
       object-fit: cover; flex-shrink: 0;
     }
     .popup-link {
-      font-size: 0.88rem; font-weight: 600; color: #000; text-decoration: none;
-      display: block; padding: 12px 16px; border-radius: 8px;
-      background: #f0f0f0; text-align: center;
-      transition: background 0.15s;
+      font-size: 0.9rem; font-weight: 600; color: #fff; text-decoration: none;
+      display: flex; align-items: center; justify-content: center; gap: 6px;
+      height: 44px; padding: 0 16px; border-radius: 12px;
+      background: #000;
+      transition: opacity 0.15s;
     }
-    .popup-link:hover { background: #e4e4e4; }
+    .popup-link:hover { opacity: 0.82; }
     .popup-link:focus { outline: none; }
 
     .status-indicator { display: inline-flex; align-items: center; gap: 7px; }
@@ -796,7 +799,7 @@
 
     .manifest-text p {
       font-weight: 300; font-size: 1.15rem; line-height: 1.82;
-      margin-bottom: 28px; color: rgba(0,0,0,0.68);
+      margin-bottom: 28px; color: var(--black);
     }
     .manifest-text p strong { font-weight: 700; color: var(--black); }
     .manifest-text a { color: #0066cc; text-decoration: none; transition: opacity 0.15s; }
@@ -807,7 +810,7 @@
     .manifest-text p:has(> strong:only-child) { margin-top: 28px; margin-bottom: 4px; }
     .manifest-h + p:has(> strong:only-child) { margin-top: 0; }
     .manifest-list { list-style: disc; padding-left: 1.4em; margin: 0 0 28px; }
-    .manifest-list li { font-weight: 300; font-size: 1.15rem; line-height: 1.82; color: rgba(0,0,0,0.68); }
+    .manifest-list li { font-weight: 300; font-size: 1.15rem; line-height: 1.82; color: var(--black); }
 
     .contact-item { padding: 20px 0; border-bottom: 1px solid var(--border); }
     .contact-key {
@@ -1160,7 +1163,7 @@
       padding-top: clamp(26px, 3.2vw, 48px);
       font-weight: 300; font-size: 1.05rem;
       line-height: 1.82; white-space: pre-line;
-      color: rgba(0,0,0,.68);
+      color: var(--black);
     }
     .au-sign {
       display: flex; align-items: center; gap: 10px; margin-top: 24px;
@@ -1241,7 +1244,7 @@
     .ab-manifest h3:first-child { border-top: none; padding-top: 0; }
     .ab-manifest p {
       font-weight: 300; font-size: 1.05rem; line-height: 1.82;
-      margin-bottom: 22px; color: rgba(0,0,0,.68);
+      margin-bottom: 22px; color: var(--black);
     }
     .ab-manifest p strong { font-weight: 600; color: var(--black); }
     .ab-manifest p:has(> strong:only-child) { margin: 28px 0 6px; font-size: 1.1rem; }
@@ -1257,7 +1260,7 @@
     }
     .ab-manifest ul li {
       padding: 5px 0;
-      font-weight: 300; font-size: 1rem; color: rgba(0,0,0,.65);
+      font-weight: 300; font-size: 1rem; color: var(--black);
       display: flex; align-items: center; gap: 10px;
     }
     .ab-manifest ul li::before {
@@ -1325,19 +1328,22 @@
     }
     /* ── Donate button + modal ── */
     .nav-donate-btn {
-      background: #41C767; color: #fff; border: none; border-radius: 100px;
-      padding: 13px 24px; font-family: 'Inter', sans-serif; font-size: 0.9rem;
+      background: #41C767; color: #fff; border: none; border-radius: 12px;
+      height: 44px; padding: 0 24px; display: inline-flex; align-items: center;
+      font-family: 'Inter', sans-serif; font-size: 0.9rem;
       font-weight: 600; cursor: pointer; white-space: nowrap;
       transition: background 0.15s;
     }
     .nav-donate-btn:hover { background: #35a855; }
     .nav-install-btn {
       background: transparent; color: #fff; border: 1.5px solid rgba(255,255,255,0.7);
-      border-radius: 100px; padding: 11px 22px;
+      border-radius: 12px; height: 44px; padding: 0 22px;
+      display: inline-flex; align-items: center;
       font-family: 'Inter', sans-serif; font-size: 0.9rem; font-weight: 600;
       cursor: pointer; white-space: nowrap; transition: border-color 0.15s;
     }
-    .nav-install-btn::after { display: none !important; }
+    .nav-install-btn::after,
+    .nav-install-btn .nav-label::after { display: none !important; }
     .nav-install-btn:hover { border-color: rgba(255,255,255,0.45); }
     .site-nav:not(.nav--transparent) .nav-install-btn { color: var(--black); border-color: rgba(0,0,0,0.22); }
     .site-nav:not(.nav--transparent) .nav-install-btn:hover { border-color: rgba(0,0,0,0.45); }
@@ -1368,8 +1374,8 @@
     .donate-btns { display: flex; flex-direction: column; gap: 10px; }
     .donate-btn {
       display: flex; align-items: center; justify-content: center; gap: 9px;
-      text-decoration: none; border-radius: 14px; padding: 16px 20px;
-      font-family: 'Inter', sans-serif; font-size: 0.95rem; font-weight: 500;
+      text-decoration: none; border-radius: 12px; height: 44px; padding: 0 20px;
+      font-family: 'Inter', sans-serif; font-size: 0.9rem; font-weight: 600;
       transition: opacity 0.15s; cursor: pointer;
     }
     .donate-btn:hover { opacity: 0.82; }
@@ -1451,7 +1457,7 @@
       .hero-muzey-svg    { width: min(78vw, 380px); }
       .hero-subtitle-svg { width: min(70vw, 340px); }
       .meta-row-inline { grid-template-columns: 1fr; gap: 16px; }
-      .nav-donate-btn { padding: 11px 20px; font-size: 0.88rem; }
+      .nav-donate-btn { padding: 0 16px; }
     }
 
     /* ─── HERO INTRO ANIMATION ────────────────────────────────────────────────── */
@@ -1537,8 +1543,8 @@
     }
     .install-ios-done {
       width: 100%; background: #000; color: #fff; border: none;
-      border-radius: 12px; padding: 14px;
-      font-family: 'Inter', sans-serif; font-size: 0.95rem; font-weight: 600;
+      border-radius: 12px; height: 44px; padding: 0;
+      font-family: 'Inter', sans-serif; font-size: 0.9rem; font-weight: 600;
       cursor: pointer; transition: opacity 0.15s;
     }
     .install-ios-done:hover { opacity: 0.8; }
@@ -2752,15 +2758,19 @@ function initMainMap() {
     const cover = a.photos && a.photos.length ? a.photos[0] : '';
     const popup = new maplibregl.Popup({ offset: 14, closeButton: false }).setHTML(`
       <div style="font-family:'Inter',sans-serif;width:100%;padding:0">
-        ${cover ? `<img src="${escHtml(cover)}" style="width:100%;aspect-ratio:4/3;object-fit:cover;border-radius:8px;margin-bottom:10px;display:block">` : ''}
+        ${cover ? `
+        <div style="position:relative;margin-bottom:10px">
+          <img src="${escHtml(cover)}" style="width:100%;aspect-ratio:4/3;object-fit:cover;border-radius:8px;display:block">
+          <div style="position:absolute;top:0;left:0;right:0;height:60px;background:linear-gradient(to bottom,rgba(0,0,0,0.28),rgba(0,0,0,0));border-radius:8px 8px 0 0;pointer-events:none"></div>
+          <span style="position:absolute;top:10px;left:10px;display:flex;align-items:center;gap:5px;font-size:0.72rem;color:#fff">
+            <span style="width:7px;height:7px;border-radius:50%;background:${dot};flex-shrink:0;display:inline-block"></span>
+            ${escHtml(a.status)}
+          </span>
+        </div>` : ''}
         <div style="font-weight:700;font-size:0.9rem;margin-bottom:4px;line-height:1.3">${escHtml(a.title)}</div>
-        <div style="font-size:0.78rem;opacity:0.55;margin-bottom:8px">${escHtml(a.address)}</div>
-        <div style="display:flex;align-items:center;gap:6px;font-size:0.78rem;margin-bottom:12px">
-          <span style="width:7px;height:7px;border-radius:50%;background:${dot};display:inline-block;flex-shrink:0"></span>
-          ${escHtml(a.status)}
-        </div>
+        <div style="font-size:0.78rem;opacity:0.55;margin-bottom:12px">${escHtml(a.address)}</div>
         <a href="#" class="popup-link" onclick="navigate('artifact',${a.id});return false;">
-          Смотреть <svg style="display:inline;vertical-align:middle;margin-left:4px" width="14" height="14" viewBox="0 0 14 14" fill="none"><path d="M3 7H11M11 7L7 3M11 7L7 11" stroke="currentColor" stroke-width="1.8" stroke-linecap="square" stroke-linejoin="miter"/></svg>
+          Смотреть <svg width="14" height="14" viewBox="0 0 18 18" fill="none"><path d="M7 3L13 9L7 15" stroke="currentColor" stroke-width="2" stroke-linecap="square" stroke-linejoin="miter"/></svg>
         </a>
       </div>
     `);
@@ -3223,13 +3233,29 @@ function closeMobileMenu() {
 })();
 
 /* ── Donate modal ───────────────────────────────────────────────────────────── */
+var _lockScrollY = 0;
+function lockScroll() {
+  _lockScrollY = window.scrollY;
+  document.body.style.overflow = 'hidden';
+  document.body.style.position = 'fixed';
+  document.body.style.top = '-' + _lockScrollY + 'px';
+  document.body.style.width = '100%';
+}
+function unlockScroll() {
+  document.body.style.overflow = '';
+  document.body.style.position = '';
+  document.body.style.top = '';
+  document.body.style.width = '';
+  window.scrollTo(0, _lockScrollY);
+}
+
 function openDonateModal() {
   document.getElementById('donate-modal').classList.add('open');
-  document.body.style.overflow = 'hidden';
+  lockScroll();
 }
 function closeDonateModal() {
   document.getElementById('donate-modal').classList.remove('open');
-  document.body.style.overflow = '';
+  unlockScroll();
 }
 document.addEventListener('keydown', e => {
   if (e.key === 'Escape' && document.getElementById('donate-modal').classList.contains('open')) closeDonateModal();
@@ -3250,11 +3276,13 @@ function handleInstallClick() {
     _pwaPrompt.userChoice.then(function() { _pwaPrompt = null; });
   } else {
     document.getElementById('install-ios-modal').classList.add('open');
+    lockScroll();
   }
 }
 
 function closeInstallIosModal() {
   document.getElementById('install-ios-modal').classList.remove('open');
+  unlockScroll();
 }
 
 // Скрыть пункт меню если уже установлено как PWA
