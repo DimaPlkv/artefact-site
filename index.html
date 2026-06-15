@@ -117,22 +117,23 @@
       opacity: 1;
       transition: color 0.35s ease;
       padding: 0;
-      position: relative;
     }
-    .nav-btn::after {
+    .nav-label { position: relative; }
+    .nav-label::after {
       content: '';
       position: absolute;
-      bottom: -3px;
-      left: 0;
-      width: 0;
-      height: 1.5px;
-      background: currentColor;
-      transition: width 0.28s cubic-bezier(.22,.61,.36,1);
+      bottom: 0; left: 0;
+      width: 100%; height: 44%;
+      background: rgba(47,174,104,.30);
+      transform: scaleX(0);
+      transform-origin: left;
+      transition: transform 0.28s cubic-bezier(.22,.61,.36,1);
+      z-index: -1;
     }
-    .nav-btn:hover::after       { width: 100%; }
-    .nav-btn.active             { cursor: default; }
-    .nav-btn.active::after      { width: 100%; }
-    .nav-btn.active:hover::after { width: 100%; }
+    .nav-btn:hover .nav-label::after        { transform: scaleX(1); }
+    .nav-btn.active                         { cursor: default; }
+    .nav-btn.active .nav-label::after       { transform: scaleX(1); }
+    .nav-btn.active:hover .nav-label::after { transform: scaleX(1); }
 
     .nav-hamburger {
       display: none;
@@ -615,11 +616,18 @@
       cursor: pointer; font-family: 'Inter', sans-serif; font-size: inherit;
       font-weight: 400; padding: 3px 7px; color: var(--black);
       border-radius: 6px; margin: -3px 0 -3px -7px;
-      transition: background 0.15s;
       display: inline-flex; align-items: center; gap: 8px;
       text-align: left;
     }
-    .meta-author-link:hover { background: #efefef; }
+    .meta-author-name { position: relative; }
+    .meta-author-name::after {
+      content: ''; position: absolute; bottom: 0; left: 0;
+      width: 100%; height: 44%; background: rgba(47,174,104,.30);
+      transform: scaleX(0); transform-origin: left;
+      transition: transform 0.28s cubic-bezier(.22,.61,.36,1);
+      z-index: -1;
+    }
+    .meta-author-link:hover .meta-author-name::after { transform: scaleX(1); }
     .meta-author-avatar {
       width: 24px; height: 24px; border-radius: 50%;
       object-fit: cover; flex-shrink: 0;
@@ -657,19 +665,28 @@
     .artifact-addr:hover .artifact-addr-arrow { transform: translateX(8px); opacity: .65; }
     #art-addr-text { position: relative; }
     #art-addr-text::after {
-      content: ''; position: absolute; bottom: -1px; left: 0;
-      width: 0; height: 1px; background: currentColor;
-      transition: width 0.28s cubic-bezier(.22,.61,.36,1);
+      content: ''; position: absolute; bottom: 0; left: 0;
+      width: 100%; height: 44%; background: rgba(47,174,104,.30);
+      transform: scaleX(0); transform-origin: left;
+      transition: transform 0.28s cubic-bezier(.22,.61,.36,1);
+      z-index: -1;
     }
-    .artifact-addr:hover #art-addr-text::after { width: 100%; }
+    .artifact-addr:hover #art-addr-text::after { transform: scaleX(1); }
     .expl-anchor-btn {
       background: none; border: none;
       font-family: inherit; font-size: inherit; font-weight: inherit; letter-spacing: inherit;
       cursor: pointer; color: inherit; text-align: left;
       padding: 3px 7px; margin: -3px 0 -3px -7px;
-      border-radius: 6px; transition: background 0.15s;
+      border-radius: 6px; position: relative;
     }
-    .expl-anchor-btn:hover { background: #efefef; }
+    .expl-anchor-btn::after {
+      content: ''; position: absolute; bottom: 0; left: 0;
+      width: 100%; height: 44%; background: rgba(47,174,104,.30);
+      transform: scaleX(0); transform-origin: left;
+      transition: transform 0.28s cubic-bezier(.22,.61,.36,1);
+      z-index: -1;
+    }
+    .expl-anchor-btn:hover::after { transform: scaleX(1); }
     .map-loading {
       position: absolute; inset: 0; display: flex; align-items: center; justify-content: center;
       font-size: 0.82rem; font-weight: 300; opacity: 0.4; pointer-events: none;
@@ -1370,11 +1387,13 @@
       position: relative;
     }
     .site-footer a::after {
-      content: ''; position: absolute; bottom: -1px; left: 0;
-      width: 0; height: 1px; background: currentColor;
-      transition: width 0.28s cubic-bezier(.22,.61,.36,1);
+      content: ''; position: absolute; bottom: 0; left: 0;
+      width: 100%; height: 44%; background: rgba(47,174,104,.30);
+      transform: scaleX(0); transform-origin: left;
+      transition: transform 0.28s cubic-bezier(.22,.61,.36,1);
+      z-index: -1;
     }
-    .site-footer a:hover::after { width: 100%; }
+    .site-footer a:hover::after { transform: scaleX(1); }
 
     /* ─── RESPONSIVE ─────────────────────────────────────────────────────────── */
     @media (max-width: 960px) {
@@ -1538,11 +1557,11 @@
   </div>
   <div class="nav-right">
     <ul class="nav-links">
-      <li><button class="nav-btn active" data-nav="main"     onclick="navigateToGallery()">Галерея</button></li>
-      <li><button class="nav-btn"        data-nav="authors"  onclick="navigate('authors')">Авторы</button></li>
-      <li><button class="nav-btn"        data-nav="map"      onclick="navigate('map')">Карта</button></li>
-      <li><button class="nav-btn"        data-nav="about"    onclick="navigate('about')">Музей</button></li>
-      <li><button class="nav-btn nav-install-btn"                                        onclick="handleInstallClick()">Приложение</button></li>
+      <li><button class="nav-btn active" data-nav="main"     onclick="navigateToGallery()"><span class="nav-label">Галерея</span></button></li>
+      <li><button class="nav-btn"        data-nav="authors"  onclick="navigate('authors')"><span class="nav-label">Авторы</span></button></li>
+      <li><button class="nav-btn"        data-nav="map"      onclick="navigate('map')"><span class="nav-label">Карта</span></button></li>
+      <li><button class="nav-btn"        data-nav="about"    onclick="navigate('about')"><span class="nav-label">Музей</span></button></li>
+      <li><button class="nav-btn nav-install-btn"                                        onclick="handleInstallClick()"><span class="nav-label">Приложение</span></button></li>
     </ul>
     <button class="nav-donate-btn" onclick="openDonateModal()">Поддержать</button>
   </div>
@@ -1553,11 +1572,11 @@
 
 <div class="nav-mobile-menu" id="nav-mobile-menu">
   <ul>
-    <li><button class="nav-btn active" data-nav="main"     onclick="navigateToGallery();closeMobileMenu()">Галерея</button></li>
-    <li><button class="nav-btn"        data-nav="authors"  onclick="navigate('authors');closeMobileMenu()">Авторы</button></li>
-    <li><button class="nav-btn"        data-nav="map"      onclick="navigate('map');closeMobileMenu()">Карта</button></li>
-    <li><button class="nav-btn"        data-nav="about"    onclick="navigate('about');closeMobileMenu()">Музей</button></li>
-    <li><button class="nav-btn nav-install-btn"                                          onclick="handleInstallClick();closeMobileMenu()">Приложение</button></li>
+    <li><button class="nav-btn active" data-nav="main"     onclick="navigateToGallery();closeMobileMenu()"><span class="nav-label">Галерея</span></button></li>
+    <li><button class="nav-btn"        data-nav="authors"  onclick="navigate('authors');closeMobileMenu()"><span class="nav-label">Авторы</span></button></li>
+    <li><button class="nav-btn"        data-nav="map"      onclick="navigate('map');closeMobileMenu()"><span class="nav-label">Карта</span></button></li>
+    <li><button class="nav-btn"        data-nav="about"    onclick="navigate('about');closeMobileMenu()"><span class="nav-label">Музей</span></button></li>
+    <li><button class="nav-btn nav-install-btn"                                          onclick="handleInstallClick();closeMobileMenu()"><span class="nav-label">Приложение</span></button></li>
   </ul>
 </div>
 <div class="nav-overlay" id="nav-overlay" onclick="closeMobileMenu()"></div>
@@ -2542,7 +2561,7 @@ function renderArtifact(a) {
   const statusCls = a.status === 'В городе' ? 'status-live' : 'status-gone';
   const authorObj = (SITE_DATA.authors || []).find(au => au.name === a.artist);
   const artistHtml = authorObj
-    ? `<button class="meta-author-link" onclick="navigate('author',${authorObj.id})"><img class="meta-author-avatar" src="${escHtml(authorObj.photo)}" alt="">${escHtml(a.artist)}</button>`
+    ? `<button class="meta-author-link" onclick="navigate('author',${authorObj.id})"><img class="meta-author-avatar" src="${escHtml(authorObj.photo)}" alt=""><span class="meta-author-name">${escHtml(a.artist)}</span></button>`
     : escHtml(a.artist || '—');
 
   const explFields = [
@@ -3120,12 +3139,12 @@ function renderAuthorPage(authorId) {
     const buildItem  = (n, mobile) => {
       const extra = mobile ? ';closeMobileMenu()' : '';
       const click = n.id === 'main' ? `navigateToGallery()${extra}` : `navigate('${n.id}')${extra}`;
-      return `<li><button class="nav-btn" data-nav="${n.id}" onclick="${click}">${escHtml(n.label)}</button></li>`;
+      return `<li><button class="nav-btn" data-nav="${n.id}" onclick="${click}"><span class="nav-label">${escHtml(n.label)}</span></button></li>`;
     };
     if (navLinks)   navLinks.innerHTML   = s.nav.map(n => buildItem(n, false)).join('');
     if (mobileMenu) mobileMenu.innerHTML = s.nav.map(n => buildItem(n, true)).join('');
-    if (navLinks)   navLinks.insertAdjacentHTML('beforeend', '<li><button class="nav-btn nav-install-btn" onclick="handleInstallClick()">Приложение</button></li>');
-    if (mobileMenu) mobileMenu.insertAdjacentHTML('beforeend', '<li><button class="nav-btn nav-install-btn" onclick="handleInstallClick();closeMobileMenu()">Приложение</button></li>');
+    if (navLinks)   navLinks.insertAdjacentHTML('beforeend', '<li><button class="nav-btn nav-install-btn" onclick="handleInstallClick()"><span class="nav-label">Приложение</span></button></li>');
+    if (mobileMenu) mobileMenu.insertAdjacentHTML('beforeend', '<li><button class="nav-btn nav-install-btn" onclick="handleInstallClick();closeMobileMenu()"><span class="nav-label">Приложение</span></button></li>');
     updateNavTheme();
   }
 

@@ -81,17 +81,31 @@ index.html → localStorage → admin.html → GitHub Pages
 - Экспонат: Автор | Год | Статус | Материал
 - Автор (страница): Техника | Город | Работ | В музее с
 - «Работ» — кликабельная кнопка `.expl-anchor-btn`, скроллит к `#author-collection`
-- «Автор» в экспоненте — `.meta-author-link` с hover background #efefef
+- «Автор» в экспоненте — `.meta-author-link` с зелёным background-size hover (не `::after`, а сам элемент)
 
 **Паттерн inline hover-кнопки (обязательно!):**
 ```css
 .btn {
+  background: linear-gradient(to right, rgba(47,174,104,.30), rgba(47,174,104,.30)) left center / 0% 100% no-repeat;
   padding: 3px 7px;
   margin: -3px 0 -3px -7px; /* ВСЕГДА компенсировать padding чтобы не сдвигать baseline */
   border-radius: 7px;
-  transition: background 0.15s;
+  transition: background-size 0.28s cubic-bezier(.22,.61,.36,1);
 }
-.btn:hover { background: #efefef; }
+.btn:hover { background-size: 100% 100%; }
+```
+
+**Паттерн зелёного scaleX ховера (nav, футер, адрес, теги):**
+```css
+.el { position: relative; }
+.el::after {
+  content: ''; position: absolute; bottom: 0; left: 0;
+  width: 100%; height: 44%; background: rgba(47,174,104,.30);
+  transform: scaleX(0); transform-origin: left;
+  transition: transform 0.28s cubic-bezier(.22,.61,.36,1);
+  z-index: -1;
+}
+.el:hover::after { transform: scaleX(1); }
 ```
 
 ## Навигация
