@@ -3021,6 +3021,8 @@ function renderAuthorPage(authorId) {
     };
     if (navLinks)   navLinks.innerHTML   = s.nav.map(n => buildItem(n, false)).join('');
     if (mobileMenu) mobileMenu.innerHTML = s.nav.map(n => buildItem(n, true)).join('');
+    if (navLinks)   navLinks.insertAdjacentHTML('beforeend', '<li><button class="nav-btn nav-install-btn" onclick="handleInstallClick()">Приложение</button></li>');
+    if (mobileMenu) mobileMenu.insertAdjacentHTML('beforeend', '<li><button class="nav-btn nav-install-btn" onclick="handleInstallClick();closeMobileMenu()">Приложение</button></li>');
     updateNavTheme();
   }
 
