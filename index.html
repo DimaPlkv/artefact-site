@@ -1277,31 +1277,34 @@
     }
     .donate-overlay.open { display: flex; }
     .donate-modal {
-      background: #fff; border-radius: 16px; padding: 36px 32px 32px;
-      max-width: 400px; width: 100%; position: relative;
-      box-shadow: 0 16px 48px rgba(0,0,0,0.2);
+      background: #fff; border-radius: 24px; padding: 40px 32px 32px;
+      max-width: 420px; width: 100%; position: relative;
+      box-shadow: 0 24px 64px rgba(0,0,0,0.22);
     }
     .donate-close {
-      position: absolute; top: 16px; right: 16px;
+      position: absolute; top: 18px; right: 18px;
       background: none; border: none; font-size: 1rem; cursor: pointer;
-      opacity: 0.4; transition: opacity 0.15s; padding: 4px 8px;
+      opacity: 0.35; transition: opacity 0.15s; padding: 4px 8px;
     }
     .donate-close:hover { opacity: 1; }
-    .donate-title { font-size: 1.15rem; font-weight: 600; letter-spacing: -0.02em; margin-bottom: 20px; }
-    .donate-author { display: flex; align-items: center; gap: 12px; margin-bottom: 18px; }
+    .donate-title { font-size: 1.9rem; font-weight: 800; letter-spacing: -0.035em; line-height: 1.1; margin-bottom: 24px; }
+    .donate-author { display: flex; align-items: center; gap: 12px; margin-bottom: 20px; }
     .donate-author-photo { width: 52px; height: 52px; border-radius: 50%; object-fit: cover; flex-shrink: 0; }
     .donate-author-name { font-size: 0.9rem; font-weight: 500; line-height: 1.3; }
     .donate-author-role { font-size: 0.8rem; font-weight: 300; color: rgba(0,0,0,0.5); }
-    .donate-text { font-size: 0.95rem; font-weight: 300; line-height: 1.65; color: rgba(0,0,0,0.65); margin-bottom: 10px; }
-    .donate-text:last-of-type { margin-bottom: 24px; }
+    .donate-text { font-size: 0.92rem; font-weight: 300; line-height: 1.7; color: rgba(0,0,0,0.6); margin-bottom: 10px; }
+    .donate-text:last-of-type { margin-bottom: 28px; }
     .donate-btns { display: flex; flex-direction: column; gap: 10px; }
     .donate-btn {
-      display: block; text-align: center; background: var(--black); color: #fff;
-      text-decoration: none; border-radius: 10px; padding: 14px 20px;
+      display: flex; align-items: center; justify-content: center; gap: 9px;
+      text-decoration: none; border-radius: 14px; padding: 16px 20px;
       font-family: 'Inter', sans-serif; font-size: 0.95rem; font-weight: 500;
-      transition: background 0.15s;
+      transition: opacity 0.15s; cursor: pointer;
     }
-    .donate-btn:hover { background: #222; }
+    .donate-btn:hover { opacity: 0.82; }
+    .donate-btn svg { width: 18px; height: 18px; flex-shrink: 0; }
+    .donate-btn-primary { background: #21A038; color: #fff; border: none; }
+    .donate-btn-secondary { background: #fff; color: #000; border: 1.5px solid rgba(0,0,0,0.14); }
     .site-footer a {
       color: inherit; text-decoration: none;
       position: relative;
@@ -3061,7 +3064,7 @@ document.addEventListener('keydown', e => {
 <div id="donate-modal" class="donate-overlay" onclick="if(event.target===this)closeDonateModal()">
   <div class="donate-modal">
     <button class="donate-close" onclick="closeDonateModal()">✕</button>
-    <div class="donate-title">Поддержать музей «Артефакт»</div>
+    <div class="donate-title">Поддержать музей</div>
     <div class="donate-author">
       <img class="donate-author-photo" src="photos/hudozhniki/dima-polyakov.jpg" alt="Дима Поляков">
       <div>
@@ -3072,9 +3075,18 @@ document.addEventListener('keydown', e => {
     <p class="donate-text">Привет, это Дима Поляков. Артефакт существует без бюджета, грантов и спонсоров. Это мой личный независимый проект. Если вам нравится музей и хочется помочь — можно поддержать его донатом. Все средства идут на материалы: краску, баллончики, трафареты, печать, инструменты.</p>
     <p class="donate-text">Поддержать можно через сервис Tribute — в приложении или на сайте.</p>
     <div class="donate-btns">
-      <a class="donate-btn" href="https://messenger.online.sberbank.ru/sl/sfa8n7ZEtLPdzi4uE" target="_blank" rel="noopener">Поддержать через Сбербанк</a>
-      <a class="donate-btn" href="https://t.me/tribute/app?startapp=dLhZ" target="_blank" rel="noopener">Поддержать через ТГ</a>
-      <a class="donate-btn" href="https://web.tribute.tg/d/LhZ" target="_blank" rel="noopener">Поддержать через сайт</a>
+      <a class="donate-btn donate-btn-primary" href="https://messenger.online.sberbank.ru/sl/sfa8n7ZEtLPdzi4uE" target="_blank" rel="noopener">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="5" width="20" height="14" rx="2"/><line x1="2" y1="10" x2="22" y2="10"/></svg>
+        Поддержать через Сбербанк
+      </a>
+      <a class="donate-btn donate-btn-secondary" href="https://web.tribute.tg/d/LhZ" target="_blank" rel="noopener">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="2" y1="12" x2="22" y2="12"/><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/></svg>
+        Поддержать через сайт
+      </a>
+      <a class="donate-btn donate-btn-secondary" href="https://t.me/tribute/app?startapp=dLhZ" target="_blank" rel="noopener">
+        <svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 0C5.373 0 0 5.373 0 12s5.373 12 12 12 12-5.373 12-12S18.627 0 12 0zm5.894 8.221-1.97 9.28c-.145.658-.537.818-1.084.508l-3-2.21-1.447 1.394c-.16.16-.295.295-.605.295l.213-3.053 5.56-5.023c.242-.213-.054-.333-.373-.12L7.88 13.975l-2.95-.924c-.64-.203-.652-.64.136-.948l11.526-4.447c.537-.194 1.006.131.302.565z"/></svg>
+        Поддержать в Телеграме
+      </a>
     </div>
   </div>
 </div>
