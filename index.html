@@ -187,6 +187,13 @@
       border-bottom: 1px solid rgba(0,0,0,0.06);
     }
     .nav-mobile-menu li:last-child .nav-btn { border-bottom: none; }
+    .nav-mobile-menu .nav-install-btn {
+      color: var(--black); border: none; border-radius: 0; padding: 12px 0;
+      width: 100%; text-align: left; font-size: 1.1rem; font-weight: 400;
+      border-bottom: 1px solid rgba(0,0,0,0.06);
+    }
+    .nav-mobile-menu .nav-install-btn::after { display: none; }
+    .nav-mobile-menu .nav-install-btn:hover { border-color: rgba(0,0,0,0.06); }
 
     @media (max-width: 768px) {
       .nav-links { display: none; }
