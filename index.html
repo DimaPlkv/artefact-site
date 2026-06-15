@@ -1,6 +1,7 @@
 <!DOCTYPE html>
 <html lang="ru">
 <head>
+  <base href="/">
   <!-- Yandex.Metrika counter -->
   <script type="text/javascript">
     (function(m,e,t,r,i,k,a){
@@ -2483,7 +2484,7 @@ function navigate(view, artifactId, noPush) {
     }
   }
 
-  if (!noPush) {
+  if (!noPush && location.protocol !== 'file:') {
     let url;
     if      (view === 'main')                          url = '/';
     else if (view === 'artifact' && artifactId != null) url = '/artifact/' + artifactId;
@@ -2615,7 +2616,7 @@ function navigateToGallery() {
   document.querySelectorAll('.nav-btn').forEach(b => b.classList.toggle('active', b.dataset.nav === 'main'));
   currentView = 'main';
   document.getElementById('view-main').classList.add('active');
-  history.pushState({ view: 'main' }, '', '/');
+  if (location.protocol !== 'file:') history.pushState({ view: 'main' }, '', '/');
   updateNavTheme();
   setTimeout(() => {
     const sec = document.getElementById('gallery-section');
@@ -3183,6 +3184,8 @@ renderAuthorsList();
 updateNavTheme();
 
 (function() {
+  if (location.protocol === 'file:') return; // локальный файл — не парсить путь
+
   // GitHub Pages 404 workaround: restore path saved by 404.html
   const p404 = sessionStorage.getItem('404-path');
   if (p404) { sessionStorage.removeItem('404-path'); history.replaceState(null, null, p404); }
