@@ -3139,11 +3139,11 @@ window.addEventListener('beforeinstallprompt', function(e) {
 });
 
 function handleInstallClick() {
-  if (_pwaIsIOS) {
-    document.getElementById('install-ios-modal').classList.add('open');
-  } else if (_pwaPrompt) {
+  if (_pwaPrompt) {
     _pwaPrompt.prompt();
     _pwaPrompt.userChoice.then(function() { _pwaPrompt = null; });
+  } else {
+    document.getElementById('install-ios-modal').classList.add('open');
   }
 }
 
