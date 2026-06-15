@@ -20,6 +20,12 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700;900&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="https://unpkg.com/maplibre-gl@4/dist/maplibre-gl.css">
+  <link rel="manifest" href="manifest.json">
+  <meta name="theme-color" content="#000000">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black">
+  <meta name="apple-mobile-web-app-title" content="Артефакт">
+  <link rel="apple-touch-icon" href="icons/icon-192.png">
   <style>
     *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
 
@@ -1420,6 +1426,84 @@
     .hero-scroll-arrow {
       animation: hero-fade-in 0.45s ease 0.72s both,
                  scroll-bounce 2s ease-in-out 1.17s infinite;
+    }
+
+    /* ── INSTALL BANNER ─────────────────────────────────────── */
+    .install-banner {
+      position: fixed; bottom: 0; left: 0; right: 0; z-index: 900;
+      background: #000; color: #fff;
+      padding: 18px var(--edge) 26px;
+      display: flex; align-items: center; gap: 14px;
+      transform: translateY(110%);
+      transition: transform 0.42s cubic-bezier(0.16, 1, 0.3, 1);
+      box-shadow: 0 -2px 24px rgba(0,0,0,0.22);
+    }
+    .install-banner.visible { transform: translateY(0); }
+    .install-banner-icon {
+      width: 46px; height: 46px; flex-shrink: 0;
+      background: #fff; border-radius: 11px;
+      display: flex; align-items: center; justify-content: center;
+    }
+    .install-banner-icon svg { width: 26px; height: 26px; color: #000; }
+    .install-banner-text { flex: 1; min-width: 0; }
+    .install-banner-title { font-weight: 700; font-size: 0.95rem; letter-spacing: -0.02em; }
+    .install-banner-sub { font-size: 0.8rem; font-weight: 300; color: rgba(255,255,255,0.55); margin-top: 2px; }
+    .install-banner-btn {
+      flex-shrink: 0; background: #fff; color: #000; border: none;
+      border-radius: 10px; padding: 10px 18px;
+      font-family: 'Inter', sans-serif; font-size: 0.88rem; font-weight: 600;
+      cursor: pointer; white-space: nowrap; transition: opacity 0.15s;
+    }
+    .install-banner-btn:hover { opacity: 0.85; }
+    .install-banner-close {
+      flex-shrink: 0; background: none; border: none;
+      color: rgba(255,255,255,0.45); font-size: 1rem;
+      cursor: pointer; padding: 4px 6px; line-height: 1;
+      transition: color 0.15s;
+    }
+    .install-banner-close:hover { color: #fff; }
+
+    /* iOS install modal */
+    .install-ios-overlay {
+      display: none; position: fixed; inset: 0; z-index: 950;
+      background: rgba(0,0,0,0.5);
+      align-items: flex-end; justify-content: center;
+      padding: 0 16px 16px;
+    }
+    .install-ios-overlay.open { display: flex; }
+    .install-ios-modal {
+      background: #fff; border-radius: 20px;
+      padding: 32px 28px 28px; width: 100%; max-width: 480px; position: relative;
+    }
+    .install-ios-close {
+      position: absolute; top: 16px; right: 16px;
+      background: none; border: none; font-size: 1rem; cursor: pointer;
+      opacity: 0.35; padding: 4px 8px; transition: opacity 0.15s;
+    }
+    .install-ios-close:hover { opacity: 0.7; }
+    .install-ios-title { font-size: 1.15rem; font-weight: 700; letter-spacing: -0.025em; margin-bottom: 22px; }
+    .install-ios-steps { list-style: none; display: flex; flex-direction: column; gap: 14px; margin-bottom: 28px; }
+    .install-ios-steps li {
+      display: flex; align-items: flex-start; gap: 12px;
+      font-size: 0.92rem; font-weight: 300; color: rgba(0,0,0,0.72); line-height: 1.45;
+    }
+    .install-ios-num {
+      width: 24px; height: 24px; background: #000; color: #fff;
+      border-radius: 50%; display: flex; align-items: center; justify-content: center;
+      font-size: 0.72rem; font-weight: 700; flex-shrink: 0; margin-top: 1px;
+    }
+    .install-ios-done {
+      width: 100%; background: #000; color: #fff; border: none;
+      border-radius: 12px; padding: 14px;
+      font-family: 'Inter', sans-serif; font-size: 0.95rem; font-weight: 600;
+      cursor: pointer; transition: opacity 0.15s;
+    }
+    .install-ios-done:hover { opacity: 0.8; }
+
+    @media (max-width: 540px) {
+      .install-banner { padding: 14px 16px 22px; gap: 10px; }
+      .install-banner-icon { display: none; }
+      .install-banner-sub { display: none; }
     }
 
   </style>
@@ -3064,6 +3148,52 @@ function closeDonateModal() {
 document.addEventListener('keydown', e => {
   if (e.key === 'Escape' && document.getElementById('donate-modal').classList.contains('open')) closeDonateModal();
 });
+
+/* ── PWA INSTALL BANNER ──────────────────────────────────────────────────── */
+function dismissInstallBanner() {
+  var b = document.getElementById('install-banner');
+  if (b) b.classList.remove('visible');
+  localStorage.setItem('pwa-dismissed', '1');
+}
+function closeInstallIosModal() {
+  var m = document.getElementById('install-ios-modal');
+  if (m) m.classList.remove('open');
+}
+(function() {
+  var isPWA = window.matchMedia('(display-mode: standalone)').matches || window.navigator.standalone;
+  if (isPWA || localStorage.getItem('pwa-dismissed')) return;
+
+  var ua = navigator.userAgent.toLowerCase();
+  var isIOS = /iphone|ipad|ipod/.test(ua);
+  var isSafari = isIOS && /safari/.test(ua) && !/crios|fxios|chrome/.test(ua);
+  var deferredPrompt = null;
+
+  window.handleInstallClick = function() {
+    if (isIOS) {
+      document.getElementById('install-ios-modal').classList.add('open');
+    } else if (deferredPrompt) {
+      deferredPrompt.prompt();
+      deferredPrompt.userChoice.then(function() { deferredPrompt = null; dismissInstallBanner(); });
+    }
+  };
+
+  window.addEventListener('beforeinstallprompt', function(e) {
+    e.preventDefault();
+    deferredPrompt = e;
+    setTimeout(function() { document.getElementById('install-banner').classList.add('visible'); }, 4000);
+  });
+
+  if (isSafari) {
+    setTimeout(function() { document.getElementById('install-banner').classList.add('visible'); }, 4000);
+  }
+})();
+
+/* ── SERVICE WORKER ──────────────────────────────────────────────────────── */
+if ('serviceWorker' in navigator) {
+  window.addEventListener('load', function() {
+    navigator.serviceWorker.register('/service-worker.js').catch(function() {});
+  });
+}
 </script>
 
 <!-- ═══ DONATE MODAL ══════════════════════════════════════════════════════════ -->
@@ -3095,6 +3225,33 @@ document.addEventListener('keydown', e => {
         Поддержать в Телеграме
       </a>
     </div>
+  </div>
+</div>
+
+<!-- ═══ INSTALL BANNER ════════════════════════════════════════════════════ -->
+<div id="install-banner" class="install-banner">
+  <div class="install-banner-icon">
+    <svg viewBox="0 0 24 24" fill="currentColor"><path d="M19 3H5C3.9 3 3 3.9 3 5v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm-5 10h-2v2h-2v-2H8v-2h2V9h2v2h2v2z"/></svg>
+  </div>
+  <div class="install-banner-text">
+    <div class="install-banner-title">Артефакт — теперь как приложение</div>
+    <div class="install-banner-sub">Добавьте ярлык и открывайте одним касанием</div>
+  </div>
+  <button class="install-banner-btn" onclick="handleInstallClick()">Установить</button>
+  <button class="install-banner-close" onclick="dismissInstallBanner()" aria-label="Закрыть">✕</button>
+</div>
+
+<!-- ═══ IOS INSTALL MODAL ═════════════════════════════════════════════════ -->
+<div id="install-ios-modal" class="install-ios-overlay" onclick="if(event.target===this)closeInstallIosModal()">
+  <div class="install-ios-modal">
+    <button class="install-ios-close" onclick="closeInstallIosModal()">✕</button>
+    <div class="install-ios-title">Как добавить на экран «Домой»</div>
+    <ol class="install-ios-steps">
+      <li><span class="install-ios-num">1</span><span>Нажмите кнопку <strong>Поделиться</strong> (□↑) внизу Safari</span></li>
+      <li><span class="install-ios-num">2</span><span>Прокрутите список и выберите <strong>«На экран «Домой»»</strong></span></li>
+      <li><span class="install-ios-num">3</span><span>Нажмите <strong>«Добавить»</strong> в правом верхнем углу</span></li>
+    </ol>
+    <button class="install-ios-done" onclick="closeInstallIosModal();dismissInstallBanner()">Готово</button>
   </div>
 </div>
 </body>
