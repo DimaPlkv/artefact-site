@@ -1230,14 +1230,10 @@
     .ab-manifest p:last-child { margin-bottom: 0; }
     .ab-manifest a {
       color: inherit; text-decoration: none;
-      position: relative;
+      background: linear-gradient(to top, rgba(47,174,104,.30) 42%, transparent 42%);
+      -webkit-box-decoration-break: clone;
+      box-decoration-break: clone;
     }
-    .ab-manifest a::after {
-      content: ''; position: absolute; bottom: -1px; left: 0;
-      width: 0; height: 1px; background: currentColor;
-      transition: width 0.28s cubic-bezier(.22,.61,.36,1);
-    }
-    .ab-manifest a:hover::after { width: 100%; }
     .ab-manifest ul {
       list-style: none; padding: 0; margin: 0 0 28px;
     }
