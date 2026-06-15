@@ -890,7 +890,7 @@
       .map-sidebar { scrollbar-width: none; }
       .map-sidebar::-webkit-scrollbar { display: none; }
       .map-sidebar-header { display: none; }
-      .map-sidebar-item .card-status { margin-top: 8px; }
+      .map-sidebar-item .card-status { margin-top: 0; }
     }
     .map-topbar-city  { font-size: 0.78rem; font-weight: 300; opacity: 0.55; }
     .map-sidebar-header { padding: 16px 20px 10px; font-size: 0.78rem; font-weight: 300; opacity: 0.55; border-bottom: 1px solid var(--border); }
@@ -940,14 +940,15 @@
       padding: 18px var(--edge);
       border-bottom: 1px solid var(--border);
       cursor: pointer;
+      display: flex;
+      align-items: flex-end;
+      justify-content: space-between;
+      gap: 16px;
       transition: background 0.15s;
     }
     @media (min-width: 961px) {
       .map-sidebar-item {
-        display: flex;
         align-items: center;
-        justify-content: space-between;
-        gap: 16px;
         border-bottom: none;
         position: relative;
         transition: padding-left .3s cubic-bezier(.22,.61,.36,1);
