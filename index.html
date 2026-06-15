@@ -1817,10 +1817,12 @@
   </div>
   <div class="map-body" style="position:relative;">
     <div id="map-sidebar" class="map-sidebar"></div>
-    <div id="main-map" class="main-map-el" style="position:relative;"><div class="map-loading" id="main-map-loading">Загрузка карты…</div></div>
-    <button class="map-locate-btn" id="map-locate-btn" onclick="locateUser()" title="Найти меня">
-      <svg width="15" height="15" viewBox="0 0 24 24" fill="currentColor"><path d="M3 11L22 2L13 21L11 13L3 11Z"/></svg>
-    </button>
+    <div id="main-map" class="main-map-el" style="position:relative;">
+      <div class="map-loading" id="main-map-loading">Загрузка карты…</div>
+      <button class="map-locate-btn" id="map-locate-btn" onclick="locateUser()" title="Найти меня">
+        <svg width="15" height="15" viewBox="0 0 24 24" fill="currentColor"><path d="M3 11L22 2L13 21L11 13L3 11Z"/></svg>
+      </button>
+    </div>
     <button class="map-list-toggle" id="map-list-toggle" onclick="toggleMapList()">Список экспонатов</button>
   </div>
 </div>
@@ -2757,9 +2759,10 @@ function initMainMap() {
 /* ── Geolocation ────────────────────────────────────────────────────────────── */
 let userMarker = null;
 function locateUser() {
-  if (!navigator.geolocation || !mainMap) return;
   const btn = document.getElementById('map-locate-btn');
-  if (btn) btn.disabled = true;
+  if (!navigator.geolocation) { alert('Геолокация не поддерживается'); return; }
+  if (!mainMap) { alert('Карта ещё не загружена'); return; }
+  if (btn) { btn.disabled = true; btn.style.opacity = '0.5'; }
   navigator.geolocation.getCurrentPosition(
     function(pos) {
       const lng = pos.coords.longitude, lat = pos.coords.latitude;
@@ -2770,10 +2773,13 @@ function locateUser() {
         .setLngLat([lng, lat])
         .addTo(mainMap);
       mainMap.flyTo({ center: [lng, lat], zoom: 15, duration: 1200 });
-      if (btn) btn.disabled = false;
+      if (btn) { btn.disabled = false; btn.style.opacity = ''; }
     },
-    function() { if (btn) btn.disabled = false; },
-    { enableHighAccuracy: true, timeout: 10000, maximumAge: 60000 }
+    function(err) {
+      if (btn) { btn.disabled = false; btn.style.opacity = ''; }
+      if (err.code === 1) alert('Разрешите доступ к геолокации в настройках браузера');
+    },
+    { enableHighAccuracy: false, timeout: 10000, maximumAge: 60000 }
   );
 }
 
