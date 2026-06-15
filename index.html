@@ -3180,6 +3180,8 @@ if ('serviceWorker' in navigator) {
 /* ── SPLASH SCREEN ───────────────────────────────────────────────────────── */
 (function() {
   var splash = document.getElementById('splash');
+  var isPWA = window.matchMedia('(display-mode: standalone)').matches || window.navigator.standalone;
+  if (!isPWA) { if (splash && splash.parentNode) splash.parentNode.removeChild(splash); return; }
   var logoSrc = document.getElementById('nav-logo-svg');
   if (splash && logoSrc) {
     var clone = logoSrc.cloneNode(true);
