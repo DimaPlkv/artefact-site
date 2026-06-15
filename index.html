@@ -1530,7 +1530,7 @@
     }
     .install-ios-close:hover { opacity: 0.7; }
     .install-ios-title { font-size: 1.9rem; font-weight: 800; letter-spacing: -0.035em; line-height: 1.1; margin-bottom: 12px; }
-    .install-ios-sub { font-size: 0.88rem; font-weight: 300; color: rgba(0,0,0,0.5); margin-bottom: 22px; }
+    .install-ios-sub { font-size: 0.88rem; font-weight: 300; color: var(--black); margin-bottom: 22px; }
     .install-ios-steps { list-style: none; display: flex; flex-direction: column; gap: 14px; margin-bottom: 28px; }
     .install-ios-steps li {
       display: flex; align-items: flex-start; gap: 12px;
@@ -2484,10 +2484,12 @@ function navigate(view, artifactId, noPush) {
   }
 
   if (!noPush) {
-    const params = new URLSearchParams();
-    params.set('v', view);
-    if (artifactId !== undefined) params.set('id', artifactId);
-    history.pushState({ view, artifactId }, '', '?' + params.toString());
+    let url;
+    if      (view === 'main')                          url = '/';
+    else if (view === 'artifact' && artifactId != null) url = '/artifact/' + artifactId;
+    else if (view === 'author'   && artifactId != null) url = '/author/'   + artifactId;
+    else                                               url = '/' + view;
+    history.pushState({ view, artifactId }, '', url);
   }
 
   window.scrollTo(0, 0);
@@ -2613,6 +2615,7 @@ function navigateToGallery() {
   document.querySelectorAll('.nav-btn').forEach(b => b.classList.toggle('active', b.dataset.nav === 'main'));
   currentView = 'main';
   document.getElementById('view-main').classList.add('active');
+  history.pushState({ view: 'main' }, '', '/');
   updateNavTheme();
   setTimeout(() => {
     const sec = document.getElementById('gallery-section');
@@ -3180,14 +3183,34 @@ renderAuthorsList();
 updateNavTheme();
 
 (function() {
+  // GitHub Pages 404 workaround: restore path saved by 404.html
+  const p404 = sessionStorage.getItem('404-path');
+  if (p404) { sessionStorage.removeItem('404-path'); history.replaceState(null, null, p404); }
+
+  const parts  = location.pathname.split('/').filter(Boolean);
   const params = new URLSearchParams(location.search);
-  const v = params.get('v');
-  const id = params.get('id') ? parseInt(params.get('id')) : undefined;
-  if (v && v !== 'main') {
-    navigate(v, id, true);
-  } else {
-    history.replaceState({ view: 'main' }, '', location.pathname);
+
+  let v = 'main', id;
+
+  if      (parts[0] === 'artifact' && parts[1]) { v = 'artifact'; id = parseInt(parts[1]); }
+  else if (parts[0] === 'author'   && parts[1]) { v = 'author';   id = parseInt(parts[1]); }
+  else if (parts[0])                             { v = parts[0]; }
+
+  // Legacy ?v= support → redirect to clean URL
+  const legacyV = params.get('v');
+  if (legacyV) {
+    v  = legacyV;
+    id = params.get('id') ? parseInt(params.get('id')) : undefined;
   }
+
+  if (v !== 'main') navigate(v, id, true);
+
+  // Set/correct clean URL
+  let cleanUrl = v === 'main'     ? '/'
+               : v === 'artifact' ? '/artifact/' + id
+               : v === 'author'   ? '/author/'   + id
+               : '/' + v;
+  history.replaceState({ view: v, artifactId: id }, '', cleanUrl);
 })();
 
 /* ── Mobile menu ────────────────────────────────────────────────────────────── */
@@ -3271,13 +3294,26 @@ window.addEventListener('beforeinstallprompt', function(e) {
 });
 
 function handleInstallClick() {
+  const modal = document.getElementById('install-ios-modal');
+  const steps = modal.querySelector('.install-ios-steps');
+  const sub   = modal.querySelector('.install-ios-sub');
+  const done  = modal.querySelector('.install-ios-done');
   if (_pwaPrompt) {
-    _pwaPrompt.prompt();
-    _pwaPrompt.userChoice.then(function() { _pwaPrompt = null; });
+    sub.style.display = 'none';
+    steps.style.display = 'none';
+    done.textContent = 'Установить приложение';
+    done.onclick = function() {
+      _pwaPrompt.prompt();
+      _pwaPrompt.userChoice.then(function() { _pwaPrompt = null; closeInstallIosModal(); });
+    };
   } else {
-    document.getElementById('install-ios-modal').classList.add('open');
-    lockScroll();
+    sub.style.display = '';
+    steps.style.display = '';
+    done.textContent = _pwaIsIOS ? 'Готово' : 'Понятно';
+    done.onclick = function() { closeInstallIosModal(); dismissInstallBanner(); };
   }
+  modal.classList.add('open');
+  lockScroll();
 }
 
 function closeInstallIosModal() {
@@ -3366,7 +3402,7 @@ if ('serviceWorker' in navigator) {
     <div class="install-ios-title">Музей в твоем кармане</div>
     <div class="install-ios-sub">
       <span class="txt-full">Открой сайт с телефона, добавь его на экран — он будет работать как приложение.</span>
-      <span class="txt-short">Добавь сайт на экран телефона — работает как приложение.</span>
+      <span class="txt-short">Добавь сайт на экран телефона — он будет работать как приложение.</span>
     </div>
     <ol class="install-ios-steps">
       <li><span class="install-ios-num">1</span><span>Нажмите кнопку <strong>Поделиться</strong> (□↑) внизу Safari</span></li>
