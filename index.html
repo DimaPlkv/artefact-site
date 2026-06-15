@@ -340,6 +340,10 @@
       font-size: clamp(32px, 3.6vw, 52px);
       font-weight: 900; line-height: 1.05; letter-spacing: -0.025em; color: #fff;
     }
+    .card-promo-sub {
+      margin-top: 6px; font-size: 0.85rem; font-weight: 400;
+      color: rgba(255,255,255,0.7); letter-spacing: 0;
+    }
     .card-promo:hover .card-photo img { transform: none; }
     @media (max-width: 768px) {
       .card-promo { grid-column: span 2; grid-row: span 1; display: block; }
@@ -2369,7 +2373,9 @@ function renderGallery() {
         <img class="card-promo-bg" src="photos/monstrees2/1-cover.jpg" alt="Monstrees 2" loading="lazy">
         <div class="card-promo-overlay"></div>
         <span class="card-promo-status">Экспозиция в разработке</span>
-        <div class="card-promo-caption">Новая экспозиция этой осенью</div>
+        <div class="card-promo-caption">Новая экспозиция этой осенью
+          <div class="card-promo-sub">8 художников &nbsp;·&nbsp; 1 локация &nbsp;·&nbsp; Десятки экспонатов</div>
+        </div>
       </div>
       <div class="card-info">
         <div class="card-title">Monstrees 2</div>
