@@ -3241,7 +3241,9 @@ if (window.matchMedia('(display-mode: standalone)').matches || window.navigator.
 /* ── SERVICE WORKER ──────────────────────────────────────────────────────── */
 if ('serviceWorker' in navigator) {
   window.addEventListener('load', function() {
-    navigator.serviceWorker.register('/service-worker.js').catch(function() {});
+    navigator.serviceWorker.register('/service-worker.js').then(function(reg) {
+      reg.update();
+    }).catch(function() {});
   });
 }
 
