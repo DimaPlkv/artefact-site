@@ -350,9 +350,12 @@
       font-size: 0.75rem; font-weight: 400; color: rgba(255,255,255,0.7);
     }
     .card-promo:hover .card-photo img { transform: none; }
+    .txt-short { display: none; }
     @media (max-width: 768px) {
       .card-promo { grid-column: span 2; grid-row: span 1; display: block; }
       .card-promo .card-photo { aspect-ratio: 16/7; height: auto; }
+      .txt-full { display: none; }
+      .txt-short { display: inline; }
     }
     @media (max-width: 480px) {
       .card-promo { grid-column: span 1; }
@@ -2377,8 +2380,8 @@ function renderGallery() {
       <div class="card-photo">
         <img class="card-promo-bg" src="photos/monstrees2/1-cover.jpg" alt="Monstrees 2" loading="lazy">
         <div class="card-promo-overlay"></div>
-        <span class="card-promo-status">Выставка в разработке</span>
-        <span class="card-promo-date">Открытие: 3-й квартал 2026</span>
+        <span class="card-promo-status"><span class="txt-full">Выставка в разработке</span><span class="txt-short">В разработке</span></span>
+        <span class="card-promo-date"><span class="txt-full">Открытие: 3-й квартал 2026</span><span class="txt-short">3-й квартал 2026</span></span>
         <div class="card-promo-caption">Новая экспозиция этой осенью</div>
         <div class="card-promo-sub">8 художников &nbsp;·&nbsp; 1 локация &nbsp;·&nbsp; Десятки экспонатов</div>
       </div>
