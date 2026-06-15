@@ -126,7 +126,21 @@ index.html → localStorage → admin.html → GitHub Pages
 
 ## Hero-анимация
 
-JS-параллакс управляет `.hero-layer` через `style.transform`. CSS-анимация — только на inner-SVG, не на `.hero-layer`. На мобайле (≤768px): hero скрыт.
+JS-параллакс управляет `.hero-layer` через `style.transform`. CSS-анимация — только на inner-SVG, не на `.hero-layer`. На мобайле (≤540px): hero 420px, `.hero-layer-artefact` скрыт.
+
+## Hero breakpoints
+
+- `@media (min-width: 2200px)` — позиции для 2К+ мониторов (`hero-layer-artefact`, `hero-layer-muzey`, `hero-layer-subtitle`)
+- НЕ использовать `1440px` для 2К правок — это ширина обычного MacBook
+- SVG-размеры: `min(26vw, 480px)` / `min(80vw, 1500px)` / `min(50vw, 860px)` для АРТЕФАКТ / МУЗЕЙ / субтитр
+- При изменении размера SVG — обязательно корректировать `top` субтитра, иначе возникает gap
+
+## PWA
+
+- `manifest.json` + `service-worker.js` + `icons/icon-192.png`, `icon-512.png`
+- Кнопка «Приложение» добавляется в `applySettings()` через `insertAdjacentHTML('beforeend', ...)` в nav и mobile-menu
+- Splash screen — только в PWA standalone mode (`window.navigator.standalone || matchMedia standalone`)
+- При обновлении иконки на уже установленном PWA — требуется переустановка на устройстве
 
 ## MapLibre
 
