@@ -3297,26 +3297,13 @@ window.addEventListener('beforeinstallprompt', function(e) {
 });
 
 function handleInstallClick() {
-  const modal = document.getElementById('install-ios-modal');
-  const steps = modal.querySelector('.install-ios-steps');
-  const sub   = modal.querySelector('.install-ios-sub');
-  const done  = modal.querySelector('.install-ios-done');
   if (_pwaPrompt) {
-    sub.style.display = 'none';
-    steps.style.display = 'none';
-    done.textContent = 'Установить приложение';
-    done.onclick = function() {
-      _pwaPrompt.prompt();
-      _pwaPrompt.userChoice.then(function() { _pwaPrompt = null; closeInstallIosModal(); });
-    };
+    _pwaPrompt.prompt();
+    _pwaPrompt.userChoice.then(function() { _pwaPrompt = null; });
   } else {
-    sub.style.display = '';
-    steps.style.display = '';
-    done.textContent = _pwaIsIOS ? 'Готово' : 'Понятно';
-    done.onclick = function() { closeInstallIosModal(); dismissInstallBanner(); };
+    document.getElementById('install-ios-modal').classList.add('open');
+    lockScroll();
   }
-  modal.classList.add('open');
-  lockScroll();
 }
 
 function closeInstallIosModal() {
