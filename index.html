@@ -2265,7 +2265,7 @@ function escHtml(s) {
 function escHtmlStrong(s) {
   return escHtml(s)
     .replace(/&lt;(\/?strong)&gt;/g, '<$1>')
-    .replace(/&lt;a href="([^"&]+)"&gt;/g, '<a href="$1" target="_blank" rel="noopener">')
+    .replace(/&lt;a(?:\s+class="([^"]*)")?\s+href="([^"&]+)"&gt;/g, (_, cls, href) => `<a${cls ? ` class="${cls}"` : ''} href="${href}" target="_blank" rel="noopener">`)
     .replace(/&lt;\/a&gt;/g, '</a>');
 }
 function pluralArtifacts(n) {
