@@ -345,7 +345,10 @@
       font-size: 0.85rem; font-weight: 400;
       color: rgba(255,255,255,0.7); letter-spacing: 0;
     }
-    .card-promo .card-info { padding-top: 13px; padding-bottom: 25px; }
+    .card-promo-date {
+      position: absolute; top: 28px; right: 28px; z-index: 2;
+      font-size: 0.75rem; font-weight: 400; color: rgba(255,255,255,0.7);
+    }
     .card-promo:hover .card-photo img { transform: none; }
     @media (max-width: 768px) {
       .card-promo { grid-column: span 2; grid-row: span 1; display: block; }
@@ -2375,11 +2378,9 @@ function renderGallery() {
         <img class="card-promo-bg" src="photos/monstrees2/1-cover.jpg" alt="Monstrees 2" loading="lazy">
         <div class="card-promo-overlay"></div>
         <span class="card-promo-status">Выставка в разработке</span>
+        <span class="card-promo-date">Открытие: 3-й квартал 2026</span>
         <div class="card-promo-caption">Новая экспозиция этой осенью</div>
         <div class="card-promo-sub">8 художников &nbsp;·&nbsp; 1 локация &nbsp;·&nbsp; Десятки экспонатов</div>
-      </div>
-      <div class="card-info">
-        <div class="card-date">Открытие: 3-й квартал 2026</div>
       </div>
     </div>`;
   const mid = Math.round(cards.length / 2 / 4) * 4;
