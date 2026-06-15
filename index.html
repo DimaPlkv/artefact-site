@@ -102,7 +102,7 @@
       transition: color 0.35s ease;
     }
 
-    .nav-links { display: flex; gap: 32px; list-style: none; }
+    .nav-links { display: flex; gap: 32px; list-style: none; align-items: center; }
     .nav-right { display: flex; align-items: center; gap: 32px; }
 
     .nav-btn {
@@ -1280,11 +1280,12 @@
       background: transparent; color: #fff; border: 1.5px solid rgba(255,255,255,0.7);
       border-radius: 100px; padding: 11px 22px;
       font-family: 'Inter', sans-serif; font-size: 0.9rem; font-weight: 600;
-      cursor: pointer; white-space: nowrap; transition: border-color 0.15s, color 0.15s;
+      cursor: pointer; white-space: nowrap; transition: border-color 0.15s;
     }
-    .nav-install-btn:hover { border-color: #fff; color: #fff; }
-    .site-nav:not(.nav--transparent) .nav-install-btn { color: var(--black); border-color: rgba(0,0,0,0.25); }
-    .site-nav:not(.nav--transparent) .nav-install-btn:hover { border-color: var(--black); }
+    .nav-install-btn::after { display: none !important; }
+    .nav-install-btn:hover { border-color: rgba(255,255,255,0.45); }
+    .site-nav:not(.nav--transparent) .nav-install-btn { color: var(--black); border-color: rgba(0,0,0,0.22); }
+    .site-nav:not(.nav--transparent) .nav-install-btn:hover { border-color: rgba(0,0,0,0.45); }
     .donate-overlay {
       display: none; position: fixed; inset: 0; z-index: 1000;
       background: rgba(0,0,0,0.45); align-items: center; justify-content: center;
