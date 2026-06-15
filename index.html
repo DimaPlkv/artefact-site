@@ -1287,8 +1287,13 @@
       opacity: 0.4; transition: opacity 0.15s; padding: 4px 8px;
     }
     .donate-close:hover { opacity: 1; }
-    .donate-title { font-size: 1.15rem; font-weight: 600; letter-spacing: -0.02em; margin-bottom: 14px; }
-    .donate-text { font-size: 0.95rem; font-weight: 300; line-height: 1.65; color: rgba(0,0,0,0.65); margin-bottom: 24px; }
+    .donate-title { font-size: 1.15rem; font-weight: 600; letter-spacing: -0.02em; margin-bottom: 20px; }
+    .donate-author { display: flex; align-items: center; gap: 12px; margin-bottom: 18px; }
+    .donate-author-photo { width: 52px; height: 52px; border-radius: 50%; object-fit: cover; flex-shrink: 0; }
+    .donate-author-name { font-size: 0.9rem; font-weight: 500; line-height: 1.3; }
+    .donate-author-role { font-size: 0.8rem; font-weight: 300; color: rgba(0,0,0,0.5); }
+    .donate-text { font-size: 0.95rem; font-weight: 300; line-height: 1.65; color: rgba(0,0,0,0.65); margin-bottom: 10px; }
+    .donate-text:last-of-type { margin-bottom: 24px; }
     .donate-btns { display: flex; flex-direction: column; gap: 10px; }
     .donate-btn {
       display: block; text-align: center; background: var(--black); color: #fff;
@@ -3057,7 +3062,15 @@ document.addEventListener('keydown', e => {
   <div class="donate-modal">
     <button class="donate-close" onclick="closeDonateModal()">✕</button>
     <div class="donate-title">Поддержать музей «Артефакт»</div>
-    <p class="donate-text">Мы принимаем донаты через телеграм-сервис Tribute. Нас можно поддержать через приложение или сайт. Спасибо!</p>
+    <div class="donate-author">
+      <img class="donate-author-photo" src="photos/hudozhniki/dima-polyakov.jpg" alt="Дима Поляков">
+      <div>
+        <div class="donate-author-name">Дима Поляков</div>
+        <div class="donate-author-role">куратор музея</div>
+      </div>
+    </div>
+    <p class="donate-text">Артефакт существует без бюджета, грантов и спонсоров. Это личный независимый проект. Если вам нравится то, что мы делаем, и хочется помочь — поддержите нас донатом. Все средства идут на материалы: краску, баллончики, трафареты, печать, инструменты.</p>
+    <p class="donate-text">Поддержать можно через сервис Tribute — в приложении или на сайте.</p>
     <div class="donate-btns">
       <a class="donate-btn" href="https://t.me/tribute/app?startapp=dLhZ" target="_blank" rel="noopener">Поддержать через ТГ</a>
       <a class="donate-btn" href="https://web.tribute.tg/d/LhZ" target="_blank" rel="noopener">Поддержать через сайт</a>
