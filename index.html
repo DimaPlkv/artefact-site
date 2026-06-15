@@ -1428,42 +1428,7 @@
                  scroll-bounce 2s ease-in-out 1.17s infinite;
     }
 
-    /* ── INSTALL BANNER ─────────────────────────────────────── */
-    .install-banner {
-      position: fixed; bottom: 0; left: 0; right: 0; z-index: 900;
-      background: #000; color: #fff;
-      padding: 18px var(--edge) 26px;
-      display: flex; align-items: center; gap: 14px;
-      transform: translateY(110%);
-      transition: transform 0.42s cubic-bezier(0.16, 1, 0.3, 1);
-      box-shadow: 0 -2px 24px rgba(0,0,0,0.22);
-    }
-    .install-banner.visible { transform: translateY(0); }
-    .install-banner-icon {
-      width: 46px; height: 46px; flex-shrink: 0;
-      background: #fff; border-radius: 11px;
-      display: flex; align-items: center; justify-content: center;
-    }
-    .install-banner-icon svg { width: 26px; height: 26px; color: #000; }
-    .install-banner-text { flex: 1; min-width: 0; }
-    .install-banner-title { font-weight: 700; font-size: 0.95rem; letter-spacing: -0.02em; }
-    .install-banner-sub { font-size: 0.8rem; font-weight: 300; color: rgba(255,255,255,0.55); margin-top: 2px; }
-    .install-banner-btn {
-      flex-shrink: 0; background: #fff; color: #000; border: none;
-      border-radius: 10px; padding: 10px 18px;
-      font-family: 'Inter', sans-serif; font-size: 0.88rem; font-weight: 600;
-      cursor: pointer; white-space: nowrap; transition: opacity 0.15s;
-    }
-    .install-banner-btn:hover { opacity: 0.85; }
-    .install-banner-close {
-      flex-shrink: 0; background: none; border: none;
-      color: rgba(255,255,255,0.45); font-size: 1rem;
-      cursor: pointer; padding: 4px 6px; line-height: 1;
-      transition: color 0.15s;
-    }
-    .install-banner-close:hover { color: #fff; }
-
-    /* iOS install modal */
+    /* ── PWA IOS INSTALL MODAL ──────────────────────────────────── */
     .install-ios-overlay {
       display: none; position: fixed; inset: 0; z-index: 950;
       background: rgba(0,0,0,0.5);
@@ -1500,12 +1465,6 @@
     }
     .install-ios-done:hover { opacity: 0.8; }
 
-    @media (max-width: 540px) {
-      .install-banner { padding: 14px 16px 22px; gap: 10px; }
-      .install-banner-icon { display: none; }
-      .install-banner-sub { display: none; }
-    }
-
   </style>
 </head>
 <body>
@@ -1522,6 +1481,7 @@
       <li><button class="nav-btn"        data-nav="authors"  onclick="navigate('authors')">Авторы</button></li>
       <li><button class="nav-btn"        data-nav="map"      onclick="navigate('map')">Карта</button></li>
       <li><button class="nav-btn"        data-nav="about"    onclick="navigate('about')">Музей</button></li>
+      <li><button class="nav-btn nav-install-btn"                                        onclick="handleInstallClick()">Приложение</button></li>
     </ul>
     <button class="nav-donate-btn" onclick="openDonateModal()">Поддержать</button>
   </div>
@@ -1536,6 +1496,7 @@
     <li><button class="nav-btn"        data-nav="authors"  onclick="navigate('authors');closeMobileMenu()">Авторы</button></li>
     <li><button class="nav-btn"        data-nav="map"      onclick="navigate('map');closeMobileMenu()">Карта</button></li>
     <li><button class="nav-btn"        data-nav="about"    onclick="navigate('about');closeMobileMenu()">Музей</button></li>
+    <li><button class="nav-btn nav-install-btn"                                          onclick="handleInstallClick();closeMobileMenu()">Приложение</button></li>
   </ul>
 </div>
 <div class="nav-overlay" id="nav-overlay" onclick="closeMobileMenu()"></div>
@@ -3149,44 +3110,32 @@ document.addEventListener('keydown', e => {
   if (e.key === 'Escape' && document.getElementById('donate-modal').classList.contains('open')) closeDonateModal();
 });
 
-/* ── PWA INSTALL BANNER ──────────────────────────────────────────────────── */
-function dismissInstallBanner() {
-  var b = document.getElementById('install-banner');
-  if (b) b.classList.remove('visible');
-  localStorage.setItem('pwa-dismissed', '1');
-}
-function closeInstallIosModal() {
-  var m = document.getElementById('install-ios-modal');
-  if (m) m.classList.remove('open');
-}
-(function() {
-  var isPWA = window.matchMedia('(display-mode: standalone)').matches || window.navigator.standalone;
-  if (isPWA || localStorage.getItem('pwa-dismissed')) return;
+/* ── PWA INSTALL ─────────────────────────────────────────────────────────── */
+var _pwaPrompt = null;
+var _pwaIsIOS = /iphone|ipad|ipod/.test(navigator.userAgent.toLowerCase());
 
-  var ua = navigator.userAgent.toLowerCase();
-  var isIOS = /iphone|ipad|ipod/.test(ua);
-  var isSafari = isIOS && /safari/.test(ua) && !/crios|fxios|chrome/.test(ua);
-  var deferredPrompt = null;
+window.addEventListener('beforeinstallprompt', function(e) {
+  e.preventDefault();
+  _pwaPrompt = e;
+});
 
-  window.handleInstallClick = function() {
-    if (isIOS) {
-      document.getElementById('install-ios-modal').classList.add('open');
-    } else if (deferredPrompt) {
-      deferredPrompt.prompt();
-      deferredPrompt.userChoice.then(function() { deferredPrompt = null; dismissInstallBanner(); });
-    }
-  };
-
-  window.addEventListener('beforeinstallprompt', function(e) {
-    e.preventDefault();
-    deferredPrompt = e;
-    setTimeout(function() { document.getElementById('install-banner').classList.add('visible'); }, 4000);
-  });
-
-  if (isSafari) {
-    setTimeout(function() { document.getElementById('install-banner').classList.add('visible'); }, 4000);
+function handleInstallClick() {
+  if (_pwaIsIOS) {
+    document.getElementById('install-ios-modal').classList.add('open');
+  } else if (_pwaPrompt) {
+    _pwaPrompt.prompt();
+    _pwaPrompt.userChoice.then(function() { _pwaPrompt = null; });
   }
-})();
+}
+
+function closeInstallIosModal() {
+  document.getElementById('install-ios-modal').classList.remove('open');
+}
+
+// Скрыть пункт меню если уже установлено как PWA
+if (window.matchMedia('(display-mode: standalone)').matches || window.navigator.standalone) {
+  document.querySelectorAll('.nav-install-btn').forEach(function(el) { el.closest('li').style.display = 'none'; });
+}
 
 /* ── SERVICE WORKER ──────────────────────────────────────────────────────── */
 if ('serviceWorker' in navigator) {
@@ -3226,19 +3175,6 @@ if ('serviceWorker' in navigator) {
       </a>
     </div>
   </div>
-</div>
-
-<!-- ═══ INSTALL BANNER ════════════════════════════════════════════════════ -->
-<div id="install-banner" class="install-banner">
-  <div class="install-banner-icon">
-    <svg viewBox="0 0 24 24" fill="currentColor"><path d="M19 3H5C3.9 3 3 3.9 3 5v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm-5 10h-2v2h-2v-2H8v-2h2V9h2v2h2v2z"/></svg>
-  </div>
-  <div class="install-banner-text">
-    <div class="install-banner-title">Артефакт — теперь как приложение</div>
-    <div class="install-banner-sub">Добавьте ярлык и открывайте одним касанием</div>
-  </div>
-  <button class="install-banner-btn" onclick="handleInstallClick()">Установить</button>
-  <button class="install-banner-close" onclick="dismissInstallBanner()" aria-label="Закрыть">✕</button>
 </div>
 
 <!-- ═══ IOS INSTALL MODAL ═════════════════════════════════════════════════ -->
