@@ -1,5 +1,8 @@
 # Learned — паттерны и исправления
 
+### 2026-06-16 — touch-action: pan-y перехватывает pinch-zoom на iOS Safari раньше preventDefault
+Кастомный pinch-to-zoom на двух touchmove-пальцах не работал в `.photo-lightbox`, хотя JS-логика (transform: scale через touchstart/touchmove) была верной. Причина: контейнер имел `touch-action: pan-y` — на iOS Safari браузер может решить, что это нативный жест зума страницы, ДО того как успеет сработать `e.preventDefault()` в touchmove-хендлере. **Решение:** `touch-action: none` на контейнере с кастомным жестом (не на всём сайте — отключать масштабирование страницы целиком нельзя, это нарушает WCAG из CLAUDE.md), и дополнительно вызывать `preventDefault()` уже в touchstart при `e.touches.length === 2`, а не только в touchmove — на случай если iOS принимает решение о жесте раньше.
+
 ### 2026-06-16 — `initArtifactMap`/`artMap` — мёртвый код, контейнера `#artifact-map` в HTML больше нет
 Функция `initArtifactMap(a)` (~строка 2773) делает `document.getElementById('artifact-map')` — такого id в HTML нет (страница экспоната теперь использует кнопку-ссылку `#art-addr-block` → `navigateToMapArtifact(id)` вместо встроенной мини-карты). Сама функция нигде не вызывается — мёртвый код с битой DOM-ссылкой. Не трогать `mainMap`/`#main-map` (рабочая общая карта) думая что это та же логика — это два разных, исторически расходящихся пути. При следующей уборке — удалить `initArtifactMap`, `artMap`, `artMarker` если подтвердится, что не используются.
 
