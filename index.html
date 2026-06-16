@@ -701,7 +701,19 @@
       font-size: 0.82rem; font-weight: 300; opacity: 0.4; pointer-events: none;
       transition: opacity 0.3s;
     }
-    .map-loading.hidden { opacity: 0; }
+    .map-loading.hidden { opacity: 0; pointer-events: none; }
+    .map-error {
+      position: absolute; inset: 0; display: flex; flex-direction: column; gap: 14px;
+      align-items: center; justify-content: center; text-align: center; padding: 0 32px;
+      font-size: 0.86rem; font-weight: 400; opacity: 0.6;
+    }
+    .map-error.hidden { display: none; }
+    .map-error button {
+      font-family: 'Inter', sans-serif; font-size: 0.82rem; font-weight: 600;
+      padding: 9px 18px; border-radius: 8px; border: 1px solid var(--border);
+      background: var(--white); cursor: pointer;
+    }
+    .map-error button:hover { background: rgba(0,0,0,0.04); }
 
     /* ─── PHOTO LIGHTBOX ─────────────────────────────────────────────────────── */
     .photo-lightbox {
@@ -1861,6 +1873,10 @@
     <div id="map-sidebar" class="map-sidebar"></div>
     <div id="main-map" class="main-map-el" style="position:relative;">
       <div class="map-loading" id="main-map-loading">Загрузка карты…</div>
+      <div class="map-error hidden" id="main-map-error">
+        <span>Не удалось загрузить карту. Проверьте соединение.</span>
+        <button onclick="retryMainMap()">Повторить</button>
+      </div>
       <button class="map-locate-btn" id="map-locate-btn" onclick="locateUser()" title="Найти меня">
         <svg width="15" height="15" viewBox="0 0 24 24" fill="currentColor"><path d="M3 11L22 2L13 21L11 13L3 11Z"/></svg>
       </button>
@@ -2566,13 +2582,14 @@ window.addEventListener('popstate', e => {
 
 /* ── Gallery ────────────────────────────────────────────────────────────────── */
 function renderGallery() {
+  const supportsHover = window.matchMedia('(hover: hover)').matches;
   const cards = artifacts.map(a => {
     const cls = a.status === 'В городе' ? 'status-live' : 'status-gone';
     return `
       <div class="card" onclick="navigate('artifact', ${a.id})">
         <div class="card-photo">
           <img src="${a.photos[0]}" alt="${escHtml(a.title)}" loading="lazy" decoding="async" onerror="this.classList.add('img-error')">
-          ${a.photos[1] ? `<img class="card-img-hover" src="${a.photos[1]}" alt="${escHtml(a.title)}" loading="lazy" decoding="async" onerror="this.classList.add('img-error')">` : ''}
+          ${a.photos[1] && supportsHover ? `<img class="card-img-hover" src="${a.photos[1]}" alt="${escHtml(a.title)}" loading="lazy" decoding="async" onerror="this.classList.add('img-error')">` : ''}
           <span class="card-status ${cls}">${escHtml(a.status)}</span>
           <div class="card-hover">
             <div class="card-hover-bottom">
@@ -2805,9 +2822,15 @@ function fitAllMarkers() {
     { padding: 60, maxZoom: 15, duration: 600 }
   );
 }
+let mainMapTimeout = null;
 function initMainMap() {
   const el = document.getElementById('main-map');
   if (mainMap) { mainMap.resize(); fitAllMarkers(); return; }
+
+  const loadingEl = document.getElementById('main-map-loading');
+  const errorEl = document.getElementById('main-map-error');
+  if (errorEl) errorEl.classList.add('hidden');
+  if (loadingEl) loadingEl.classList.remove('hidden');
 
   mainMap = new maplibregl.Map({
     container: el,
@@ -2816,8 +2839,16 @@ function initMainMap() {
     zoom: 13
   });
 
+  clearTimeout(mainMapTimeout);
+  mainMapTimeout = setTimeout(() => {
+    if (loadingEl) loadingEl.classList.add('hidden');
+    if (errorEl) errorEl.classList.remove('hidden');
+  }, 9000);
+
   mainMap.once('load', () => {
-    const l = document.getElementById('main-map-loading'); if (l) l.classList.add('hidden');
+    clearTimeout(mainMapTimeout);
+    if (loadingEl) loadingEl.classList.add('hidden');
+    if (errorEl) errorEl.classList.add('hidden');
     fitAllMarkers();
   });
   mainMap.addControl(new maplibregl.NavigationControl({ showCompass: false }), 'bottom-right');
@@ -2850,6 +2881,11 @@ function initMainMap() {
       .addTo(mainMap);
     markerMap[a.id] = marker;
   });
+}
+
+function retryMainMap() {
+  if (mainMap) { mainMap.remove(); mainMap = null; Object.keys(markerMap).forEach(k => delete markerMap[k]); }
+  initMainMap();
 }
 
 /* ── Geolocation ────────────────────────────────────────────────────────────── */
