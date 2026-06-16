@@ -214,6 +214,9 @@
 
     /* ─── GALLERY ────────────────────────────────────────────────────────────── */
     .gallery-section { padding: clamp(36px,4.5vw,60px) var(--edge) 80px; scroll-margin-top: var(--nav-h); }
+    @media (max-width: 768px) {
+      .gallery-section { scroll-margin-top: 0; }
+    }
     @media (max-width: 768px) { .desktop-br { display: none; } }
 
     .gallery-intro { margin-bottom: clamp(56px,6vw,96px); }
@@ -355,7 +358,7 @@
       background: #e8a32e;
     }
     .card-promo-caption {
-      position: absolute; bottom: 68px; left: 32px; right: 32px; z-index: 2;
+      position: absolute; bottom: 80px; left: 32px; right: 32px; z-index: 2;
       font-size: clamp(32px, 3.6vw, 52px);
       font-weight: 900; line-height: 1.05; letter-spacing: -0.025em; color: #fff;
     }
@@ -967,11 +970,25 @@
       }
       .map-sidebar-item:last-child::after { display: none; }
     }
-    .map-sidebar-item:hover    { background: #f5f5f5; }
-    .map-sidebar-item.is-active { background: #f0f0f0; }
+    @media (max-width: 960px) {
+      .map-sidebar-item:hover    { background: #f5f5f5; }
+      .map-sidebar-item.is-active { background: #f0f0f0; }
+    }
     @media (hover: hover) {
       .map-sidebar-item:hover { padding-left: calc(var(--edge) + 10px); }
       .map-sidebar-item:hover .map-sidebar-arrow { opacity: .65; transform: translateX(5px); }
+    }
+    @media (min-width: 961px) {
+      .map-sidebar-name { display: inline-block; position: relative; }
+      .map-sidebar-name::after {
+        content: ''; position: absolute; bottom: 0; left: 0;
+        width: 100%; height: 44%; background: rgba(47,174,104,.30);
+        transform: scaleX(0); transform-origin: left;
+        transition: transform 0.28s cubic-bezier(.22,.61,.36,1);
+        z-index: -1;
+      }
+      .map-sidebar-item:hover .map-sidebar-name::after,
+      .map-sidebar-item.is-active .map-sidebar-name::after { transform: scaleX(1); }
     }
     .map-sidebar-item-left { min-width: 0; }
     .map-sidebar-arrow {
@@ -1351,7 +1368,7 @@
     .site-nav:not(.nav--transparent) .nav-install-btn { color: var(--black); border-color: rgba(0,0,0,0.22); }
     .site-nav:not(.nav--transparent) .nav-install-btn:hover { border-color: rgba(0,0,0,0.45); }
     .donate-overlay {
-      display: none; position: fixed; inset: 0; z-index: 1000;
+      display: none; position: fixed; inset: 0; z-index: 1001;
       background: rgba(0,0,0,0.45); align-items: center; justify-content: center;
       padding: 24px;
     }
@@ -1372,7 +1389,7 @@
     .donate-author-photo { width: 52px; height: 52px; border-radius: 50%; object-fit: cover; flex-shrink: 0; }
     .donate-author-name { font-size: 0.9rem; font-weight: 500; line-height: 1.3; }
     .donate-author-role { font-size: 0.8rem; font-weight: 300; color: rgba(0,0,0,0.5); }
-    .donate-text { font-size: 0.92rem; font-weight: 300; line-height: 1.7; color: rgba(0,0,0,0.6); margin-bottom: 10px; }
+    .donate-text { font-size: 0.92rem; font-weight: 300; line-height: 1.7; color: #000; margin-bottom: 10px; }
     .donate-text:last-of-type { margin-bottom: 28px; }
     .donate-btns { display: flex; flex-direction: column; gap: 10px; }
     .donate-btn {
@@ -1516,7 +1533,7 @@
 
     /* ── PWA IOS INSTALL MODAL ──────────────────────────────────── */
     .install-ios-overlay {
-      display: none; position: fixed; inset: 0; z-index: 950;
+      display: none; position: fixed; inset: 0; z-index: 1001;
       background: rgba(0,0,0,0.5);
       align-items: flex-end; justify-content: center;
       padding: 0 16px 16px;
@@ -1533,7 +1550,7 @@
     }
     .install-ios-close:hover { opacity: 0.7; }
     .install-ios-title { font-size: 1.9rem; font-weight: 800; letter-spacing: -0.035em; line-height: 1.1; margin-bottom: 12px; }
-    .install-ios-sub { font-size: 0.88rem; font-weight: 300; color: var(--black); margin-bottom: 22px; }
+    .install-ios-sub { font-size: 0.92rem; font-weight: 300; line-height: 1.7; color: #000; margin-bottom: 22px; }
     .install-ios-steps { list-style: none; display: flex; flex-direction: column; gap: 14px; margin-bottom: 28px; }
     .install-ios-steps li {
       display: flex; align-items: flex-start; gap: 12px;
@@ -1653,7 +1670,7 @@
       <img class="hero-city-img" src="Images/gorod.png" alt="">
     </div>
 
-    <button class="hero-scroll-arrow" onclick="document.getElementById('gallery-section').scrollIntoView({behavior:'smooth'})">
+    <button class="hero-scroll-arrow" onclick="scrollToGallerySection()">
       <svg width="28" height="28" viewBox="0 0 28 28" fill="none" xmlns="http://www.w3.org/2000/svg">
         <path d="M5 10L14 19L23 10" stroke="currentColor" stroke-width="2" stroke-linecap="square" stroke-linejoin="miter"/>
       </svg>
@@ -2244,6 +2261,26 @@ const SITE_DATA = {
         "photos/urna-vokzal/5.jpg",
         "photos/urna-vokzal/6.jpg"
       ]
+    },
+    {
+      "id": 20,
+      "title": "Птичье величие",
+      "desc": "Все мы хотим быть больше самих себя. Учимся, работаем, создаём семьи, играем роли, надеваем маски. Кто-то надевает корону, которая может быть не по размеру.\n\nПтица символизирует жизнь: маленькую в масштабах вселенной, хрупкую, но красивую. Корона птице в пору — значит, и человек может найти нужный размер, примерить и быть счастливым. Главное — искать и стараться быть больше, чем есть сейчас. Только так можно расти.",
+      "artist": "Автор неизвестен",
+      "date": "Июнь 2026",
+      "status": "В городе",
+      "address": "Проспект Ленина, 111, Томск",
+      "lat": 56.484504,
+      "lng": 84.95028,
+      "materials": "Багетная рамка",
+      "photos": [
+        "photos/ptica-passaje/1-cover.jpg",
+        "photos/ptica-passaje/2.jpg",
+        "photos/ptica-passaje/3.jpg",
+        "photos/ptica-passaje/4.jpg",
+        "photos/ptica-passaje/5.jpg",
+        "photos/ptica-passaje/6.jpg"
+      ]
     }
   ],
   "about": {
@@ -2444,7 +2481,9 @@ function updateNavTheme() {
 }
 
 let _lastScrollY = 0;
+let _scrollLocked = false;
 window.addEventListener('scroll', () => {
+  if (_scrollLocked) return;
   updateNavTheme();
   if (window.innerWidth <= 768) {
     const nav = document.querySelector('.site-nav');
@@ -2455,6 +2494,11 @@ window.addEventListener('scroll', () => {
   }
 }, { passive: true });
 window.addEventListener('resize', updateNavTheme, { passive: true });
+
+function scrollToGallerySection() {
+  const sec = document.getElementById('gallery-section');
+  if (sec) sec.scrollIntoView({ behavior: 'smooth' });
+}
 
 function navigate(view, artifactId, noPush) {
   document.querySelectorAll('.view').forEach(v => v.classList.remove('active'));
@@ -2539,7 +2583,7 @@ function renderGallery() {
         <div class="card-promo-overlay"></div>
         <span class="card-promo-status"><span class="txt-full">Выставка в разработке</span><span class="txt-short">В разработке</span></span>
         <span class="card-promo-date"><span class="txt-full">Открытие: 3-й квартал 2026</span><span class="txt-short">3-й квартал 2026</span></span>
-        <div class="card-promo-caption">Новая экспозиция этой осенью</div>
+        <div class="card-promo-caption">Новая выставка этой осенью</div>
         <div class="card-promo-sub">8 художников &nbsp;·&nbsp; 1 локация &nbsp;·&nbsp; Десятки экспонатов</div>
       </div>
     </div>`;
@@ -2620,10 +2664,7 @@ function navigateToGallery() {
   document.getElementById('view-main').classList.add('active');
   if (location.protocol !== 'file:') history.pushState({ view: 'main' }, '', '/');
   updateNavTheme();
-  setTimeout(() => {
-    const sec = document.getElementById('gallery-section');
-    if (sec) sec.scrollIntoView({ behavior: 'smooth' });
-  }, 50);
+  setTimeout(scrollToGallerySection, 50);
 }
 
 /* ── Slider ─────────────────────────────────────────────────────────────────── */
@@ -3268,8 +3309,10 @@ function lockScroll() {
   document.body.style.position = 'fixed';
   document.body.style.top = '-' + _lockScrollY + 'px';
   document.body.style.width = '100%';
+  _scrollLocked = true;
 }
 function unlockScroll() {
+  _scrollLocked = false;
   document.body.style.overflow = '';
   document.body.style.position = '';
   document.body.style.top = '';
@@ -3367,9 +3410,8 @@ if ('serviceWorker' in navigator) {
         <div class="donate-author-role">Автор и куратор «Артефакта»</div>
       </div>
     </div>
-    <p class="donate-text">У музея нет бюджета, грантов и спонсоров. Я делаю его просто потому, что не могу не делать. Это независимый проект, страсть и интерес.</p>
-    <p class="donate-text">Если вам нравится музей и хочется помочь — можно поддержать его донатом. Все средства идут на материалы: краску, баллончики, трафареты, печать и инструменты.</p>
-    <p class="donate-text">Поддержать можно через Сбер или сервис Tribute:</p>
+    <p class="donate-text">Если вам нравится музей и хочется помочь — можно поддержать его удобным способом. Все средства идут на развитие и материалы: краску, баллончики, трафареты, печать и инструменты.</p>
+    <p class="donate-text">Поддержать можно через Сбер или телеграм сервис Tribute:</p>
     <div class="donate-btns">
       <a class="donate-btn donate-btn-primary" href="https://messenger.online.sberbank.ru/sl/sfa8n7ZEtLPdzi4uE" target="_blank" rel="noopener">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="5" width="20" height="14" rx="2"/><line x1="2" y1="10" x2="22" y2="10"/></svg>
