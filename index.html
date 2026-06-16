@@ -2435,7 +2435,7 @@ const artifacts = SITE_DATA.artifacts;
 let currentView     = 'main';
 let currentArtifact = null;
 let currentPhotoIdx = 0;
-let fadeTimer       = null;
+let fadeRAF         = null;
 let mainMap         = null;
 let artMap          = null;
 let mainGeoControl  = null;
@@ -2645,6 +2645,7 @@ function renderArtifact(a) {
   ).join('');
 
   setSlide(a, 0);
+  preloadArtifactPhotos(a);
 
   const addrText = document.getElementById('art-addr-text');
   const addrBtn  = document.getElementById('art-addr-block');
@@ -2679,20 +2680,26 @@ function navigateToGallery() {
 }
 
 /* ── Slider ─────────────────────────────────────────────────────────────────── */
+function preloadArtifactPhotos(a) {
+  (a.photos || []).forEach(src => { const im = new Image(); im.src = src; });
+}
+
 function setSlide(a, idx) {
   const img  = document.getElementById('slider-img');
   const solo = a.photos.length <= 1;
 
-  if (fadeTimer) clearTimeout(fadeTimer);
+  if (fadeRAF) cancelAnimationFrame(fadeRAF);
   img.classList.add('fading');
-  fadeTimer = setTimeout(() => {
-    img.classList.remove('img-error');
-    img.onerror = () => img.classList.add('img-error');
-    img.src = a.photos[idx];
-    img.alt = a.title;
-    img.classList.remove('fading');
-    fadeTimer = null;
-  }, 220);
+  img.classList.remove('img-error');
+  img.onerror = () => img.classList.add('img-error');
+  img.src = a.photos[idx];
+  img.alt = a.title;
+  fadeRAF = requestAnimationFrame(() => {
+    fadeRAF = requestAnimationFrame(() => {
+      img.classList.remove('fading');
+      fadeRAF = null;
+    });
+  });
 
   currentPhotoIdx = idx;
   document.getElementById('slide-counter').textContent =
