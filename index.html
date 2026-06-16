@@ -725,7 +725,7 @@
       align-items: center;
       justify-content: center;
       cursor: zoom-out;
-      touch-action: pan-y;
+      touch-action: none;
     }
     .photo-lightbox.open { display: flex; }
 
@@ -2803,6 +2803,7 @@ function lbResetZoom() {
 
 lbEl.addEventListener('touchstart', e => {
   if (e.touches.length === 2) {
+    e.preventDefault();
     lbPinching = true;
     lbStartDist = lbDist(e.touches[0], e.touches[1]);
     lbStartScale = lbScale;
@@ -2813,7 +2814,7 @@ lbEl.addEventListener('touchstart', e => {
     lbStartPanX = lbPanX;
     lbStartPanY = lbPanY;
   }
-}, { passive: true });
+}, { passive: false });
 
 lbEl.addEventListener('touchmove', e => {
   if (e.touches.length === 2) {
