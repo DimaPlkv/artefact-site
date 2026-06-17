@@ -3503,6 +3503,7 @@ function unlockScroll() {
 }
 
 function openDonateModal() {
+  ym(109842460, 'reachGoal', 'donate_click');
   document.getElementById('donate-modal').classList.add('open');
   lockScroll();
 }
@@ -3524,6 +3525,7 @@ window.addEventListener('beforeinstallprompt', function(e) {
 });
 
 function handleInstallClick() {
+  ym(109842460, 'reachGoal', 'pwa_install_click');
   if (_pwaPrompt) {
     _pwaPrompt.prompt();
     _pwaPrompt.userChoice.then(function() { _pwaPrompt = null; });
@@ -3537,6 +3539,10 @@ function closeInstallIosModal() {
   document.getElementById('install-ios-modal').classList.remove('open');
   unlockScroll();
 }
+
+window.addEventListener('appinstalled', function() {
+  ym(109842460, 'reachGoal', 'pwa_installed');
+});
 
 function showInstallBanner() {
   var b = document.getElementById('install-banner');
@@ -3651,7 +3657,7 @@ if ('serviceWorker' in navigator) {
       <li><span class="install-ios-num">2</span><span>Прокрутите список и&nbsp;выберите <strong>«На&nbsp;экран «Домой»»</strong></span></li>
       <li><span class="install-ios-num">3</span><span>Нажмите <strong>«Добавить»</strong> в&nbsp;правом верхнем углу</span></li>
     </ol>
-    <button class="install-ios-done" onclick="closeInstallIosModal();dismissInstallBanner()">Понятно</button>
+    <button class="install-ios-done" onclick="ym(109842460,'reachGoal','pwa_ios_done');closeInstallIosModal();dismissInstallBanner()">Понятно</button>
   </div>
 </div>
 </body>
