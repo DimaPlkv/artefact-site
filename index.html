@@ -27,6 +27,17 @@
   <meta name="apple-mobile-web-app-status-bar-style" content="black">
   <meta name="apple-mobile-web-app-title" content="Артефакт">
   <link rel="apple-touch-icon" href="icons/icon-192.png">
+  <meta name="description" content="Городской музей, где экспонаты — обычные объекты по всему Томску. Бесплатно, круглосуточно — просто выходи гулять.">
+  <meta property="og:type" content="website">
+  <meta property="og:url" content="https://artefact.gorodnebesit.ru/">
+  <meta property="og:title" content="Артефакт — музей размером с город">
+  <meta property="og:description" content="Городской музей, где экспонаты — обычные объекты по всему Томску. Бесплатно, круглосуточно — просто выходи гулять.">
+  <meta property="og:image" content="https://artefact.gorodnebesit.ru/photos/monstrees2/1-cover.jpg">
+  <meta property="og:locale" content="ru_RU">
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:title" content="Артефакт — музей размером с город">
+  <meta name="twitter:description" content="Городской музей, где экспонаты — обычные объекты по всему Томску. Бесплатно, круглосуточно — просто выходи гулять.">
+  <meta name="twitter:image" content="https://artefact.gorodnebesit.ru/photos/monstrees2/1-cover.jpg">
   <link rel="icon" type="image/png" sizes="32x32" href="icons/favicon-32.png">
   <link rel="icon" type="image/png" sizes="192x192" href="icons/icon-192.png">
   <style>
@@ -2479,9 +2490,7 @@ let currentPhotoIdx = 0;
 let fadeRAF         = null;
 let slideTimeout    = null;
 let mainMap         = null;
-let artMap          = null;
 let mainGeoControl  = null;
-let artMarker       = null;
 const markerMap     = {};
 
 /* ── MapLibre marker element ────────────────────────────────────────────────── */
@@ -2882,30 +2891,6 @@ lbEl.addEventListener('touchend', e => {
   const dx = e.changedTouches[0].clientX - lbTouchX;
   if (Math.abs(dx) > 30) lightboxStep(dx < 0 ? 1 : -1);
 }, { passive: true });
-
-/* ── Artifact mini-map ──────────────────────────────────────────────────────── */
-function initArtifactMap(a) {
-  const el = document.getElementById('artifact-map');
-  if (!artMap) {
-    artMap = new maplibregl.Map({
-      container: el,
-      style: MAP_STYLE,
-      center: [a.lng, a.lat],
-      zoom: 16,
-      scrollZoom: false
-    });
-    artMap.once('load', () => { const l = document.getElementById('artifact-map-loading'); if (l) l.classList.add('hidden'); });
-    artMap.addControl(new maplibregl.NavigationControl({ showCompass: false }), 'bottom-right');
-    artMarker = new maplibregl.Marker({ element: makeDotEl(a.status) })
-      .setLngLat([a.lng, a.lat])
-      .addTo(artMap);
-  } else {
-    artMap.setCenter([a.lng, a.lat]);
-    artMap.setZoom(16);
-    artMarker.setLngLat([a.lng, a.lat]);
-    artMap.resize();
-  }
-}
 
 /* ── Main map ───────────────────────────────────────────────────────────────── */
 function fitAllMarkers() {
