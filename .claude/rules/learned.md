@@ -117,3 +117,51 @@ Grid по умолчанию растягивает items до высоты ст
 
 ### 2026-05-23 — MapLibre: язык подписей меняется только после события load
 OpenFreeMap positron грузит подписи на английском. Переключить на русский: в обработчике `load` итерировать symbol-слои и вызывать `map.setLayoutProperty(id, 'text-field', ['coalesce', ['get', 'name:ru'], ['get', 'name']])`. Для каждой карты отдельно.
+
+### 2026-06-17 — OpenFreeMap CDN (Cloudflare) заблокирован в России без VPN
+MapLibre рендерит маркеры (DOM-элементы) всегда, тайлы (canvas-фон с CDN) — нет. Карта выглядит как точки на белом фоне, через 20с — ошибка. Проблема специфична для `tiles.openfreemap.org` (Cloudflare CDN), а не MapLibre как библиотеки. **Решение:** заменить `MAP_STYLE` на объект с растровыми тайлами OSM (`tile.openstreetmap.org` — собственная инфраструктура OSMF, доступна в РФ) или CARTO Light (`basemaps.cartocdn.com` — Cloudflare, может не работать). CARTO красивее, но рискованнее. При проблемах — откат на OSM за 1 строку. `setMapLanguageRu()` неприменима к растровым тайлам (нет symbol-слоёв) — удалить её вызовы.
+
+### 2026-06-17 — MapLibre: растровые тайлы вместо vector style URL
+Вместо строки `MAP_STYLE = 'https://...'` можно передать объект:
+```js
+const MAP_STYLE = {
+  version: 8,
+  sources: { osm: { type: 'raster', tiles: ['https://a.tile.../{z}/{x}/{y}.png', ...], tileSize: 256, attribution: '...' } },
+  layers: [{ id: 'osm', type: 'raster', source: 'osm' }]
+};
+```
+MapLibre принимает оба формата. Растровые тайлы проще с точки зрения доступности (нет glyphs/sprites/style JSON), но стиль менее гибкий.
+
+### 2026-06-17 — SW `controllerchange` → двойной сплэш при первой установке
+`navigator.serviceWorker.addEventListener('controllerchange', () => location.reload())` срабатывает и при первой установке SW (контроллер меняется с null на активный). Итог: splash показывается дважды — при первом запуске и сразу после перезагрузки. **Решение:** сохранить `var _swInitialController = navigator.serviceWorker.controller` ДО вызова `register()`. В обработчике `controllerchange` перезагружать только если `_swInitialController` был не-null (т.е. обновление существующего SW, а не первая установка).
+
+### 2026-06-17 — Splash SVG должен быть инлайн в HTML, не JS-клон
+Если SVG логотипа клонируется из nav через JS-IIFE, а MapLibre подключён без `defer` — IIFE ждёт загрузки всего JS (~2–3с на медленном соединении). Пользователь видит чёрный экран, потом лого появляется. **Решение:** SVG прямо в `#splash` HTML, без JS. Логотип виден мгновенно при парсинге DOM.
+
+### 2026-06-17 — `display-mode: standalone` в CSS для сплэша
+`splash` по умолчанию `display: none`, показывать только в PWA:
+```css
+.splash { display: none; }
+@media (display-mode: standalone) { .splash { display: flex; } }
+```
+Без этого сплэш мигает в браузере (JS убирает его, но уже был виден). JS-проверка `window.matchMedia('(display-mode: standalone)')` — второй контроль, удаляет элемент из DOM.
+
+### 2026-06-17 — Skeleton shimmer для фото до загрузки
+Показывает анимированный градиент пока фото не загрузилось — вместо пустого серого прямоугольника:
+```css
+@keyframes skeletonShimmer { 0% { background-position: 200% 0; } 100% { background-position: -200% 0; } }
+.card-photo, .photo-slider {
+  background: linear-gradient(90deg, #ebebeb 25%, #dedede 50%, #ebebeb 75%);
+  background-size: 200% 100%;
+  animation: skeletonShimmer 1.6s ease-in-out infinite;
+}
+```
+Применять к контейнеру, а не к `<img>`. Когда фото загрузится, оно перекрывает фон.
+
+### 2026-06-17 — Lightbox и слайдер: onload + класс-флаг для спиннера
+Паттерн для любого места где нужен спиннер на время загрузки фото:
+1. Добавить класс (`.lb-loading`) на контейнер → CSS показывает спиннер
+2. Установить `img.onload = () => { container.classList.remove('lb-loading'); 2×rAF → убрать `.fading`; }`
+3. `img.onerror = () => { container.classList.remove('lb-loading'); img.classList.add('img-error'); }`
+4. Только после этого — `img.src = newSrc`
+Если убирать `.fading` через `setTimeout(220)` без `onload` — старое фото видно 220ms+время_загрузки (двойной «дубль»). Двойной `requestAnimationFrame` нужен чтобы браузер успел применить src до начала fade-in.
