@@ -202,13 +202,23 @@
       border-bottom: 1px solid rgba(0,0,0,0.06);
     }
     .nav-mobile-menu li:last-child .nav-btn { border-bottom: none; }
-    .nav-mobile-menu .nav-install-btn {
-      color: var(--black); border: none; border-radius: 0; padding: 12px 0;
-      width: 100%; text-align: left; font-size: 1.1rem; font-weight: 400;
-      border-bottom: 1px solid rgba(0,0,0,0.06);
+    .nav-mobile-menu li:has(+ .menu-install-li) .nav-btn { border-bottom: none; }
+    .menu-install-li { padding-top: 8px; }
+    .menu-install-card {
+      display: flex; align-items: center; gap: 10px;
+      padding: 12px; border-radius: 14px;
+      border: 1px solid rgba(0,0,0,0.08);
+      cursor: pointer; transition: background 0.15s;
     }
-    .nav-mobile-menu .nav-install-btn::after { display: none; }
-    .nav-mobile-menu .nav-install-btn:hover { border-color: rgba(0,0,0,0.06); }
+    .menu-install-card:hover { background: rgba(0,0,0,0.02); }
+    .menu-install-icon { width: 48px; height: 48px; border-radius: 12px; flex-shrink: 0; }
+    .menu-install-info { flex: 1; min-width: 0; }
+    .menu-install-name { font-size: 0.9rem; font-weight: 700; letter-spacing: -0.01em; }
+    .menu-install-desc { font-size: 0.78rem; font-weight: 300; color: rgba(0,0,0,0.55); margin-top: 2px; }
+    .menu-install-btn-label {
+      background: #2FAE68; color: #fff; border-radius: 20px; padding: 8px 16px;
+      font-family: 'Inter', sans-serif; font-size: 0.85rem; font-weight: 600; white-space: nowrap; flex-shrink: 0;
+    }
 
     @media (max-width: 768px) {
       .nav-links { display: none; }
@@ -1632,13 +1642,11 @@
     .install-banner-name { font-size: 0.9rem; font-weight: 700; line-height: 1.2; letter-spacing: -0.01em; }
     .install-banner-desc { font-size: 0.78rem; font-weight: 300; color: rgba(0,0,0,0.55); margin-top: 1px; line-height: 1.3; }
     .install-banner-btn {
-      background: #2FAE68; color: #fff; border: none;
+      background: #2FAE68; color: #fff;
       border-radius: 20px; padding: 8px 16px;
       font-family: 'Inter', sans-serif; font-size: 0.85rem; font-weight: 600;
-      cursor: pointer; flex-shrink: 0; white-space: nowrap;
-      transition: opacity 0.15s;
+      flex-shrink: 0; white-space: nowrap; pointer-events: none;
     }
-    .install-banner-btn:hover { opacity: 0.85; }
     .install-banner-close {
       background: none; border: none; padding: 8px; cursor: pointer;
       color: rgba(0,0,0,0.3); font-size: 1rem; flex-shrink: 0;
@@ -1680,7 +1688,7 @@
     <li><button class="nav-btn"        data-nav="authors"  onclick="navigate('authors');closeMobileMenu()"><span class="nav-label">Авторы</span></button></li>
     <li><button class="nav-btn"        data-nav="map"      onclick="navigate('map');closeMobileMenu()"><span class="nav-label">Карта</span></button></li>
     <li><button class="nav-btn"        data-nav="about"    onclick="navigate('about');closeMobileMenu()"><span class="nav-label">Музей</span></button></li>
-    <li><button class="nav-btn nav-install-btn"                                          onclick="handleInstallClick();closeMobileMenu()"><span class="nav-label">Приложение</span></button></li>
+    <li class="menu-install-li"><div class="menu-install-card" onclick="handleInstallClick();closeMobileMenu()" role="button" tabindex="0"><img class="menu-install-icon" src="icons/icon-192.png" alt="Артефакт"><div class="menu-install-info"><div class="menu-install-name">Артефакт</div><div class="menu-install-desc">Музей в&nbsp;твоём кармане</div></div><span class="menu-install-btn-label">Скачать</span></div></li>
   </ul>
 </div>
 <div class="nav-overlay" id="nav-overlay" onclick="closeMobileMenu()"></div>
@@ -3376,7 +3384,7 @@ function renderAuthorPage(authorId) {
     if (navLinks)   navLinks.innerHTML   = s.nav.map(n => buildItem(n, false)).join('');
     if (mobileMenu) mobileMenu.innerHTML = s.nav.map(n => buildItem(n, true)).join('');
     if (navLinks)   navLinks.insertAdjacentHTML('beforeend', '<li><button class="nav-btn nav-install-btn" onclick="handleInstallClick()"><span class="nav-label">Приложение</span></button></li>');
-    if (mobileMenu) mobileMenu.insertAdjacentHTML('beforeend', '<li><button class="nav-btn nav-install-btn" onclick="handleInstallClick();closeMobileMenu()"><span class="nav-label">Приложение</span></button></li>');
+    if (mobileMenu) mobileMenu.insertAdjacentHTML('beforeend', '<li class="menu-install-li"><div class="menu-install-card" onclick="handleInstallClick();closeMobileMenu()" role="button" tabindex="0"><img class="menu-install-icon" src="icons/icon-192.png" alt="Артефакт"><div class="menu-install-info"><div class="menu-install-name">Артефакт</div><div class="menu-install-desc">Музей в твоём кармане</div></div><span class="menu-install-btn-label">Скачать</span></div></li>');
     updateNavTheme();
   }
 
@@ -3553,6 +3561,7 @@ setTimeout(function() {
 // Скрыть пункт меню если уже установлено как PWA
 if (window.matchMedia('(display-mode: standalone)').matches || window.navigator.standalone) {
   document.querySelectorAll('.nav-install-btn').forEach(function(el) { el.closest('li').style.display = 'none'; });
+  document.querySelectorAll('.menu-install-li').forEach(function(el) { el.style.display = 'none'; });
 }
 
 /* ── SERVICE WORKER ──────────────────────────────────────────────────────── */
@@ -3618,14 +3627,14 @@ if ('serviceWorker' in navigator) {
 </div>
 
 <!-- ═══ INSTALL BANNER ════════════════════════════════════════════════════ -->
-<div id="install-banner" class="install-banner">
+<div id="install-banner" class="install-banner" onclick="handleInstallClick()" role="button" tabindex="0" style="cursor:pointer">
   <img class="install-banner-icon" src="icons/icon-192.png" alt="Артефакт">
   <div class="install-banner-info">
     <div class="install-banner-name">Артефакт</div>
     <div class="install-banner-desc">Музей в&nbsp;твоём кармане</div>
   </div>
-  <button class="install-banner-btn" onclick="handleInstallClick()">Скачать</button>
-  <button class="install-banner-close" onclick="dismissInstallBanner()" aria-label="Закрыть">✕</button>
+  <span class="install-banner-btn">Скачать</span>
+  <button class="install-banner-close" onclick="event.stopPropagation();dismissInstallBanner()" aria-label="Закрыть">✕</button>
 </div>
 
 <!-- ═══ IOS INSTALL MODAL ═════════════════════════════════════════════════ -->
@@ -3642,7 +3651,7 @@ if ('serviceWorker' in navigator) {
       <li><span class="install-ios-num">2</span><span>Прокрутите список и&nbsp;выберите <strong>«На&nbsp;экран «Домой»»</strong></span></li>
       <li><span class="install-ios-num">3</span><span>Нажмите <strong>«Добавить»</strong> в&nbsp;правом верхнем углу</span></li>
     </ol>
-    <button class="install-ios-done" onclick="closeInstallIosModal();dismissInstallBanner()">Готово</button>
+    <button class="install-ios-done" onclick="closeInstallIosModal();dismissInstallBanner()">Понятно</button>
   </div>
 </div>
 </body>
