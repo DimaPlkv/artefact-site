@@ -1670,8 +1670,8 @@
   <div class="nav-right">
     <ul class="nav-links">
       <li><button class="nav-btn active" data-nav="main"     onclick="navigateToGallery()"><span class="nav-label">Галерея</span></button></li>
-      <li><button class="nav-btn"        data-nav="authors"  onclick="navigate('authors')"><span class="nav-label">Авторы</span></button></li>
       <li><button class="nav-btn"        data-nav="map"      onclick="navigate('map')"><span class="nav-label">Карта</span></button></li>
+      <li><button class="nav-btn"        data-nav="authors"  onclick="navigate('authors')"><span class="nav-label">Авторы</span></button></li>
       <li><button class="nav-btn"        data-nav="about"    onclick="navigate('about')"><span class="nav-label">Музей</span></button></li>
       <li><button class="nav-btn nav-install-btn"                                        onclick="handleInstallClick()"><span class="nav-label">Приложение</span></button></li>
     </ul>
@@ -1685,8 +1685,8 @@
 <div class="nav-mobile-menu" id="nav-mobile-menu">
   <ul>
     <li><button class="nav-btn active" data-nav="main"     onclick="navigateToGallery();closeMobileMenu()"><span class="nav-label">Галерея</span></button></li>
-    <li><button class="nav-btn"        data-nav="authors"  onclick="navigate('authors');closeMobileMenu()"><span class="nav-label">Авторы</span></button></li>
     <li><button class="nav-btn"        data-nav="map"      onclick="navigate('map');closeMobileMenu()"><span class="nav-label">Карта</span></button></li>
+    <li><button class="nav-btn"        data-nav="authors"  onclick="navigate('authors');closeMobileMenu()"><span class="nav-label">Авторы</span></button></li>
     <li><button class="nav-btn"        data-nav="about"    onclick="navigate('about');closeMobileMenu()"><span class="nav-label">Музей</span></button></li>
     <li class="menu-install-li"><div class="menu-install-card" onclick="handleInstallClick();closeMobileMenu()" role="button" tabindex="0"><img class="menu-install-icon" src="icons/icon-192.png" alt="Артефакт"><div class="menu-install-info"><div class="menu-install-name">Артефакт</div><div class="menu-install-desc">Музей в&nbsp;твоём кармане</div></div><span class="menu-install-btn-label">Скачать</span></div></li>
   </ul>
@@ -2499,12 +2499,12 @@ const SITE_DATA = {
         "label": "Галерея"
       },
       {
-        "id": "authors",
-        "label": "Авторы"
-      },
-      {
         "id": "map",
         "label": "Карта"
+      },
+      {
+        "id": "authors",
+        "label": "Авторы"
       },
       {
         "id": "about",
