@@ -2485,16 +2485,20 @@ let artMarker       = null;
 const markerMap     = {};
 
 /* ── MapLibre marker element ────────────────────────────────────────────────── */
-const MAP_STYLE = 'https://tiles.openfreemap.org/styles/positron';
-function setMapLanguageRu(map) {
-  map.on('load', () => {
-    map.getStyle().layers.forEach(layer => {
-      if (layer.type === 'symbol' && layer.layout && layer.layout['text-field']) {
-        map.setLayoutProperty(layer.id, 'text-field', ['coalesce', ['get', 'name:ru'], ['get', 'name']]);
-      }
-    });
-  });
-}
+const MAP_STYLE = {
+  version: 8,
+  sources: { osm: {
+    type: 'raster',
+    tiles: [
+      'https://a.tile.openstreetmap.org/{z}/{x}/{y}.png',
+      'https://b.tile.openstreetmap.org/{z}/{x}/{y}.png',
+      'https://c.tile.openstreetmap.org/{z}/{x}/{y}.png'
+    ],
+    tileSize: 256,
+    attribution: '© <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
+  }},
+  layers: [{ id: 'osm', type: 'raster', source: 'osm' }]
+};
 
 function makeDotEl(status) {
   const el = document.createElement('div');
@@ -2891,7 +2895,6 @@ function initArtifactMap(a) {
     });
     artMap.once('load', () => { const l = document.getElementById('artifact-map-loading'); if (l) l.classList.add('hidden'); });
     artMap.addControl(new maplibregl.NavigationControl({ showCompass: false }), 'bottom-right');
-    setMapLanguageRu(artMap);
     artMarker = new maplibregl.Marker({ element: makeDotEl(a.status) })
       .setLngLat([a.lng, a.lat])
       .addTo(artMap);
@@ -2946,7 +2949,6 @@ function initMainMap() {
     fitAllMarkers();
   });
   mainMap.addControl(new maplibregl.NavigationControl({ showCompass: false }), 'bottom-right');
-  setMapLanguageRu(mainMap);
 
   artifacts.forEach(a => {
     const dot = a.status === 'В городе' ? '#2ea62e' : '#d63c3c';
