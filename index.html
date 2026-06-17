@@ -253,11 +253,17 @@
 
     .card { cursor: pointer; }
 
+    @keyframes skeletonShimmer {
+      0%   { background-position: 200% 0; }
+      100% { background-position: -200% 0; }
+    }
     .card-photo {
       position: relative;
       aspect-ratio: 4 / 3;
       overflow: hidden;
-      background: #e8e8e8;
+      background: linear-gradient(90deg, #ebebeb 25%, #dedede 50%, #ebebeb 75%);
+      background-size: 200% 100%;
+      animation: skeletonShimmer 1.6s ease-in-out infinite;
       border-radius: 12px;
     }
     .card-photo img {
@@ -519,6 +525,9 @@
       position: relative;
       cursor: zoom-in;
       touch-action: pan-y;
+      background: linear-gradient(90deg, #ebebeb 25%, #dedede 50%, #ebebeb 75%);
+      background-size: 200% 100%;
+      animation: skeletonShimmer 1.6s ease-in-out infinite;
     }
     .slider-img {
       width: 100%; height: 100%;
@@ -697,9 +706,11 @@
     }
     .expl-anchor-btn:hover::after { transform: scaleX(1); }
     .map-loading {
-      position: absolute; inset: 0; display: flex; align-items: center; justify-content: center;
-      font-size: 0.82rem; font-weight: 300; opacity: 0.4; pointer-events: none;
-      transition: opacity 0.3s;
+      position: absolute; bottom: 12px; left: 50%; transform: translateX(-50%);
+      font-size: 0.75rem; font-weight: 400;
+      background: rgba(255,255,255,0.88); backdrop-filter: blur(6px);
+      padding: 5px 12px; border-radius: 20px; white-space: nowrap;
+      pointer-events: none; transition: opacity 0.3s; z-index: 5;
     }
     .map-loading.hidden { opacity: 0; pointer-events: none; }
     .map-error {
@@ -2455,6 +2466,7 @@ let currentView     = 'main';
 let currentArtifact = null;
 let currentPhotoIdx = 0;
 let fadeRAF         = null;
+let slideTimeout    = null;
 let mainMap         = null;
 let artMap          = null;
 let mainGeoControl  = null;
@@ -2714,17 +2726,20 @@ function setSlide(a, idx) {
   const solo = a.photos.length <= 1;
 
   if (fadeRAF) cancelAnimationFrame(fadeRAF);
+  if (slideTimeout) clearTimeout(slideTimeout);
   img.classList.add('fading');
   img.classList.remove('img-error');
-  img.onerror = () => img.classList.add('img-error');
-  img.src = a.photos[idx];
-  img.alt = a.title;
-  fadeRAF = requestAnimationFrame(() => {
-    fadeRAF = requestAnimationFrame(() => {
+  img.onerror = () => { img.classList.add('img-error'); img.classList.remove('fading'); };
+  img.onload = () => {
+    if (slideTimeout) clearTimeout(slideTimeout);
+    fadeRAF = requestAnimationFrame(() => requestAnimationFrame(() => {
       img.classList.remove('fading');
       fadeRAF = null;
-    });
-  });
+    }));
+  };
+  img.src = a.photos[idx];
+  img.alt = a.title;
+  slideTimeout = setTimeout(() => img.classList.remove('fading'), 5000);
 
   currentPhotoIdx = idx;
   document.getElementById('slide-counter').textContent =
@@ -2900,7 +2915,7 @@ function initMainMap() {
   mainMapTimeout = setTimeout(() => {
     if (loadingEl) loadingEl.classList.add('hidden');
     if (errorEl) errorEl.classList.remove('hidden');
-  }, 9000);
+  }, 20000);
 
   mainMap.once('load', () => {
     clearTimeout(mainMapTimeout);
