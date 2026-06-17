@@ -736,7 +736,9 @@
       display: block;
       cursor: default;
       touch-action: none;
+      transition: opacity 0.22s ease;
     }
+    .lightbox-img.fading { opacity: 0; }
 
     .lightbox-close {
       position: absolute;
@@ -2767,8 +2769,10 @@ function lightboxStep(dir) {
   const newIdx = (currentPhotoIdx + dir + total) % total;
   setSlide(currentArtifact, newIdx);
   const lbImg2 = document.getElementById('lightbox-img');
+  lbImg2.classList.add('fading');
   lbImg2.classList.remove('img-error');
   lbImg2.onerror = () => lbImg2.classList.add('img-error');
+  lbImg2.onload = () => requestAnimationFrame(() => requestAnimationFrame(() => lbImg2.classList.remove('fading')));
   lbImg2.src = currentArtifact.photos[newIdx];
   document.getElementById('lb-counter').textContent = `${newIdx + 1} / ${total}`;
   lbResetZoom();

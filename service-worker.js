@@ -1,4 +1,4 @@
-const CACHE = 'artefact-v3';
+const CACHE = 'artefact-v4';
 
 self.addEventListener('install', (e) => {
   e.waitUntil(
@@ -18,6 +18,9 @@ self.addEventListener('activate', (e) => {
 
 self.addEventListener('fetch', (e) => {
   const url = new URL(e.request.url);
+
+  // Cross-origin requests (MapLibre tiles, fonts, CDN) — let browser handle natively
+  if (url.origin !== self.location.origin) return;
 
   // HTML — network first, cache fallback
   if (e.request.mode === 'navigate') {
@@ -43,6 +46,6 @@ self.addEventListener('fetch', (e) => {
     return;
   }
 
-  // Everything else — network
+  // Everything else same-origin — network, cache fallback
   e.respondWith(fetch(e.request).catch(() => caches.match(e.request)));
 });
