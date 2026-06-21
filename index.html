@@ -711,6 +711,47 @@
       z-index: -1;
     }
     .artifact-addr:hover #art-addr-text::after { transform: scaleX(1); }
+    .art-like-btn {
+      display: inline-flex; align-items: center; gap: 7px;
+      background: none; border: 1.5px solid rgba(0,0,0,0.22); border-radius: 12px;
+      height: 44px; padding: 0 22px 0 16px; margin-top: 0;
+      cursor: pointer; font-family: 'Inter', sans-serif;
+      font-size: 0.9rem; font-weight: 600; color: var(--black);
+      transition: border-color 0.15s, color 0.15s;
+    }
+    .art-like-btn:hover { border-color: rgba(0,0,0,0.45); }
+    .art-like-btn.liked { color: #2FAE68; border-color: #2FAE68; }
+    .heart-fill { fill: none; transition: fill 0.15s; }
+    .art-like-btn.liked .heart-fill,
+    .card-like.liked .heart-fill { fill: currentColor; }
+    .card-like-wrap {
+      position: absolute; top: 16px; right: 18px; z-index: 3;
+      display: flex; flex-direction: column; align-items: center; gap: 6px;
+      opacity: 0; transform: scale(0.5) translateY(-6px);
+      transition: transform 0.28s cubic-bezier(0.34,1.56,0.64,1), opacity 0.22s ease;
+      pointer-events: none;
+    }
+    @media (hover: hover) { .card:hover .card-like-wrap { opacity: 1; transform: none; } }
+    @media (hover: none) {
+      .card-like-wrap { opacity: 1; transform: none; }
+      .card-like { width: 44px; height: 44px; background: rgba(255,255,255,0.88); color: var(--black); }
+      .card-like:hover { background: rgba(255,255,255,0.88); }
+      .card-like.liked { background: #2FAE68; color: #fff; }
+      .card-like.liked .heart-fill { fill: #fff; }
+    }
+    .card-like {
+      background: rgba(255,255,255,0.18); border: none; border-radius: 50%;
+      width: 38px; height: 38px;
+      display: flex; align-items: center; justify-content: center;
+      cursor: pointer; color: #fff; pointer-events: auto;
+      transition: background 0.15s;
+    }
+    .card-like:hover { background: rgba(255,255,255,0.30); }
+    .card-like-count {
+      font-size: 1rem; font-weight: 600; letter-spacing: -0.02em; color: rgba(255,255,255,0.9);
+      text-shadow: 0 1px 3px rgba(0,0,0,0.5); display: none;
+    }
+    .card-like-wrap.counted .card-like-count { display: block; }
     .expl-anchor-btn {
       background: none; border: none;
       font-family: inherit; font-size: inherit; font-weight: inherit; letter-spacing: inherit;
@@ -1505,6 +1546,7 @@
       .au-statement { margin-top: 0; }
       .au-bio { margin-top: 24px; padding-top: 0; }
       .au-works-grid { grid-template-columns: repeat(2, 1fr); column-gap: 16px; row-gap: 36px; }
+      .au-works-grid .card-like-wrap { top: 8px; right: 8px; }
       .ab-body { grid-template-columns: 1fr; }
       .ab-lead { position: relative; top: auto; }
 
@@ -1839,6 +1881,7 @@
 
       <div class="artifact-content-col">
         <div class="artifact-desc" id="art-desc"></div>
+        <button class="art-like-btn" id="art-like-btn" onclick="handleArtLike()"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path class="heart-fill" d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg><span class="art-like-label">Нравится</span></button>
         <button class="artifact-addr" id="art-addr-block">
           <svg width="12" height="15" viewBox="0 0 12 15" fill="currentColor"><path d="M6 0C3.24 0 1 2.24 1 5c0 3.75 5 10 5 10s5-6.25 5-10c0-2.76-2.24-5-5-5Zm0 6.75A1.75 1.75 0 1 1 6 3.25a1.75 1.75 0 0 1 0 3.5Z"/></svg>
           <span id="art-addr-text"></span>
@@ -2679,6 +2722,7 @@ function renderGallery() {
         <div class="card-photo">
           <img src="${a.photos[0]}" alt="${escHtml(a.title)}" loading="lazy" decoding="async" onerror="this.classList.add('img-error')">
           ${a.photos[1] && supportsHover ? `<img class="card-img-hover" src="${a.photos[1]}" alt="${escHtml(a.title)}" loading="lazy" decoding="async" onerror="this.classList.add('img-error')">` : ''}
+          <div class="card-like-wrap" id="card-like-wrap-${a.id}"><button class="card-like${isLiked(a.id) ? ' liked' : ''}" onclick="event.stopPropagation();toggleCardLike(${a.id},this)" aria-label="Нравится"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.85" stroke-linecap="round" stroke-linejoin="round"><path class="heart-fill" d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg></button><span class="card-like-count"></span></div>
           <span class="card-status ${cls}">${escHtml(a.status)}</span>
           <div class="card-hover">
             <div class="card-hover-bottom">
@@ -2762,6 +2806,7 @@ function renderArtifact(a) {
   const addrBtn  = document.getElementById('art-addr-block');
   if (addrText) addrText.textContent = typo(a.address) || '';
   if (addrBtn)  addrBtn.onclick = () => navigateToMapArtifact(a.id);
+  loadArtLike(a.id);
 
   const arts = SITE_DATA.artifacts;
   const idx = arts.findIndex(x => x.id === a.id);
@@ -3331,6 +3376,7 @@ function renderAuthorPage(authorId) {
     return '<div class="card" onclick="navigate(\'artifact\',' + art.id + ')">' +
       '<div class="card-photo">' +
         '<img src="' + escHtml(art.photos[0] || '') + '" alt="' + escHtml(art.title) + '" loading="' + (i < 2 ? 'eager' : 'lazy') + '">' +
+        '<div class="card-like-wrap" id="card-like-wrap-' + art.id + '"><button class="card-like' + (isLiked(art.id) ? ' liked' : '') + '" onclick="event.stopPropagation();toggleCardLike(' + art.id + ',this)" aria-label="Нравится"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.85" stroke-linecap="round" stroke-linejoin="round"><path class="heart-fill" d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg></button><span class="card-like-count"></span></div>' +
         '<span class="card-status ' + statusCls + '">' + escHtml(art.status) + '</span>' +
         '<div class="card-hover">' +
           '<div class="card-hover-bottom">' +
@@ -3348,6 +3394,7 @@ function renderAuthorPage(authorId) {
       '</div>' +
     '</div>';
   }).join('');
+  setTimeout(loadAllCardLikes, 0);
 
   // Next author
   const authors = SITE_DATA.authors || [];
@@ -3414,6 +3461,7 @@ function renderAuthorPage(authorId) {
 })();
 
 renderGallery();
+setTimeout(loadAllCardLikes, 0);
 renderAbout();
 renderContacts();
 renderAuthorsList();
@@ -3579,6 +3627,108 @@ setTimeout(function() {
 if (window.matchMedia('(display-mode: standalone)').matches || window.navigator.standalone) {
   document.querySelectorAll('.nav-install-btn').forEach(function(el) { el.closest('li').style.display = 'none'; });
   document.querySelectorAll('.menu-install-li').forEach(function(el) { el.style.display = 'none'; });
+}
+
+/* ── LIKES ───────────────────────────────────────────────────────────────── */
+const LIKES_URL = 'https://artefact-likes.postyler.workers.dev/';
+function isLiked(id) {
+  try { return !!(JSON.parse(localStorage.getItem('artefact-liked') || '{}')[id]); } catch(e) { return false; }
+}
+function setLiked(id, val) {
+  try {
+    var d = JSON.parse(localStorage.getItem('artefact-liked') || '{}');
+    if (val) d[id] = 1; else delete d[id];
+    localStorage.setItem('artefact-liked', JSON.stringify(d));
+  } catch(e) {}
+}
+// Tracks whether a POST was already sent for this id (prevent double-counting on re-like)
+function hasPostedLike(id) {
+  try { return !!(JSON.parse(localStorage.getItem('artefact-liked-posted') || '{}')[id]); } catch(e) { return false; }
+}
+function markPostedLike(id) {
+  try {
+    var d = JSON.parse(localStorage.getItem('artefact-liked-posted') || '{}');
+    d[id] = 1; localStorage.setItem('artefact-liked-posted', JSON.stringify(d));
+  } catch(e) {}
+}
+var _currentArtId = null;
+function setArtLike(count, liked) {
+  var btn = document.getElementById('art-like-btn');
+  if (!btn) return;
+  var label = btn.querySelector('.art-like-label');
+  label.textContent = count > 0 ? 'Нравится ' + count : 'Нравится';
+  if (liked) btn.classList.add('liked'); else btn.classList.remove('liked');
+}
+function loadArtLike(id) {
+  _currentArtId = id;
+  setArtLike(0, isLiked(id));
+  fetch(LIKES_URL + '?id=' + id)
+    .then(function(r) { return r.json(); })
+    .then(function(d) { setArtLike(d.likes || 0, isLiked(id)); })
+    .catch(function() {});
+}
+function handleArtLike() {
+  var id = _currentArtId; if (!id) return;
+  var btn = document.getElementById('art-like-btn'); if (!btn) return;
+  var label = btn.querySelector('.art-like-label');
+  var m = label.textContent.match(/(\d+)/);
+  var count = m ? parseInt(m[1]) : 0;
+  if (isLiked(id)) {
+    setLiked(id, false);
+    setArtLike(Math.max(0, count - 1), false);
+  } else {
+    setLiked(id, true);
+    setArtLike(count + 1, true);
+    if (!hasPostedLike(id)) {
+      markPostedLike(id);
+      fetch(LIKES_URL + '?id=' + id, { method: 'POST' })
+        .then(function(r) { return r.json(); })
+        .then(function(d) { setArtLike(d.likes || count + 1, true); })
+        .catch(function() {});
+    }
+  }
+}
+function _allCardWraps(id) {
+  return document.querySelectorAll('#card-like-wrap-' + id);
+}
+function _setWrapCount(wraps, count) {
+  wraps.forEach(function(w) {
+    w.querySelector('.card-like-count').textContent = count;
+    if (count) w.classList.add('counted'); else w.classList.remove('counted');
+  });
+}
+function toggleCardLike(id, btn) {
+  var wraps = _allCardWraps(id);
+  var firstCountEl = wraps[0] ? wraps[0].querySelector('.card-like-count') : null;
+  var current = firstCountEl ? (parseInt(firstCountEl.textContent) || 0) : 0;
+  if (isLiked(id)) {
+    setLiked(id, false);
+    wraps.forEach(function(w) { w.querySelector('.card-like').classList.remove('liked'); });
+    _setWrapCount(wraps, Math.max(0, current - 1));
+  } else {
+    setLiked(id, true); btn.classList.add('liked');
+    wraps.forEach(function(w) { w.querySelector('.card-like').classList.add('liked'); });
+    if (!hasPostedLike(id)) {
+      markPostedLike(id);
+      fetch(LIKES_URL + '?id=' + id, { method: 'POST' })
+        .then(function(r) { return r.json(); })
+        .then(function(d) { _setWrapCount(wraps, d.likes || current + 1); })
+        .catch(function() { _setWrapCount(wraps, current + 1); });
+    } else {
+      _setWrapCount(wraps, current + 1);
+    }
+  }
+}
+function loadAllCardLikes() {
+  artifacts.forEach(function(a) {
+    fetch(LIKES_URL + '?id=' + a.id)
+      .then(function(r) { return r.json(); })
+      .then(function(d) {
+        if (!d.likes) return;
+        _setWrapCount(_allCardWraps(a.id), d.likes);
+      })
+      .catch(function() {});
+  });
 }
 
 /* ── SERVICE WORKER ──────────────────────────────────────────────────────── */
