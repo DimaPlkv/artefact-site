@@ -736,8 +736,6 @@
       .card-like-wrap { opacity: 1; transform: none; }
       .card-like { width: 44px; height: 44px; background: rgba(255,255,255,0.88); color: var(--black); }
       .card-like:hover { background: rgba(255,255,255,0.88); }
-      .card-like.liked { background: #2FAE68; color: #fff; }
-      .card-like.liked .heart-fill { fill: #fff; }
     }
     .card-like {
       background: rgba(255,255,255,0.18); border: none; border-radius: 50%;
@@ -747,6 +745,9 @@
       transition: background 0.15s;
     }
     .card-like:hover { background: rgba(255,255,255,0.30); }
+    .card-like.liked { background: #2FAE68; color: #fff; }
+    .card-like.liked:hover { background: #27a05e; }
+    .card-like.liked .heart-fill { fill: #fff; }
     .card-like-count {
       font-size: 1rem; font-weight: 600; letter-spacing: -0.02em; color: rgba(255,255,255,0.9);
       text-shadow: 0 1px 3px rgba(0,0,0,0.5); display: none;
