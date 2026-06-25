@@ -2699,7 +2699,8 @@ function navigate(view, artifactId, noPush) {
   currentView = view;
 
   if (view === 'artifact' && artifactId !== undefined) {
-    currentArtifact = artifacts.find(a => a.id === artifactId);
+    currentArtifact = artifacts.find(a => a.id === artifactId) || artifacts.find(a => String(a.id) === String(artifactId));
+    if (!currentArtifact) { document.getElementById('view-main').classList.add('active'); return; }
     currentPhotoIdx = 0;
     renderArtifact(currentArtifact);
     document.getElementById('view-artifact').classList.add('active');

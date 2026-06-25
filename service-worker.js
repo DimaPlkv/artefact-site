@@ -1,4 +1,4 @@
-const CACHE = 'artefact-v5';
+const CACHE = 'artefact-v6';
 
 self.addEventListener('install', (e) => {
   e.waitUntil(
@@ -22,11 +22,15 @@ self.addEventListener('fetch', (e) => {
   // Cross-origin requests (MapLibre tiles, fonts, CDN) — let browser handle natively
   if (url.origin !== self.location.origin) return;
 
-  // HTML — network first, cache fallback
+  // HTML — network first; non-OK (GitHub 404) or offline → serve cached index.html (SPA routing)
   if (e.request.mode === 'navigate') {
     e.respondWith(
       fetch(e.request)
-        .then(r => { caches.open(CACHE).then(c => c.put(e.request, r.clone())); return r; })
+        .then(r => {
+          if (!r.ok) return caches.match('/index.html');
+          caches.open(CACHE).then(c => c.put(e.request, r.clone()));
+          return r;
+        })
         .catch(() => caches.match('/index.html'))
     );
     return;
