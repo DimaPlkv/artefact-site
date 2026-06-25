@@ -753,6 +753,26 @@
       text-shadow: 0 1px 3px rgba(0,0,0,0.5); display: none;
     }
     .card-like-wrap.counted .card-like-count { display: block; }
+    .art-share-btn {
+      display: inline-flex; align-items: center; gap: 7px;
+      background: none; border: 1.5px solid rgba(0,0,0,0.22); border-radius: 12px;
+      height: 44px; padding: 0 22px 0 16px;
+      cursor: pointer; font-family: 'Inter', sans-serif;
+      font-size: 0.9rem; font-weight: 600; color: var(--black);
+      transition: border-color 0.15s;
+    }
+    .art-share-btn:hover { border-color: rgba(0,0,0,0.45); }
+    .art-btn-row { display: flex; gap: 8px; flex-wrap: wrap; align-items: center; }
+    .copy-toast {
+      position: fixed; bottom: 32px; left: 50%; transform: translateX(-50%) translateY(12px);
+      background: var(--black); color: var(--white);
+      padding: 10px 20px; border-radius: 10px;
+      font-size: 0.875rem; font-weight: 500; white-space: nowrap;
+      opacity: 0; pointer-events: none;
+      transition: opacity 0.2s ease, transform 0.2s ease;
+      z-index: 9000;
+    }
+    .copy-toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
     .expl-anchor-btn {
       background: none; border: none;
       font-family: inherit; font-size: inherit; font-weight: inherit; letter-spacing: inherit;
@@ -1882,7 +1902,10 @@
 
       <div class="artifact-content-col">
         <div class="artifact-desc" id="art-desc"></div>
-        <button class="art-like-btn" id="art-like-btn" onclick="handleArtLike()"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path class="heart-fill" d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg><span class="art-like-label">Нравится</span></button>
+        <div class="art-btn-row">
+          <button class="art-like-btn" id="art-like-btn" onclick="handleArtLike()"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path class="heart-fill" d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg><span class="art-like-label">Нравится</span></button>
+          <button class="art-share-btn" onclick="shareArtifact()"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/><line x1="8.59" y1="13.51" x2="15.42" y2="17.49"/><line x1="15.41" y1="6.51" x2="8.59" y2="10.49"/></svg>Поделиться</button>
+        </div>
         <button class="artifact-addr" id="art-addr-block">
           <svg width="12" height="15" viewBox="0 0 12 15" fill="currentColor"><path d="M6 0C3.24 0 1 2.24 1 5c0 3.75 5 10 5 10s5-6.25 5-10c0-2.76-2.24-5-5-5Zm0 6.75A1.75 1.75 0 1 1 6 3.25a1.75 1.75 0 0 1 0 3.5Z"/></svg>
           <span id="art-addr-text"></span>
@@ -3732,6 +3755,37 @@ function loadAllCardLikes() {
   });
 }
 
+/* ── SHARE ───────────────────────────────────────────────────────────────── */
+var _toastTimer = null;
+function _showCopyToast() {
+  var t = document.getElementById('copy-toast');
+  if (!t) return;
+  t.classList.add('show');
+  clearTimeout(_toastTimer);
+  _toastTimer = setTimeout(function() { t.classList.remove('show'); }, 2200);
+}
+function shareArtifact() {
+  var url = location.protocol === 'file:'
+    ? location.href
+    : location.origin + '/artifact/' + (_currentArtId || '');
+  if (navigator.clipboard && navigator.clipboard.writeText) {
+    navigator.clipboard.writeText(url).then(_showCopyToast).catch(function() {
+      _fallbackCopy(url);
+    });
+  } else {
+    _fallbackCopy(url);
+  }
+}
+function _fallbackCopy(text) {
+  var ta = document.createElement('textarea');
+  ta.value = text;
+  ta.style.cssText = 'position:fixed;top:-9999px;left:-9999px';
+  document.body.appendChild(ta);
+  ta.select();
+  try { document.execCommand('copy'); _showCopyToast(); } catch(e) {}
+  document.body.removeChild(ta);
+}
+
 /* ── SERVICE WORKER ──────────────────────────────────────────────────────── */
 if ('serviceWorker' in navigator) {
   var _swInitialController = navigator.serviceWorker.controller;
@@ -3822,5 +3876,6 @@ if ('serviceWorker' in navigator) {
     <button class="install-ios-done" onclick="ym(109842460,'reachGoal','pwa_ios_done');closeInstallIosModal();dismissInstallBanner()">Понятно</button>
   </div>
 </div>
+<div class="copy-toast" id="copy-toast">Ссылка скопирована</div>
 </body>
 </html>
