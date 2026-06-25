@@ -3657,7 +3657,7 @@ if (window.matchMedia('(display-mode: standalone)').matches || window.navigator.
 }
 
 /* ── LIKES ───────────────────────────────────────────────────────────────── */
-const LIKES_URL = 'https://artefact-likes.postyler.workers.dev/';
+var LIKES_URL = 'https://artefact-likes.postyler.workers.dev/';
 function isLiked(id) {
   try { return !!(JSON.parse(localStorage.getItem('artefact-liked') || '{}')[id]); } catch(e) { return false; }
 }
